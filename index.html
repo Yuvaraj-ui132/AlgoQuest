@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AlgoForge DSA Dashboard</title>
+  <meta name="description"
+    content="Personal DSA practice platform for TCS NQT, TCS Digital and placement preparation. Track progress, solve problems, and master DSA patterns." />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <!-- Firebase SDK Compat CDN -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <!-- Monaco Editor Loader -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+
+  <!-- App CSS -->
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body>
+  <div id="app">
+
+    <!-- ======================================================
+       SIDEBAR
+       ====================================================== -->
+    <aside id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo" title="AlgoForge DSA Dashboard">⚡</div>
+        <div>
+          <div class="sidebar-title">AlgoForge</div>
+          <div class="sidebar-subtitle">DSA Dashboard</div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav" id="sidebar-nav">
+        <!-- Dynamically populated by app.js -->
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="stats-mini">
+          <div class="stats-mini-label">Overall Progress</div>
+          <div class="stats-mini-bar">
+            <div class="stats-mini-fill" id="sidebar-progress-fill" style="width:0%"></div>
+          </div>
+          <div class="stats-mini-text" id="sidebar-progress-text">0/0 Solved</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ======================================================
+       MAIN CONTENT
+       ====================================================== -->
+    <div id="main-content">
+
+      <!-- TOP BAR -->
+      <header id="topbar">
+        <div class="topbar-left">
+          <button id="sidebar-toggle" title="Toggle Sidebar">
+            <i class="fas fa-bars"></i>
+          </button>
+          <div>
+            <div class="page-title" id="page-title">Dashboard</div>
+            <div class="page-breadcrumb" id="page-breadcrumb">Placement Preparation</div>
+          </div>
+        </div>
+
+        <div class="topbar-center">
+          <div class="search-wrapper hidden">
+            <i class="fas fa-search"></i>
+            <input type="text" id="search-input" placeholder="Search questions… (Ctrl+K)" autocomplete="off"
+              spellcheck="false" />
+          </div>
+        </div>
+
+        <!-- Filters — only visible on All Questions & Topic pages -->
+        <div class="topbar-filters hidden" id="topbar-filters">
+          <!-- Difficulty -->
+          <div class="filter-group">
+            <button class="filter-btn active" data-filter-diff="all">All</button>
+            <button class="filter-btn easy" data-filter-diff="easy">Easy</button>
+            <button class="filter-btn medium" data-filter-diff="medium">Med</button>
+            <button class="filter-btn hard" data-filter-diff="hard">Hard</button>
+          </div>
+          <!-- Tier -->
+          <div class="filter-group">
+            <button class="filter-btn active" data-filter-tier="all">All</button>
+            <button class="filter-btn core" data-filter-tier="core">Core</button>
+            <button class="filter-btn advanced" data-filter-tier="advanced">Adv</button>
+            <button class="filter-btn optional" data-filter-tier="optional">Opt</button>
+          </div>
+          <!-- TCS -->
+          <div class="filter-group">
+            <button class="filter-btn active" data-filter-tcs="all">All</button>
+            <button class="filter-btn tcs" data-filter-tcs="tcs">TCS</button>
+            <button class="filter-btn" data-filter-tcs="non-tcs">Non-TCS</button>
+          </div>
+          <!-- Status -->
+          <div class="filter-group">
+            <button class="filter-btn active" data-filter-status="all">All</button>
+            <button class="filter-btn" data-filter-status="solved">Solved</button>
+            <button class="filter-btn" data-filter-status="unsolved">Unsolved</button>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <!-- Guest Mode Sign In Button -->
+          <button id="guest-signin-btn" class="action-btn primary"
+            style="font-size:11.5px;padding:5px 12px;display:none;">
+            <i class="fas fa-sign-in-alt"></i> Sign In
+          </button>
+
+          <!-- User Profile Dropdown -->
+          <div class="profile-dropdown-container" id="profile-container" style="display:none;">
+            <button id="profile-btn" class="profile-btn" title="User Profile">
+              <span class="avatar-placeholder" id="user-avatar-initials">U</span>
+            </button>
+            <div class="profile-dropdown" id="profile-dropdown">
+              <div class="profile-dropdown-header">
+                <div class="profile-name" id="user-profile-name">User Name</div>
+                <div class="profile-email" id="user-profile-email">user@example.com</div>
+              </div>
+              <div class="profile-dropdown-divider"></div>
+              <button class="profile-dropdown-item" onclick="navigateTo('bookmarks')">
+                <i class="fas fa-bookmark" style="color:var(--accent-yellow);margin-right:6px;"></i>Bookmarks
+              </button>
+              <div class="profile-dropdown-divider"></div>
+              <button class="profile-dropdown-item logout-btn" id="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Log Out
+              </button>
+            </div>
+          </div>
+
+          <button id="theme-toggle" class="icon-btn" title="Toggle Theme">
+            <i class="fas fa-sun"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- ======================================================
+         CONTENT AREA
+         ====================================================== -->
+      <div id="content-area">
+
+        <!-- ==================================================
+           PAGE: DASHBOARD
+           ================================================== -->
+        <div id="page-dashboard" class="page active">
+          <div class="dash-inner">
+
+            <!-- Streak Banner -->
+            <div class="streak-banner">
+              <div class="streak-left">
+                <div class="streak-icon">🔥</div>
+                <div class="streak-info">
+                  <h3>Keep Grinding!</h3>
+                  <p>Consistency is the key to placement success</p>
+                </div>
+              </div>
+              <div>
+                <div class="streak-count" id="streak-count">0</div>
+                <div class="streak-label">Day Streak</div>
+              </div>
+            </div>
+
+            <!-- Main Stats Row -->
+            <div>
+              <div class="section-header">
+                <div class="section-title"><i class="fas fa-chart-line"></i> Overview</div>
+                <button class="action-btn" onclick="navigateTo('compiler')" style="font-size:11.5px;padding:4px 10px;">
+                  <i class="fas fa-code"></i> Open Editor
+                </button>
+              </div>
+              <div class="stats-row">
+                <div class="stat-card">
+                  <div class="sc-label">Total Questions</div>
+                  <div class="sc-value accent-blue" id="stat-total" style="color:var(--accent-blue-light)">0</div>
+                </div>
+                <div class="stat-card accent-green">
+                  <div class="sc-label">Solved</div>
+                  <div class="sc-value" id="stat-solved">0</div>
+                  <div class="sc-sub" id="stat-pct-sub">0% complete</div>
+                </div>
+                <div class="stat-card accent-red">
+                  <div class="sc-label">Remaining</div>
+                  <div class="sc-value" id="stat-unsolved">0</div>
+                </div>
+                <div class="stat-card accent-orange">
+                  <div class="sc-label">Revision Pending</div>
+                  <div class="sc-value" id="stat-rev">0</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tier Stats -->
+            <div>
+              <div class="section-header">
+                <div class="section-title"><i class="fas fa-layer-group"></i> Progress by Tier</div>
+              </div>
+              <div class="tier-stats-row">
+                <div class="tier-stat">
+                  <div class="tier-stat-icon">⭐</div>
+                  <div class="tier-stat-info">
+                    <div class="ts-label">Core</div>
+                    <div class="ts-value" id="stat-core">0/0</div>
+                  </div>
+                </div>
+                <div class="tier-stat">
+                  <div class="tier-stat-icon">🚀</div>
+                  <div class="tier-stat-info">
+                    <div class="ts-label">Advanced</div>
+                    <div class="ts-value" id="stat-advanced">0/0</div>
+                  </div>
+                </div>
+                <div class="tier-stat">
+                  <div class="tier-stat-icon">⚙️</div>
+                  <div class="tier-stat-info">
+                    <div class="ts-label">Optional</div>
+                    <div class="ts-value" id="stat-optional">0/0</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="dashboard-charts">
+              <div class="chart-card">
+                <div class="section-header" style="margin-bottom:10px">
+                  <div class="section-title"><i class="fas fa-chart-bar"></i> Topic Progress</div>
+                </div>
+                <div class="chart-canvas-wrap">
+                  <canvas id="topic-chart"></canvas>
+                </div>
+              </div>
+
+              <div class="chart-card">
+                <div class="section-header" style="margin-bottom:10px">
+                  <div class="section-title"><i class="fas fa-bullseye"></i> Completion</div>
+                </div>
+                <div class="progress-ring-wrap">
+                  <svg class="progress-ring-svg" width="100" height="100" viewBox="0 0 120 120">
+                    <circle class="progress-ring-track" cx="60" cy="60" r="54" />
+                    <circle class="progress-ring-fill" id="ring-fill" cx="60" cy="60" r="54" stroke-dasharray="339.3"
+                      stroke-dashoffset="339.3" />
+                  </svg>
+                  <div class="progress-ring-info">
+                    <div class="progress-ring-percent" id="ring-pct-label">0%</div>
+                    <div class="progress-ring-label">Questions Done</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Topic Progress Grid -->
+            <div>
+              <div class="section-header">
+                <div class="section-title"><i class="fas fa-th"></i> Topics</div>
+                <button class="action-btn" onclick="navigateTo('table')" style="font-size:11.5px;padding:4px 10px;">
+                  <i class="fas fa-table"></i> All Questions
+                </button>
+              </div>
+              <div class="topic-grid" id="topic-progress-grid"></div>
+            </div>
+
+            <!-- Recent Questions -->
+            <div>
+              <div class="section-header">
+                <div class="section-title"><i class="fas fa-play-circle"></i> Continue Solving</div>
+              </div>
+              <div class="recent-questions">
+                <div id="recent-questions-list"></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ==================================================
+           PAGE: QUESTIONS (Topic View)
+           ================================================== -->
+        <div id="page-questions" class="page">
+
+          <!-- Questions List Panel -->
+          <div id="questions-panel">
+            <div class="questions-panel-header">
+              <div class="section-title" style="font-size:12.5px">
+                <i class="fas fa-list-ul"></i> Questions
+              </div>
+              <span class="questions-count-badge" id="questions-count-badge">0</span>
+            </div>
+            <div class="questions-list-wrap" id="questions-list">
+              <!-- Populated by app.js -->
+            </div>
+          </div>
+
+          <!-- Question Detail Panel -->
+          <div id="question-detail">
+            <!-- Placeholder -->
+            <div class="detail-placeholder" id="detail-placeholder">
+              <i class="fas fa-code"></i>
+              <h3>Select a Question</h3>
+              <p>Click any question from the list to view details, hints, and solutions.</p>
+            </div>
+
+            <!-- Detail Content -->
+            <div id="detail-content" style="display:none;flex-direction:column;height:100%;overflow:hidden;">
+
+              <!-- Header -->
+              <div class="detail-header">
+                <div class="detail-header-top" style="align-items: center;">
+                  <div class="detail-title" id="detail-title">Question Name</div>
+                  <div class="detail-badges" id="detail-badges"></div>
+                  <button class="action-btn primary" id="btn-solve-problem" onclick="solveCurrentQuestion()"
+                    style="font-weight:600; font-size:12px; padding:6px 14px; margin-left:8px; display:inline-flex; align-items:center; gap:6px; flex-shrink:0;">
+                    <i class="fas fa-code"></i> Solve Problem
+                  </button>
+                </div>
+                <div class="detail-meta">
+                  <div class="meta-item">
+                    <i class="fas fa-layer-group"></i>
+                    <span id="detail-topic-meta">Topic</span>
+                  </div>
+                  <div class="meta-item">
+                    <i class="fas fa-tag"></i>
+                    <span id="detail-pattern-meta">Pattern</span>
+                  </div>
+                  <div class="meta-item">
+                    <i class="fas fa-award"></i>
+                    <span id="detail-tier-meta">Core</span>
+                  </div>
+                  <div class="meta-item">
+                    <i class="fas fa-clock"></i>
+                    <span class="complexity-pill" id="detail-time">O(n)</span>
+                  </div>
+                  <div class="meta-item">
+                    <i class="fas fa-database"></i>
+                    <span class="complexity-pill" id="detail-space">O(1)</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Actions -->
+              <div class="detail-actions">
+                <button class="action-btn success" id="btn-mark-solved" onclick="toggleSolved(App.currentQuestion?.id)">
+                  <i class="fas fa-trophy"></i> Mark Solved
+                </button>
+                <button class="action-btn warning" id="btn-rev1" onclick="toggleRevision(App.currentQuestion?.id, 1)">
+                  <i class="fas fa-bookmark"></i> Rev 1
+                </button>
+                <button class="action-btn warning" id="btn-rev2" onclick="toggleRevision(App.currentQuestion?.id, 2)">
+                  <i class="fas fa-bookmark"></i> Rev 2
+                </button>
+                <button class="action-btn" id="btn-bookmark" onclick="toggleBookmark(App.currentQuestion?.id)">
+                  <i class="far fa-bookmark"></i> Bookmark
+                </button>
+                <button class="action-btn" id="btn-hint" onclick="toggleHint()">
+                  <i class="fas fa-lightbulb"></i> Hint
+                </button>
+                <button class="action-btn" id="btn-solution" onclick="toggleSolution()">
+                  <i class="fas fa-key"></i> Solution
+                </button>
+                <button class="action-btn primary" id="btn-leetcode">
+                  <i class="fas fa-external-link-alt"></i> LeetCode
+                </button>
+              </div>
+
+              <!-- Tabs -->
+              <div class="detail-tabs">
+                <div class="detail-tab active" data-tab="problem" onclick="switchDetailTab('problem')">
+                  <i class="fas fa-file-alt"></i> Problem
+                </div>
+                <div class="detail-tab" data-tab="examples" onclick="switchDetailTab('examples')">
+                  <i class="fas fa-terminal"></i> Examples
+                </div>
+                <div class="detail-tab" data-tab="complexity" onclick="switchDetailTab('complexity')">
+                  <i class="fas fa-tachometer-alt"></i> Complexity
+                </div>
+                <div class="detail-tab" data-tab="notes" onclick="switchDetailTab('notes')">
+                  <i class="fas fa-edit"></i> Notes
+                </div>
+              </div>
+
+              <!-- Tab Contents -->
+              <div class="detail-body">
+
+                <!-- Problem Tab -->
+                <div class="tab-content active" id="tab-problem">
+                  <p class="problem-statement" id="problem-statement"></p>
+
+                  <div class="io-section">
+                    <h4><i class="fas fa-ruler-horizontal"></i> Constraints</h4>
+                    <pre class="io-code" id="constraints-text"></pre>
+                  </div>
+
+                  <div class="tags-wrap" id="tags-container"></div>
+
+                  <div class="hint-box" id="hint-box" style="display:none">
+                    <h4><i class="fas fa-lightbulb"></i> Hint</h4>
+                    <p id="hint-text"></p>
+                  </div>
+
+                  <div class="solution-box" id="solution-box" style="display:none">
+                    <h4><i class="fas fa-check-double"></i> Approach</h4>
+                    <p id="solution-text"></p>
+                  </div>
+                </div>
+
+                <!-- Examples Tab -->
+                <div class="tab-content" id="tab-examples">
+                  <div class="io-section">
+                    <h4><i class="fas fa-sign-in-alt"></i> Sample Input</h4>
+                    <pre class="io-code" id="sample-input"></pre>
+                  </div>
+                  <div class="io-section">
+                    <h4><i class="fas fa-sign-out-alt"></i> Sample Output</h4>
+                    <pre class="io-code" id="sample-output"></pre>
+                  </div>
+                  <div class="io-section" style="background:rgba(56,139,253,0.04);border-color:rgba(56,139,253,0.18)">
+                    <h4 style="color:var(--accent-blue-light)"><i class="fas fa-info-circle"></i> Note</h4>
+                    <p style="font-size:12px;color:var(--text-secondary);line-height:1.7">
+                      These are sample test cases. The judge may use hidden test cases.
+                      Ensure your solution handles all edge cases.
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Complexity Tab -->
+                <div class="tab-content" id="tab-complexity">
+                  <div class="io-section">
+                    <h4><i class="fas fa-chart-line"></i> Complexity Analysis</h4>
+                    <table class="complexity-table">
+                      <thead>
+                        <tr>
+                          <th>Type</th>
+                          <th>Optimal</th>
+                          <th>Notes</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>⏱ Time</td>
+                          <td class="mono" id="complexity-time-val">O(n)</td>
+                          <td style="color:var(--text-muted);font-size:11px">Optimal solution</td>
+                        </tr>
+                        <tr>
+                          <td>💾 Space</td>
+                          <td class="mono" id="complexity-space-val">O(1)</td>
+                          <td style="color:var(--text-muted);font-size:11px">Auxiliary space</td>
+                        </tr>
+                        <tr>
+                          <td>🎯 Difficulty</td>
+                          <td id="complexity-difficulty">Easy</td>
+                          <td style="color:var(--text-muted);font-size:11px">Problem rating</td>
+                        </tr>
+                        <tr>
+                          <td>🔖 Pattern</td>
+                          <td id="complexity-pattern">—</td>
+                          <td style="color:var(--text-muted);font-size:11px">Algorithmic pattern</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div class="io-section">
+                    <h4><i class="fas fa-book"></i> Big O Reference</h4>
+                    <table class="complexity-table">
+                      <thead>
+                        <tr>
+                          <th>Notation</th>
+                          <th>Name</th>
+                          <th>Example</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td class="mono">O(1)</td>
+                          <td>Constant</td>
+                          <td>Array access, HashMap</td>
+                        </tr>
+                        <tr>
+                          <td class="mono">O(log n)</td>
+                          <td>Logarithmic</td>
+                          <td>Binary Search</td>
+                        </tr>
+                        <tr>
+                          <td class="mono">O(n)</td>
+                          <td>Linear</td>
+                          <td>Linear scan, Kadane's</td>
+                        </tr>
+                        <tr>
+                          <td class="mono">O(n log n)</td>
+                          <td>Linearithmic</td>
+                          <td>Merge Sort</td>
+                        </tr>
+                        <tr>
+                          <td class="mono">O(n²)</td>
+                          <td>Quadratic</td>
+                          <td>Bubble Sort</td>
+                        </tr>
+                        <tr>
+                          <td class="mono">O(2ⁿ)</td>
+                          <td>Exponential</td>
+                          <td>Recursion without memo</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <!-- Notes Tab -->
+                <div class="tab-content" id="tab-notes">
+                  <div class="notes-wrapper">
+                    <div class="notes-header">
+                      <span class="notes-title"><i class="fas fa-edit"></i> Personal Notes</span>
+                      <span class="notes-status" id="notes-status-badge">
+                        <i class="fas fa-check-circle"></i> Saved
+                      </span>
+                    </div>
+                    <textarea id="notes-textarea" class="notes-textarea"
+                      placeholder="Add your code structure, edge cases, or explanations here..."></textarea>
+                    <div class="notes-footer">
+                      <span class="notes-info-text"><i class="fas fa-info-circle"></i> Notes are autosaved as you type
+                        and synced to your cloud account.</span>
+                    </div>
+                  </div>
+                </div>
+
+              </div><!-- /detail-body -->
+            </div><!-- /detail-content -->
+          </div><!-- /question-detail -->
+        </div><!-- /page-questions -->
+
+        <!-- ==================================================
+           PAGE: TABLE VIEW (All Questions)
+           ================================================== -->
+        <div id="page-table" class="page">
+          <div class="table-controls">
+            <span style="font-size:13px;font-weight:600;color:var(--text-primary)">
+              <i class="fas fa-table" style="color:var(--text-muted);margin-right:6px"></i>All Questions
+            </span>
+            <span class="questions-count-badge" id="table-count-badge">0 questions</span>
+
+            <!-- Inline filters for table page -->
+            <div class="table-filters">
+              <!-- Difficulty -->
+              <div class="filter-group">
+                <button class="filter-btn active" data-filter-diff="all">All</button>
+                <button class="filter-btn easy" data-filter-diff="easy">Easy</button>
+                <button class="filter-btn medium" data-filter-diff="medium">Med</button>
+                <button class="filter-btn hard" data-filter-diff="hard">Hard</button>
+              </div>
+              <!-- Tier -->
+              <div class="filter-group">
+                <button class="filter-btn active" data-filter-tier="all">All</button>
+                <button class="filter-btn core" data-filter-tier="core">Core</button>
+                <button class="filter-btn advanced" data-filter-tier="advanced">Adv</button>
+                <button class="filter-btn optional" data-filter-tier="optional">Opt</button>
+              </div>
+              <!-- TCS -->
+              <div class="filter-group">
+                <button class="filter-btn active" data-filter-tcs="all">All</button>
+                <button class="filter-btn tcs" data-filter-tcs="tcs">TCS</button>
+                <button class="filter-btn" data-filter-tcs="non-tcs">Non-TCS</button>
+              </div>
+              <!-- Status -->
+              <div class="filter-group">
+                <button class="filter-btn active" data-filter-status="all">All</button>
+                <button class="filter-btn" data-filter-status="solved">Solved</button>
+                <button class="filter-btn" data-filter-status="unsolved">Unsolved</button>
+              </div>
+            </div>
+
+            <div style="margin-left:8px;font-size:11px;color:var(--text-muted)">
+              Click headers to sort
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="questions-table">
+              <thead>
+                <tr>
+                  <th class="sortable-th" data-col="id" onclick="sortTable('id')">#<i class="sort-icon fas fa-sort"></i>
+                  </th>
+                  <th class="sortable-th" data-col="name" onclick="sortTable('name')">Problem<i
+                      class="sort-icon fas fa-sort"></i></th>
+                  <th class="sortable-th" data-col="topic" onclick="sortTable('topic')">Topic<i
+                      class="sort-icon fas fa-sort"></i></th>
+                  <th>Pattern</th>
+                  <th class="sortable-th" data-col="difficulty" onclick="sortTable('difficulty')">Difficulty<i
+                      class="sort-icon fas fa-sort"></i></th>
+                  <th class="sortable-th" data-col="tier" onclick="sortTable('tier')">Tier<i
+                      class="sort-icon fas fa-sort"></i></th>
+                  <th>TCS</th>
+                  <th>Status</th>
+                  <th>Rev 1</th>
+                  <th>Rev 2</th>
+                </tr>
+              </thead>
+              <tbody id="table-body">
+                <!-- Populated by app.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ==================================================
+           PAGE: BOOKMARKS
+           ================================================== -->
+        <div id="page-bookmarks" class="page">
+          <div class="table-controls">
+            <span style="font-size:13px;font-weight:600;color:var(--text-primary)">
+              <i class="fas fa-bookmark" style="color:var(--accent-yellow);margin-right:6px"></i>Bookmarked Questions
+            </span>
+            <span class="questions-count-badge" id="bookmarks-count-badge">0 bookmarks</span>
+          </div>
+
+          <div class="table-wrap">
+            <table class="questions-table">
+              <thead>
+                <tr>
+                  <th style="width:40px;">#</th>
+                  <th>Problem</th>
+                  <th>Topic</th>
+                  <th>Pattern</th>
+                  <th>Difficulty</th>
+                  <th>Tier</th>
+                  <th>TCS</th>
+                  <th>Status</th>
+                  <th style="text-align:center;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="bookmarks-table-body">
+                <!-- Populated dynamically by app.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ==================================================
+           PAGE: COMPILER
+           ================================================== -->
+        <div id="page-compiler" class="page">
+          <div class="compiler-layout" style="flex:1;overflow:hidden;display:flex;">
+
+            <!-- Problem Description Panel (shown when question is opened from DSA view) -->
+            <div class="compiler-desc-panel" id="compiler-desc-content" style="display:none;">
+              <div class="compiler-desc-header">
+                <h3 id="compiler-desc-title" class="compiler-desc-title">Problem</h3>
+                <div id="compiler-desc-badges" class="compiler-desc-badges"></div>
+              </div>
+              <div class="compiler-desc-body">
+                <p id="compiler-desc-statement" class="compiler-desc-statement"></p>
+                <div class="compiler-desc-section">
+                  <h4>Constraints</h4>
+                  <p id="compiler-desc-constraints"></p>
+                </div>
+                <div class="compiler-desc-section">
+                  <h4>Example</h4>
+                  <div><span class="ex-label">Input:</span> <code id="compiler-desc-sample-input"></code></div>
+                  <div><span class="ex-label">Output:</span> <code id="compiler-desc-sample-output"></code></div>
+                </div>
+                <div id="compiler-desc-hints-section" style="display:none;">
+                  <button class="hint-accordion-btn" id="compiler-hint-accordion-btn"
+                    onclick="window.toggleCompilerHint()">
+                    <span><i class="fas fa-lightbulb" style="color:var(--accent-yellow);margin-right:6px;"></i> Show
+                      Hint</span>
+                    <i class="fas fa-chevron-down chevron"></i>
+                  </button>
+                  <p id="compiler-desc-hint-text" class="compiler-desc-hint hidden"></p>
+                </div>
+                <div id="compiler-desc-solve-status" style="display:none;"></div>
+              </div>
+            </div>
+            <div id="compiler-desc-placeholder"
+              style="display:none;text-align:center;padding:2rem;color:var(--text-muted);">
+              <i class="fas fa-code" style="font-size:2rem;opacity:.3;"></i>
+              <p style="margin-top:.5rem;">Open a question to see its description here.</p>
+            </div>
+
+            <!-- Editor Panel -->
+            <div class="editor-panel">
+              <div class="editor-topbar">
+                <button id="general-back-btn" class="reset-btn" onclick="exitGeneralEditor()"><i
+                    class="fas fa-arrow-left"></i> Back</button>
+
+                <!-- Language -->
+                <select id="language-select" class="language-select" onchange="setEditorLanguage(this.value)">
+                  <option value="cpp">C++ 17</option>
+                  <option value="c">C</option>
+                  <option value="java">Java</option>
+                  <option value="python">Python 3</option>
+                  <option value="js">JavaScript</option>
+                </select>
+
+                <div class="editor-actions">
+                  <span id="compiler-status-indicator" class="compiler-status-indicator idle">
+                    <i class="fas fa-minus-circle"></i> Idle
+                  </span>
+                  <button class="reset-btn" id="stop-btn" onclick="stopExecution()"
+                    style="display: none; background: var(--accent-red); color: #fff; border-color: transparent;">
+                    <i class="fas fa-stop"></i> Stop
+                  </button>
+                  <button class="reset-btn" id="reset-template-btn" onclick="resetCode()">
+                    <i class="fas fa-undo"></i> Reset Template
+                  </button>
+                  <button class="reset-btn" id="download-code-btn" onclick="downloadCode()">
+                    <i class="fas fa-download"></i> Download Code
+                  </button>
+                  <button class="reset-btn" id="fullscreen-btn" onclick="toggleFullscreenEditor()">
+                    <i class="fas fa-expand"></i> Fullscreen
+                  </button>
+                  <button class="run-btn" id="run-btn" onclick="runCode()">
+                    <i class="fas fa-play"></i> Run
+                  </button>
+                </div>
+              </div>
+
+              <!-- Monaco Editor -->
+              <div id="monaco-editor" style="flex:1;min-height:0;"></div>
+            </div>
+
+            <!-- Execution Panel -->
+            <div class="execution-panel">
+              <div class="execution-header">
+                <h3><i class="fas fa-terminal"></i> Output</h3>
+                <div style="display:flex;align-items:center;gap:.5rem;">
+                  <!-- DSA / General mode toggle (shown only for questions with metadata) -->
+                  <div id="compiler-mode-toggle" class="mode-toggle" style="display:none;">
+                    <button id="mode-btn-dsa" class="mode-btn active"
+                      onclick="window.setCompilerMode('dsa')">DSA</button>
+                    <button id="mode-btn-general" class="mode-btn"
+                      onclick="window.setCompilerMode('general')">General</button>
+                  </div>
+                  <div class="status-badge idle" id="status-badge">
+                    <i class="fas fa-minus-circle"></i> Idle
+                  </div>
+                </div>
+              </div>
+
+              <div class="execution-body">
+
+                <!-- DSA results (test case tabs) -->
+                <div id="dsa-results-container" class="hidden"></div>
+
+                <!-- General results (stdin/stdout) -->
+                <div id="general-results-container">
+
+                  <!-- Verdict Banner (shown after submit) -->
+                  <div class="verdict-banner" id="verdict-banner">
+                    <i class="fas fa-check-circle"></i>
+                    <span id="verdict-text">Accepted</span>
+                  </div>
+
+                  <!-- API Key -->
+                  <div class="exec-section">
+                    <label><i class="fas fa-key" style="margin-right:3px"></i> Judge0 API Key <span
+                        style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+                    <div class="api-key-section">
+                      <input type="password" id="api-key-input" placeholder="Enter RapidAPI key for faster runs…"
+                        autocomplete="off" />
+                    </div>
+                    <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">
+                      Get free key at <a href="https://rapidapi.com/judge0-official/api/judge0-ce/" target="_blank"
+                        rel="noopener" style="color:var(--text-link)">RapidAPI Judge0</a>
+                      — or run without key (slower)
+                    </div>
+                  </div>
+
+                  <!-- Stdin -->
+                  <div class="exec-section">
+                    <label>Custom Input (stdin)</label>
+                    <textarea class="exec-textarea" id="exec-stdin" placeholder="Enter input here…"></textarea>
+                  </div>
+
+                  <!-- Output -->
+                  <div class="exec-section">
+                    <div
+                      style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                      <label style="margin-bottom: 0;">Output</label>
+                      <div style="display: flex; gap: 6px;">
+                        <button class="icon-btn-inline" id="copy-output-btn" title="Copy Output" onclick="copyOutput()">
+                          <i class="far fa-copy"></i> Copy
+                        </button>
+                        <button class="icon-btn-inline" id="clear-output-btn" title="Clear Output"
+                          onclick="clearOutput()">
+                          <i class="fas fa-trash-alt"></i> Clear
+                        </button>
+                      </div>
+                    </div>
+                    <div class="exec-output" id="exec-output">(run code to see output)</div>
+                  </div>
+
+                  <!-- Errors -->
+                  <div class="exec-section" id="compiler-errors-section">
+                    <label>Errors / Compilation</label>
+                    <div class="exec-output" id="exec-error">(none)</div>
+                  </div>
+
+                </div><!-- /general-results-container -->
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ==================================================
+           PAGE: DSA COMPILER (LeetCode-Style)
+           ================================================== -->
+        <div id="page-dsa-compiler" class="page">
+          <div class="compiler-layout" style="flex:1;overflow:hidden;display:flex;">
+
+            <!-- LEFT PANEL: Problem Statement (300px) -->
+            <div class="dsa-problem-panel"
+              style="width:300px;flex-shrink:0;border-right:1px solid var(--border);display:flex;flex-direction:column;background:var(--bg-secondary);overflow:hidden;">
+
+              <div class="dsa-problem-header"
+                style="padding:12px 14px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--bg-secondary);">
+                <button id="dsa-back-btn" onclick="exitDsaWorkspace()"><i class="fas fa-arrow-left"></i> Back</button>
+                <div
+                  style="font-size:12px;font-weight:600;color:var(--text-primary);display:flex;align-items:center;gap:6px;margin-bottom:8px;">
+                  <i class="fas fa-file-alt"></i>
+                  <span id="dsa-problem-title">Problem</span>
+                </div>
+                <div style="display:flex;gap:4px;flex-wrap:wrap;" id="dsa-problem-badges"></div>
+              </div>
+
+              <div class="dsa-problem-body" style="flex:1;overflow-y:auto;padding:14px;">
+
+                <!-- Problem Statement -->
+                <div style="margin-bottom:14px;">
+                  <div
+                    style="font-size:10.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:7px;display:flex;align-items:center;gap:5px;">
+                    <i class="fas fa-book"></i> Problem
+                  </div>
+                  <pre id="dsa-problem-statement"
+                    style="font-size:12.5px;color:var(--text-secondary);white-space:pre-wrap;word-wrap:break-word;line-height:1.6;font-family:inherit;margin:0;"></pre>
+                </div>
+
+                <!-- Constraints -->
+                <div class="io-section" style="margin-bottom:12px;">
+                  <h4
+                    style="font-size:10.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:7px;display:flex;align-items:center;gap:5px;">
+                    <i class="fas fa-ruler-horizontal"></i> Constraints
+                  </h4>
+                  <pre id="dsa-constraints"
+                    style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--text-primary);background:var(--bg-tertiary);padding:9px 11px;border-radius:var(--radius-sm);overflow-x:auto;white-space:pre-wrap;line-height:1.6;margin:0;"></pre>
+                </div>
+
+                <!-- Examples -->
+                <div style="margin-bottom:12px;">
+                  <div
+                    style="font-size:10.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:7px;display:flex;align-items:center;gap:5px;">
+                    <i class="fas fa-arrow-right"></i> Example
+                  </div>
+                  <div class="io-section" style="margin-bottom:8px;">
+                    <h4
+                      style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:5px;display:flex;align-items:center;gap:4px;">
+                      <i class="fas fa-sign-in-alt"></i> Input
+                    </h4>
+                    <pre id="dsa-example-input"
+                      style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-primary);background:var(--bg-tertiary);padding:8px 10px;border-radius:var(--radius-sm);overflow-x:auto;white-space:pre-wrap;line-height:1.5;margin:0;"></pre>
+                  </div>
+                  <div class="io-section">
+                    <h4
+                      style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:5px;display:flex;align-items:center;gap:4px;">
+                      <i class="fas fa-sign-out-alt"></i> Output
+                    </h4>
+                    <pre id="dsa-example-output"
+                      style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-primary);background:var(--bg-tertiary);padding:8px 10px;border-radius:var(--radius-sm);overflow-x:auto;white-space:pre-wrap;line-height:1.5;margin:0;"></pre>
+                  </div>
+                </div>
+
+                <!-- Hint -->
+                <div id="dsa-hint-box"
+                  style="background:rgba(227,179,65,0.06);border:1px solid rgba(227,179,65,0.2);border-radius:var(--radius-md);padding:10px;margin-bottom:10px;display:none;">
+                  <h4
+                    style="font-size:10.5px;font-weight:600;color:var(--accent-yellow);margin-bottom:6px;display:flex;align-items:center;gap:4px;">
+                    <i class="fas fa-lightbulb"></i> Hint
+                  </h4>
+                  <p id="dsa-hint-text" style="font-size:11.5px;color:var(--text-secondary);line-height:1.6;margin:0;">
+                  </p>
+                </div>
+
+                <!-- Approach/Solution -->
+                <div id="dsa-solution-box"
+                  style="background:rgba(63,185,80,0.05);border:1px solid rgba(63,185,80,0.18);border-radius:var(--radius-md);padding:10px;display:none;">
+                  <h4
+                    style="font-size:10.5px;font-weight:600;color:var(--accent-green);margin-bottom:6px;display:flex;align-items:center;gap:4px;">
+                    <i class="fas fa-check-double"></i> Approach
+                  </h4>
+                  <p id="dsa-solution-text"
+                    style="font-size:11.5px;color:var(--text-secondary);line-height:1.6;margin:0;"></p>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- MIDDLE PANEL: Editor (flex:1) -->
+            <div class="editor-panel" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+              <div class="editor-topbar">
+                <!-- Language -->
+                <select id="dsa-language-select" class="language-select" onchange="setDsaLanguage(this.value)">
+                  <option value="cpp">C++ 17</option>
+                  <option value="c">C</option>
+                  <option value="java">Java</option>
+                  <option value="python">Python 3</option>
+                  <option value="js">JavaScript</option>
+                </select>
+
+                <div class="editor-actions" style="margin-left:auto;">
+                  <span id="dsa-compiler-status-indicator" class="compiler-status-indicator idle">
+                    <i class="fas fa-minus-circle"></i> Idle
+                  </span>
+                  <button class="reset-btn" id="dsa-stop-btn" onclick="stopExecution()"
+                    style="display: none; background: var(--accent-red); color: #fff; border-color: transparent;">
+                    <i class="fas fa-stop"></i> Stop
+                  </button>
+                  <button class="reset-btn" id="dsa-reset-template-btn" onclick="resetDsaCode()">
+                    <i class="fas fa-undo"></i> Reset
+                  </button>
+                  <button class="reset-btn" id="dsa-fullscreen-btn" onclick="toggleDsaFullscreenEditor()">
+                    <i class="fas fa-expand"></i> Fullscreen
+                  </button>
+                  <button class="run-btn" id="dsa-run-btn" onclick="dsaRunCode()">
+                    <i class="fas fa-play"></i> Run
+                  </button>
+                  <button class="submit-btn" id="dsa-submit-btn" onclick="dsaSubmitCode()">
+                    <i class="fas fa-paper-plane"></i> Submit
+                  </button>
+                </div>
+              </div>
+
+              <!-- Monaco Editor -->
+              <div id="dsa-monaco-editor" style="flex:1;min-height:0;"></div>
+            </div>
+
+            <!-- RIGHT PANEL: DSA Results (340px) -->
+            <div class="execution-panel dsa-results-panel">
+              <div class="execution-header">
+                <h3><i class="fas fa-tasks"></i> Test Cases</h3>
+                <div class="status-badge idle" id="dsa-status-badge">
+                  <i class="fas fa-minus-circle"></i> Idle
+                </div>
+              </div>
+
+              <div class="execution-body">
+
+                <!-- DSA Verdict Banner (flex-shrink:0 via CSS) -->
+                <div id="dsa-status-banner" class="verdict-banner"></div>
+
+                <!-- Section Label: Test Results -->
+                <div class="dsa-results-section-label">
+                  <i class="fas fa-list"></i> Test Results
+                </div>
+
+                <!-- Test Case Tabs (flex-shrink:0 via CSS) -->
+                <div id="dsa-testcase-tabs">
+                  <!-- Dynamically populated with test case tabs -->
+                </div>
+
+                <!-- Test Case Content (flex:1, scrolls via CSS) -->
+                <div id="dsa-testcase-content">
+                  <div style="color:var(--text-muted);font-size:12px;text-align:center;padding:20px 0;">
+                    Run or submit to see test results
+                  </div>
+                </div>
+
+                <!-- Stats (pinned to bottom via flex-shrink:0 + border-top) -->
+                <div class="exec-stats">
+                  <div class="exec-stat">
+                    <div class="stat-val" id="dsa-exec-time">--</div>
+                    <div class="stat-lbl">⏱ Time</div>
+                  </div>
+                  <div class="exec-stat">
+                    <div class="stat-val" id="dsa-exec-memory">--</div>
+                    <div class="stat-lbl">💾 Memory</div>
+                  </div>
+                </div>
+
+              </div><!-- /execution-body -->
+            </div><!-- /dsa-results-panel -->
+
+          </div>
+        </div>
+
+      </div><!-- /content-area -->
+    </div><!-- /main-content -->
+  </div><!-- /app -->
+
+  <!-- Toast Container -->
+  <div id="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="js/firebase-config.js"></script>
+  <script src="js/firebase.js"></script>
+  <script src="js/question-metadata.js"></script>
+  <script src="js/compiler.js"></script>
+  <script src="js/app.js"></script>
+
+
+  <!-- ======================================================
+     AUTHENTICATION MODAL
+     ====================================================== -->
+  <div id="auth-modal" class="auth-modal-overlay">
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="auth-logo">⚡</div>
+        <h2 class="auth-title">AlgoForge</h2>
+        <p class="auth-subtitle">DSA Dashboard — Placement Preparation</p>
+      </div>
+
+      <!-- Login Form -->
+      <form id="login-form" class="auth-form">
+        <div class="form-error" id="login-error" style="display:none;"></div>
+        <div class="form-group">
+          <label for="login-email">Email Address</label>
+          <input type="email" id="login-email" required placeholder="name@example.com" autocomplete="email" />
+        </div>
+        <div class="form-group">
+          <label for="login-password">Password</label>
+          <div class="password-input-wrapper">
+            <input type="password" id="login-password" required placeholder="••••••••"
+              autocomplete="current-password" />
+            <button type="button" class="password-toggle" onclick="togglePasswordVisibility('login-password', this)">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+        </div>
+        <button type="submit" class="auth-submit-btn" id="login-submit-btn">
+          <span class="btn-text">Sign In</span>
+        </button>
+        <div class="auth-links">
+          <a href="#" onclick="switchAuthView('forgot', event)">Forgot Password?</a>
+          <span>•</span>
+          <a href="#" onclick="switchAuthView('register', event)">Create Account</a>
+        </div>
+      </form>
+
+      <!-- Register Form -->
+      <form id="register-form" class="auth-form" style="display:none;">
+        <div class="form-error" id="register-error" style="display:none;"></div>
+        <div class="form-group">
+          <label for="register-name">Full Name</label>
+          <input type="text" id="register-name" required placeholder="John Doe" autocomplete="name" />
+        </div>
+        <div class="form-group">
+          <label for="register-email">Email Address</label>
+          <input type="email" id="register-email" required placeholder="name@example.com" autocomplete="email" />
+        </div>
+        <div class="form-group">
+          <label for="register-password">Password (min 6 chars)</label>
+          <div class="password-input-wrapper">
+            <input type="password" id="register-password" required placeholder="••••••••" minlength="6"
+              autocomplete="new-password" />
+            <button type="button" class="password-toggle" onclick="togglePasswordVisibility('register-password', this)">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="register-confirm">Confirm Password</label>
+          <div class="password-input-wrapper">
+            <input type="password" id="register-confirm" required placeholder="••••••••" minlength="6"
+              autocomplete="new-password" />
+            <button type="button" class="password-toggle" onclick="togglePasswordVisibility('register-confirm', this)">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+        </div>
+        <button type="submit" class="auth-submit-btn" id="register-submit-btn">
+          <span class="btn-text">Create Account</span>
+        </button>
+        <div class="auth-links">
+          <a href="#" onclick="switchAuthView('login', event)">Already have an account? Sign In</a>
+        </div>
+      </form>
+
+      <!-- Forgot Password Form -->
+      <form id="forgot-form" class="auth-form" style="display:none;">
+        <div class="form-success" id="forgot-success" style="display:none;"></div>
+        <div class="form-error" id="forgot-error" style="display:none;"></div>
+        <div class="form-group">
+          <label for="forgot-email">Email Address</label>
+          <input type="email" id="forgot-email" required placeholder="name@example.com" autocomplete="email" />
+        </div>
+        <button type="submit" class="auth-submit-btn" id="forgot-submit-btn">
+          <span class="btn-text">Send Reset Instructions</span>
+        </button>
+        <div class="auth-links">
+          <a href="#" onclick="switchAuthView('login', event)">Back to Sign In</a>
+        </div>
+      </form>
+
+      <div class="auth-divider"></div>
+
+      <button type="button" class="auth-guest-btn" id="auth-guest-btn">
+        Continue as Guest
+      </button>
+    </div>
+  </div>
+
+  <!-- Input Warning Modal -->
+  <div id="input-warning-modal" class="auth-modal-overlay">
+    <div class="auth-card" style="max-width: 400px; text-align: center; gap: 10px;">
+      <div style="font-size: 32px; margin-bottom: 8px; color: var(--accent-yellow);">⚠️</div>
+      <h3 style="font-size: 16px; font-weight: 700; color: var(--text-primary);">Input Expected</h3>
+      <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 12px;">
+        This program expects input. Please provide stdin.
+      </p>
+      <div style="display: flex; gap: 10px; justify-content: center;">
+        <button id="warning-cancel-btn" class="action-btn" style="padding: 6px 14px;">Cancel</button>
+        <button id="warning-continue-btn" class="action-btn primary" style="padding: 6px 14px;">Continue Anyway</button>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
