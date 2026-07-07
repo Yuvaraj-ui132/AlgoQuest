@@ -1,26 +1,37 @@
-# ⚡ AlgoForge
+<div align="center">
 
-> **A premium DSA practice dashboard built for placement preparation**  
-> *Track problems · Write & run code · Stay on top of your prep*
+<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=6,11,20&height=180&section=header&text=⚡%20AlgoForge&fontSize=52&fontColor=fff&animation=twinkling&fontAlignY=36&desc=Premium%20DSA%20Dashboard%20for%20Placement%20Preparation&descAlignY=58&descSize=16" />
 
+[![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-algoquest--9aab0.web.app-6E40C9?style=for-the-badge)](https://algoquest-9aab0.web.app)
 [![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/HTML)
 [![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/CSS)
 [![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 [![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)](https://firebase.google.com/)
-[![Monaco Editor](https://img.shields.io/badge/Monaco_Editor-007ACC?style=for-the-badge&logo=visual-studio-code&logoColor=white)](https://microsoft.github.io/monaco-editor/)
+
+</div>
+
+---
+
+## 💡 What is AlgoForge?
+
+**AlgoForge** is a premium, in-browser DSA practice dashboard built specifically for placement preparation. It gives you everything in one place — a curated problem bank, a VS Code-quality editor, real-time code execution, and synced progress across devices.
+
+> No LeetCode premium. No switching tabs. Just focused, tracked, and beautiful preparation.
 
 ---
 
 ## 🚀 Features
 
-- **📋 Problem Tracker** — Curated DSA questions organized by topic, difficulty, and tier (Easy / Medium / Hard)
-- **💻 In-Browser Code Editor** — Powered by **Monaco Editor** (same engine as VS Code) with syntax highlighting and theme support
-- **⚙️ Code Runner** — Execute code against test cases using the **Judge0 CE API** and see runtime & memory usage
-- **🔥 Firebase Sync** — Progress is saved to **Firestore** in real-time across sessions and devices
-- **🔐 Authentication** — Secure login / signup powered by **Firebase Auth**
-- **🌗 Light / Dark Mode** — Seamless theme toggle with smooth transitions
-- **📊 Progress Analytics** — Visual charts showing topic-wise and tier-wise completion stats
-- **🎯 Placement Focused** — Covers TCS NQT, TCS Digital, Infosys, Wipro, and general FAANG-style patterns
+| Feature | Description |
+|---|---|
+| 📋 **Problem Tracker** | Curated DSA questions organized by topic, difficulty & tier |
+| 💻 **Monaco Code Editor** | VS Code's engine — syntax highlighting, themes, IntelliSense |
+| ⚙️ **Code Runner** | Execute code via Judge0 CE API — see runtime & memory stats |
+| 🔥 **Firebase Sync** | Progress saved to Firestore in real-time, across all devices |
+| 🔐 **Authentication** | Secure login/signup with Firebase Auth |
+| 🌗 **Dark / Light Mode** | Seamless theme toggle with smooth CSS transitions |
+| 📊 **Progress Analytics** | Chart.js visualizations — topic-wise and tier-wise breakdowns |
+| 🎯 **Placement Focused** | TCS NQT · TCS Digital · Infosys · Wipro · FAANG patterns |
 
 ---
 
@@ -34,6 +45,7 @@
 | Authentication | Firebase Auth |
 | Database | Cloud Firestore |
 | Charts | Chart.js |
+| Hosting | Firebase Hosting |
 | Icons | Font Awesome 6 |
 
 ---
@@ -54,6 +66,7 @@ AlgoForge/
 ├── data/
 │   ├── questions.json       # Question definitions
 │   └── tiers.json           # Tier/difficulty configuration
+├── firebase.json            # Firebase Hosting config
 ├── firestore.rules          # Firestore security rules
 └── README.md
 ```
@@ -62,37 +75,33 @@ AlgoForge/
 
 ## ⚡ Getting Started (Local)
 
-> No build step needed — this is a pure HTML/CSS/JS project.
+> No build step needed — pure HTML/CSS/JS project.
 
-### 1. Clone the repository
+**1. Clone the repository**
 
 ```bash
 git clone https://github.com/Yuvaraj-ui132/AlgoQuest.git
 cd AlgoQuest
 ```
 
-### 2. Serve locally
-
-Using `http-server` (recommended):
+**2. Run locally**
 
 ```bash
 npx http-server -p 8000
 ```
 
-Then open [http://localhost:8000](http://localhost:8000) in your browser.
-
-Or simply open `index.html` directly in your browser.
+Open [http://localhost:8000](http://localhost:8000) in your browser.
 
 ---
 
-## 🔑 Firebase Setup
+## 🔑 Firebase Setup (Self-hosting)
 
-This project uses Firebase for authentication and data persistence. To connect your own Firebase project:
+To connect your own Firebase project:
 
-1. Go to [Firebase Console](https://console.firebase.google.com/) and create a project
-2. Enable **Email/Password Authentication** under Auth → Sign-in methods
-3. Create a **Firestore Database** in production mode
-4. Copy your Firebase config into `js/firebase-config.js`:
+1. Create a project at [Firebase Console](https://console.firebase.google.com/)
+2. Enable **Email/Password Auth** under Authentication → Sign-in methods
+3. Create a **Firestore Database** (production mode)
+4. Paste your config into `js/firebase-config.js`:
 
 ```js
 const firebaseConfig = {
@@ -105,39 +114,47 @@ const firebaseConfig = {
 };
 ```
 
-5. Deploy your Firestore rules from `firestore.rules`
+5. Deploy Firestore rules: `firebase deploy --only firestore:rules`
+6. Deploy hosting: `firebase deploy --only hosting`
 
 ---
 
 ## 🎨 Design Highlights
 
-- **Dark-first design** with a sleek Linear/Vercel-inspired aesthetic
-- Glassmorphism cards and smooth micro-animations
-- Fully responsive sidebar navigation
-- Custom scrollbars and CSS variable-based theming
+- ⚡ **Dark-first** Linear/Vercel-inspired aesthetic
+- 🪟 Glassmorphism cards with smooth micro-animations
+- 🎨 CSS variable-based theming — one-click dark/light switch
+- 📱 Fully responsive sidebar navigation
+- ✨ Custom scrollbars, focus rings, and hover transitions
 
 ---
 
 ## 📈 Roadmap
 
 - [ ] GitHub-style contribution heatmap
-- [ ] Study plan / daily goal tracking
+- [ ] Daily study plan & goal tracking
 - [ ] Multi-language support (Python, Java, C++)
-- [ ] AI-powered hints
-- [ ] Shareable progress profiles
+- [ ] AI-powered hints & explanations
+- [ ] Shareable progress profiles & leaderboard
 
 ---
 
 ## 👤 Author
 
-**Yuvaraj** — [@Yuvaraj-ui132](https://github.com/Yuvaraj-ui132)
+**Yuvaraj Murkunde** — [@Yuvaraj-ui132](https://github.com/Yuvaraj-ui132)
 
 ---
 
 ## 📄 License
 
-This project is open source and available under the [MIT License](LICENSE).
+Open source under the [MIT License](LICENSE).
 
 ---
 
-<p align="center">Made with ❤️ and ⚡ for placement warriors</p>
+<div align="center">
+
+<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=6,11,20&height=100&section=footer"/>
+
+*Made with ❤️ and ⚡ for placement warriors*
+
+</div>
