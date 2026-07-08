@@ -157,14 +157,18 @@ body {
 .sidebar-logo {
   width: 28px;
   height: 28px;
-  background: var(--accent-blue);
+  background: transparent;
   border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
   flex-shrink: 0;
-  box-shadow: 0 0 12px rgba(56, 139, 253, 0.3);
+}
+
+.sidebar-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .sidebar-title {
@@ -2507,24 +2511,26 @@ table.questions-table td.name-col {
   align-items: center;
 }
 
-.auth-logo {
+.auth-logo-container {
   width: 48px;
   height: 48px;
-  background: linear-gradient(135deg, var(--accent-blue) 0%, #6b5de6 100%);
-  border-radius: var(--radius-lg);
+  margin-bottom: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
-  margin-bottom: 14px;
-  box-shadow: 0 0 24px rgba(56, 139, 253, 0.5), 0 4px 12px rgba(0,0,0,0.3);
-  color: #fff;
   transition: var(--transition-slow);
 }
 
-.auth-logo:hover {
+.auth-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 0 24px rgba(56, 139, 253, 0.3);
+}
+
+.auth-logo-container:hover {
   transform: rotate(-5deg) scale(1.08);
-  box-shadow: 0 0 32px rgba(56, 139, 253, 0.7);
 }
 
 .auth-title {
@@ -2923,19 +2929,19 @@ table.questions-table td.name-col {
   padding: 24px;
 }
 
-.auth-loading-logo {
+.auth-loading-logo-container {
   width: 56px;
   height: 56px;
-  background: linear-gradient(135deg, var(--accent-blue) 0%, #6b5de6 100%);
-  border-radius: var(--radius-lg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 26px;
   margin-bottom: 24px;
-  box-shadow: 0 0 24px rgba(56, 139, 253, 0.4), 0 4px 12px rgba(0,0,0,0.3);
-  color: #fff;
   animation: pulse 2s infinite ease-in-out;
+}
+
+.auth-loading-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 0 24px rgba(56, 139, 253, 0.3);
 }
 
 .auth-loading-spinner {
@@ -3050,7 +3056,7 @@ table.questions-table td.name-col {
     border-radius: var(--radius-lg);
   }
 
-  .auth-logo { width: 42px; height: 42px; font-size: 20px; }
+  .auth-logo-container { width: 42px; height: 42px; }
   .auth-title { font-size: 19px; }
 
   .pw-requirements { gap: 4px; }
