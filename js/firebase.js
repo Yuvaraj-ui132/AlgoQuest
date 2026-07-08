@@ -1,5 +1,5 @@
 /**
- * firebase.js — AlgoForge DSA Dashboard
+ * firebase.js — AlgoQuest DSA Dashboard
  * Firebase Authentication + Firestore Sync
  */
 
@@ -278,7 +278,7 @@ function setupAuthEventListeners() {
         });
 
         const displayName = name || user.email?.split('@')[0] || 'there';
-        showToast(`Welcome to AlgoForge, ${displayName}! 🚀`, 'success');
+        showToast(`Welcome to AlgoQuest, ${displayName}! 🚀`, 'success');
 
       } catch (err) {
         showAuthError(errorDiv, translateAuthError(err.code));
@@ -458,7 +458,7 @@ async function handleGoogleSignIn(formContext) {
     }
 
     const displayName = user.displayName || user.email?.split('@')[0] || 'there';
-    const greeting    = isNewUser ? `Welcome to AlgoForge, ${displayName}! 🚀` : `Welcome back, ${displayName}! 👋`;
+    const greeting    = isNewUser ? `Welcome to AlgoQuest, ${displayName}! 🚀` : `Welcome back, ${displayName}! 👋`;
     showToast(greeting, 'success');
 
   } catch (err) {
