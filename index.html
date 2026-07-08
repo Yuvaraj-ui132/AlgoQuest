@@ -125,6 +125,7 @@
           <!-- User Profile Dropdown -->
           <div class="profile-dropdown-container" id="profile-container" style="display:none;">
             <button id="profile-btn" class="profile-btn" title="User Profile">
+              <img id="user-avatar-photo" class="user-avatar-photo" src="" alt="Profile" style="display:none;" />
               <span class="avatar-placeholder" id="user-avatar-initials">U</span>
             </button>
             <div class="profile-dropdown" id="profile-dropdown">
@@ -1012,103 +1013,224 @@
 
 
   <!-- ======================================================
+     FULL-SCREEN AUTHENTICATION LOADING OVERLAY
+     ====================================================== -->
+  <div id="auth-loading-overlay" class="auth-loading-overlay" role="progressbar" aria-live="assertive" style="display:none;">
+    <div class="auth-loading-content">
+      <div class="auth-loading-logo" aria-hidden="true">⚡</div>
+      <div class="auth-loading-spinner" aria-hidden="true"></div>
+      <h3 class="auth-loading-title" id="auth-loading-title">Signing you in...</h3>
+      <p class="auth-loading-subtitle">Please wait while we securely authenticate your account.</p>
+    </div>
+  </div>
+
+  <!-- ======================================================
      AUTHENTICATION MODAL
      ====================================================== -->
-  <div id="auth-modal" class="auth-modal-overlay">
+  <div id="auth-modal" class="auth-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="auth-title">
     <div class="auth-card">
+
+      <!-- Header -->
       <div class="auth-header">
-        <div class="auth-logo">⚡</div>
-        <h2 class="auth-title">AlgoForge</h2>
+        <div class="auth-logo" aria-hidden="true">⚡</div>
+        <h2 class="auth-title" id="auth-title">AlgoForge</h2>
         <p class="auth-subtitle">DSA Dashboard — Placement Preparation</p>
       </div>
 
-      <!-- Login Form -->
-      <form id="login-form" class="auth-form">
-        <div class="form-error" id="login-error" style="display:none;"></div>
+      <!-- ── LOGIN FORM ─────────────────────────────── -->
+      <form id="login-form" class="auth-form" novalidate>
+        <div class="form-error" id="login-error" role="alert" aria-live="polite" style="display:none;"></div>
+
         <div class="form-group">
           <label for="login-email">Email Address</label>
-          <input type="email" id="login-email" required placeholder="name@example.com" autocomplete="email" />
+          <input
+            type="email" id="login-email" name="email"
+            required placeholder="name@example.com"
+            autocomplete="email"
+            aria-describedby="login-error"
+          />
         </div>
+
         <div class="form-group">
           <label for="login-password">Password</label>
           <div class="password-input-wrapper">
-            <input type="password" id="login-password" required placeholder="••••••••"
-              autocomplete="current-password" />
-            <button type="button" class="password-toggle" onclick="togglePasswordVisibility('login-password', this)">
-              <i class="fas fa-eye"></i>
+            <input
+              type="password" id="login-password" name="password"
+              required placeholder="••••••••"
+              autocomplete="current-password"
+              aria-describedby="login-error"
+            />
+            <button type="button" class="password-toggle"
+              onclick="togglePasswordVisibility('login-password', this)"
+              aria-label="Show password">
+              <i class="fas fa-eye" aria-hidden="true"></i>
             </button>
           </div>
         </div>
+
+        <!-- Remember Me -->
+        <label class="remember-me-label">
+          <input type="checkbox" id="remember-me" autocomplete="off" />
+          <span class="remember-me-box"></span>
+          <span>Remember Me</span>
+        </label>
+
         <button type="submit" class="auth-submit-btn" id="login-submit-btn">
+          <span class="btn-spinner" aria-hidden="true" style="display:none;"></span>
           <span class="btn-text">Sign In</span>
         </button>
+
         <div class="auth-links">
           <a href="#" onclick="switchAuthView('forgot', event)">Forgot Password?</a>
-          <span>•</span>
+          <span aria-hidden="true">•</span>
           <a href="#" onclick="switchAuthView('register', event)">Create Account</a>
         </div>
+
+        <div class="auth-or-divider" aria-hidden="true">or</div>
+
+        <button type="button" class="google-auth-btn" id="google-signin-btn" aria-label="Continue with Google">
+          <svg width="18" height="18" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.29-8.16 2.29-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+          </svg>
+          Continue with Google
+        </button>
       </form>
 
-      <!-- Register Form -->
-      <form id="register-form" class="auth-form" style="display:none;">
-        <div class="form-error" id="register-error" style="display:none;"></div>
+      <!-- ── REGISTER FORM ──────────────────────────── -->
+      <form id="register-form" class="auth-form" novalidate style="display:none;">
+        <div class="form-error" id="register-error" role="alert" aria-live="polite" style="display:none;"></div>
+
         <div class="form-group">
           <label for="register-name">Full Name</label>
-          <input type="text" id="register-name" required placeholder="John Doe" autocomplete="name" />
+          <input
+            type="text" id="register-name" name="name"
+            required placeholder="John Doe"
+            autocomplete="name"
+          />
         </div>
+
         <div class="form-group">
           <label for="register-email">Email Address</label>
-          <input type="email" id="register-email" required placeholder="name@example.com" autocomplete="email" />
+          <input
+            type="email" id="register-email" name="email"
+            required placeholder="name@example.com"
+            autocomplete="email"
+            aria-describedby="register-error"
+          />
         </div>
+
         <div class="form-group">
-          <label for="register-password">Password (min 6 chars)</label>
+          <label for="register-password">Password</label>
           <div class="password-input-wrapper">
-            <input type="password" id="register-password" required placeholder="••••••••" minlength="6"
-              autocomplete="new-password" />
-            <button type="button" class="password-toggle" onclick="togglePasswordVisibility('register-password', this)">
-              <i class="fas fa-eye"></i>
+            <input
+              type="password" id="register-password" name="password"
+              required placeholder="Min. 8 characters"
+              autocomplete="new-password"
+              aria-describedby="pw-requirements"
+            />
+            <button type="button" class="password-toggle"
+              onclick="togglePasswordVisibility('register-password', this)"
+              aria-label="Show password">
+              <i class="fas fa-eye" aria-hidden="true"></i>
             </button>
           </div>
+
+          <!-- Strength Meter -->
+          <div class="pw-strength-wrap" aria-live="polite">
+            <div class="pw-strength-track">
+              <div class="pw-strength-fill" id="pw-strength-fill"></div>
+            </div>
+            <span class="pw-strength-text" id="pw-strength-label"></span>
+          </div>
+
+          <!-- Requirements -->
+          <div class="pw-requirements" id="pw-requirements" aria-label="Password requirements">
+            <span class="req-pill" id="req-length">
+              <span class="req-icon">✖</span> 8+ characters
+            </span>
+            <span class="req-pill" id="req-uppercase">
+              <span class="req-icon">✖</span> Uppercase
+            </span>
+            <span class="req-pill" id="req-lowercase">
+              <span class="req-icon">✖</span> Lowercase
+            </span>
+            <span class="req-pill" id="req-number">
+              <span class="req-icon">✖</span> Number
+            </span>
+            <span class="req-pill" id="req-special">
+              <span class="req-icon">✖</span> Special (!@#…)
+            </span>
+          </div>
         </div>
+
         <div class="form-group">
           <label for="register-confirm">Confirm Password</label>
           <div class="password-input-wrapper">
-            <input type="password" id="register-confirm" required placeholder="••••••••" minlength="6"
-              autocomplete="new-password" />
-            <button type="button" class="password-toggle" onclick="togglePasswordVisibility('register-confirm', this)">
-              <i class="fas fa-eye"></i>
+            <input
+              type="password" id="register-confirm" name="confirm"
+              required placeholder="••••••••"
+              autocomplete="new-password"
+              aria-describedby="confirm-match-msg"
+            />
+            <button type="button" class="password-toggle"
+              onclick="togglePasswordVisibility('register-confirm', this)"
+              aria-label="Show password">
+              <i class="fas fa-eye" aria-hidden="true"></i>
             </button>
           </div>
+          <div class="confirm-match-msg" id="confirm-match-msg" aria-live="polite"></div>
         </div>
+
         <button type="submit" class="auth-submit-btn" id="register-submit-btn">
+          <span class="btn-spinner" aria-hidden="true" style="display:none;"></span>
           <span class="btn-text">Create Account</span>
         </button>
+
         <div class="auth-links">
           <a href="#" onclick="switchAuthView('login', event)">Already have an account? Sign In</a>
         </div>
+
+        <div class="auth-or-divider" aria-hidden="true">or</div>
+
+        <button type="button" class="google-auth-btn" id="google-register-btn" aria-label="Sign up with Google">
+          <svg width="18" height="18" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.29-8.16 2.29-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+          </svg>
+          Sign up with Google
+        </button>
       </form>
 
-      <!-- Forgot Password Form -->
-      <form id="forgot-form" class="auth-form" style="display:none;">
-        <div class="form-success" id="forgot-success" style="display:none;"></div>
-        <div class="form-error" id="forgot-error" style="display:none;"></div>
+      <!-- ── FORGOT PASSWORD FORM ───────────────────── -->
+      <form id="forgot-form" class="auth-form" novalidate style="display:none;">
+        <div class="form-success" id="forgot-success" role="status" aria-live="polite" style="display:none;"></div>
+        <div class="form-error"   id="forgot-error"   role="alert"  aria-live="polite" style="display:none;"></div>
+
+        <p class="auth-form-desc">Enter your email and we'll send you a reset link.</p>
+
         <div class="form-group">
           <label for="forgot-email">Email Address</label>
-          <input type="email" id="forgot-email" required placeholder="name@example.com" autocomplete="email" />
+          <input
+            type="email" id="forgot-email" name="email"
+            required placeholder="name@example.com"
+            autocomplete="email"
+          />
         </div>
+
         <button type="submit" class="auth-submit-btn" id="forgot-submit-btn">
-          <span class="btn-text">Send Reset Instructions</span>
+          <span class="btn-spinner" aria-hidden="true" style="display:none;"></span>
+          <span class="btn-text">Send Reset Link</span>
         </button>
+
         <div class="auth-links">
-          <a href="#" onclick="switchAuthView('login', event)">Back to Sign In</a>
+          <a href="#" onclick="switchAuthView('login', event)">← Back to Sign In</a>
         </div>
       </form>
-
-      <div class="auth-divider"></div>
-
-      <button type="button" class="auth-guest-btn" id="auth-guest-btn">
-        Continue as Guest
-      </button>
     </div>
   </div>
 
