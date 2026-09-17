@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AlgoQuest</title>
   <meta name="description"
-    content="Personal DSA practice platform for TCS NQT, TCS Digital and placement preparation. Track progress, solve problems, and master DSA patterns." />
+    content="Personal DSA practice platform for coding interviews and placement preparation. Track progress, solve problems, and master DSA patterns." />
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -33,7 +33,7 @@
 </head>
 
 <body>
-  <div id="app">
+  <div id="app" style="display:none;">
 
     <!-- ======================================================
        SIDEBAR
@@ -89,35 +89,7 @@
           </div>
         </div>
 
-        <!-- Filters — only visible on All Questions & Topic pages -->
-        <div class="topbar-filters hidden" id="topbar-filters">
-          <!-- Difficulty -->
-          <div class="filter-group">
-            <button class="filter-btn active" data-filter-diff="all">All</button>
-            <button class="filter-btn easy" data-filter-diff="easy">Easy</button>
-            <button class="filter-btn medium" data-filter-diff="medium">Med</button>
-            <button class="filter-btn hard" data-filter-diff="hard">Hard</button>
-          </div>
-          <!-- Tier -->
-          <div class="filter-group">
-            <button class="filter-btn active" data-filter-tier="all">All</button>
-            <button class="filter-btn core" data-filter-tier="core">Core</button>
-            <button class="filter-btn advanced" data-filter-tier="advanced">Adv</button>
-            <button class="filter-btn optional" data-filter-tier="optional">Opt</button>
-          </div>
-          <!-- TCS -->
-          <div class="filter-group">
-            <button class="filter-btn active" data-filter-tcs="all">All</button>
-            <button class="filter-btn tcs" data-filter-tcs="tcs">TCS</button>
-            <button class="filter-btn" data-filter-tcs="non-tcs">Non-TCS</button>
-          </div>
-          <!-- Status -->
-          <div class="filter-group">
-            <button class="filter-btn active" data-filter-status="all">All</button>
-            <button class="filter-btn" data-filter-status="solved">Solved</button>
-            <button class="filter-btn" data-filter-status="unsolved">Unsolved</button>
-          </div>
-        </div>
+
 
         <div class="topbar-right">
           <!-- Guest Mode Sign In Button -->
@@ -140,6 +112,12 @@
               <div class="profile-dropdown-divider"></div>
               <button class="profile-dropdown-item" onclick="navigateTo('bookmarks')">
                 <i class="fas fa-bookmark" style="color:var(--accent-yellow);margin-right:6px;"></i>Bookmarks
+              </button>
+              <button class="profile-dropdown-item" onclick="navigateTo('history')">
+                <i class="fas fa-history" style="color:var(--accent-blue-light);margin-right:6px;"></i>Submission History
+              </button>
+              <button class="profile-dropdown-item" onclick="navigateTo('analytics')">
+                <i class="fas fa-chart-bar" style="color:var(--accent-purple);margin-right:6px;"></i>Analytics
               </button>
               <div class="profile-dropdown-divider"></div>
               <button class="profile-dropdown-item logout-btn" id="logout-btn">
@@ -559,6 +537,12 @@
 
             <!-- Inline filters for table page -->
             <div class="table-filters">
+              <!-- Search questions -->
+              <div class="table-search-wrap">
+                <i class="fas fa-search"></i>
+                <input type="text" id="table-search-input" placeholder="Search questions..." autocomplete="off" spellcheck="false" />
+              </div>
+
               <!-- Difficulty -->
               <div class="filter-group">
                 <button class="filter-btn active" data-filter-diff="all">All</button>
@@ -566,19 +550,7 @@
                 <button class="filter-btn medium" data-filter-diff="medium">Med</button>
                 <button class="filter-btn hard" data-filter-diff="hard">Hard</button>
               </div>
-              <!-- Tier -->
-              <div class="filter-group">
-                <button class="filter-btn active" data-filter-tier="all">All</button>
-                <button class="filter-btn core" data-filter-tier="core">Core</button>
-                <button class="filter-btn advanced" data-filter-tier="advanced">Adv</button>
-                <button class="filter-btn optional" data-filter-tier="optional">Opt</button>
-              </div>
-              <!-- TCS -->
-              <div class="filter-group">
-                <button class="filter-btn active" data-filter-tcs="all">All</button>
-                <button class="filter-btn tcs" data-filter-tcs="tcs">TCS</button>
-                <button class="filter-btn" data-filter-tcs="non-tcs">Non-TCS</button>
-              </div>
+
               <!-- Status -->
               <div class="filter-group">
                 <button class="filter-btn active" data-filter-status="all">All</button>
@@ -607,7 +579,6 @@
                       class="sort-icon fas fa-sort"></i></th>
                   <th class="sortable-th" data-col="tier" onclick="sortTable('tier')">Tier<i
                       class="sort-icon fas fa-sort"></i></th>
-                  <th>TCS</th>
                   <th>Status</th>
                   <th>Rev 1</th>
                   <th>Rev 2</th>
@@ -641,7 +612,6 @@
                   <th>Pattern</th>
                   <th>Difficulty</th>
                   <th>Tier</th>
-                  <th>TCS</th>
                   <th>Status</th>
                   <th style="text-align:center;">Action</th>
                 </tr>
@@ -822,69 +792,157 @@
         </div>
 
         <!-- ==================================================
+           PAGE: SUBMISSION HISTORY
+           ================================================== -->
+        <div id="page-history" class="page">
+          <!-- Populated by history.js renderHistoryPage() -->
+        </div>
+
+        <!-- ==================================================
+           PAGE: ANALYTICS
+           ================================================== -->
+        <div id="page-analytics" class="page">
+          <!-- Populated by history.js renderAnalyticsPage() -->
+        </div>
+
+        <!-- ==================================================
            PAGE: DSA COMPILER (LeetCode-Style)
            ================================================== -->
         <div id="page-dsa-compiler" class="page">
-          <div class="compiler-layout" style="flex:1;overflow:hidden;display:flex;">
+          <!-- WORKSPACE TOPBAR: Back + Controls (Spans full width) -->
+          <div class="workspace-topbar" id="workspace-topbar">
+            <div class="workspace-topbar-left">
+              <button id="workspace-back-btn" class="workspace-back-btn" onclick="exitProblemWorkspace()" title="Back to Questions">
+                <i class="fas fa-arrow-left"></i> <span>Back</span>
+              </button>
+              <div class="workspace-topbar-divider"></div>
+              <div class="workspace-breadcrumb-info" id="workspace-breadcrumb-info">
+                <span id="workspace-crumb-topic" class="workspace-crumb-topic">Topic</span>
+                <span class="meta-separator">•</span>
+                <span id="workspace-crumb-title" class="workspace-crumb-title">Problem</span>
+              </div>
+            </div>
 
-            <!-- LEFT PANEL: Problem Statement (300px) -->
-            <div class="dsa-problem-panel"
-              style="width:300px;flex-shrink:0;border-right:1px solid var(--border);display:flex;flex-direction:column;background:var(--bg-secondary);overflow:hidden;">
+            <div class="workspace-topbar-right">
+              <!-- Language Selector -->
+              <div class="workspace-control-group">
+                <span class="workspace-ctrl-label"><i class="fas fa-code"></i></span>
+                <select id="dsa-language-select" class="language-select" onchange="setDsaLanguage(this.value)">
+                  <option value="cpp">C++ 17</option>
+                  <option value="c">C</option>
+                  <option value="java">Java</option>
+                  <option value="python">Python 3</option>
+                  <option value="js">JavaScript</option>
+                </select>
+              </div>
 
-              <div class="dsa-problem-header"
-                style="padding:12px 14px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--bg-secondary);">
-                <button id="dsa-back-btn" onclick="exitDsaWorkspace()"><i class="fas fa-arrow-left"></i> Back</button>
-                <div
-                  style="font-size:12px;font-weight:600;color:var(--text-primary);display:flex;align-items:center;gap:6px;margin-bottom:8px;">
-                  <i class="fas fa-file-alt"></i>
-                  <span id="dsa-problem-title">Problem</span>
+              <!-- Idle / Status indicator -->
+              <span id="dsa-compiler-status-indicator" class="compiler-status-indicator idle">
+                <i class="fas fa-minus-circle"></i> Idle
+              </span>
+
+              <button class="reset-btn" id="dsa-stop-btn" onclick="stopExecution()"
+                style="display: none; background: var(--accent-red); color: #fff; border-color: transparent;">
+                <i class="fas fa-stop"></i> Stop
+              </button>
+
+              <button class="reset-btn" id="dsa-reset-template-btn" onclick="resetDsaCode()" title="Reset to Starter Template">
+                <i class="fas fa-undo"></i> Reset
+              </button>
+
+              <button class="reset-btn" id="dsa-fullscreen-btn" onclick="toggleDsaFullscreenEditor()" title="Fullscreen Editor">
+                <i class="fas fa-expand"></i> Fullscreen
+              </button>
+
+              <button class="icon-btn" id="workspace-theme-toggle" onclick="toggleThemeFromWorkspace()" title="Toggle Theme">
+                <i class="fas fa-sun" id="workspace-theme-icon"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="compiler-layout dsa-split-layout">
+
+            <!-- LEFT PANEL: Problem Details Panel (Scrollable independently) -->
+            <div class="dsa-problem-panel" id="dsa-left-problem-panel">
+
+              <div class="dsa-problem-header">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
+                  <h2 id="dsa-problem-title" class="dsa-panel-title">Problem</h2>
+                  <div style="display:flex;align-items:center;gap:6px;">
+                    <button class="dsa-solution-btn" id="dsa-header-solution-btn" onclick="openDsaSolutionModal()" title="View Solution Approach">
+                      <i class="fas fa-lightbulb"></i> Solution
+                    </button>
+                    <button class="dsa-icon-btn" id="dsa-header-bookmark-btn" onclick="toggleBookmark(App.currentQuestion?.id)" title="Bookmark Question">
+                      <i class="far fa-bookmark" id="dsa-header-bookmark-icon"></i>
+                    </button>
+                  </div>
                 </div>
-                <div style="display:flex;gap:4px;flex-wrap:wrap;" id="dsa-problem-badges"></div>
+                <div class="dsa-problem-meta-row" id="dsa-problem-meta-row">
+                  <div class="dsa-meta-chips" id="dsa-problem-badges"></div>
+                  <div id="dsa-problem-topic-meta" class="dsa-topic-pattern-bar">
+                    <span id="dsa-topic-text" class="topic-meta-text">Topic</span>
+                    <span class="meta-separator">•</span>
+                    <span id="dsa-pattern-text" class="pattern-meta-text">Pattern</span>
+                  </div>
+                  <div class="dsa-complexity-meta" id="dsa-header-complexity">
+                    <span class="complexity-chip" id="dsa-header-time-chip"><i class="fas fa-clock"></i> <span id="dsa-header-time">O(n)</span></span>
+                    <span class="complexity-chip" id="dsa-header-space-chip"><i class="fas fa-database"></i> <span id="dsa-header-space">O(1)</span></span>
+                  </div>
+                </div>
               </div>
 
               <div class="dsa-problem-body" style="flex:1;overflow-y:auto;padding:14px;">
 
                 <!-- Problem Statement -->
-                <div style="margin-bottom:14px;">
-                  <div
-                    style="font-size:10.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:7px;display:flex;align-items:center;gap:5px;">
-                    <i class="fas fa-book"></i> Problem
+                <div class="dsa-section" style="margin-bottom:14px;">
+                  <div class="dsa-section-label">
+                    <i class="fas fa-file-alt"></i> Problem Description
                   </div>
-                  <pre id="dsa-problem-statement"
-                    style="font-size:12.5px;color:var(--text-secondary);white-space:pre-wrap;word-wrap:break-word;line-height:1.6;font-family:inherit;margin:0;"></pre>
+                  <div id="dsa-problem-statement" class="dsa-statement-text"></div>
+                </div>
+
+                <!-- Input Format -->
+                <div class="dsa-section" id="dsa-input-format-box" style="margin-bottom:12px;">
+                  <div class="dsa-section-label">
+                    <i class="fas fa-sign-in-alt"></i> Input Format
+                  </div>
+                  <div id="dsa-input-format" class="dsa-format-text"></div>
+                </div>
+
+                <!-- Output Format -->
+                <div class="dsa-section" id="dsa-output-format-box" style="margin-bottom:12px;">
+                  <div class="dsa-section-label">
+                    <i class="fas fa-sign-out-alt"></i> Output Format
+                  </div>
+                  <div id="dsa-output-format" class="dsa-format-text"></div>
                 </div>
 
                 <!-- Constraints -->
-                <div class="io-section" style="margin-bottom:12px;">
-                  <h4
-                    style="font-size:10.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:7px;display:flex;align-items:center;gap:5px;">
+                <div class="dsa-section" style="margin-bottom:14px;">
+                  <div class="dsa-section-label">
                     <i class="fas fa-ruler-horizontal"></i> Constraints
-                  </h4>
-                  <pre id="dsa-constraints"
-                    style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--text-primary);background:var(--bg-tertiary);padding:9px 11px;border-radius:var(--radius-sm);overflow-x:auto;white-space:pre-wrap;line-height:1.6;margin:0;"></pre>
+                  </div>
+                  <pre id="dsa-constraints" class="dsa-constraints-block"></pre>
                 </div>
 
-                <!-- Examples -->
-                <div style="margin-bottom:12px;">
-                  <div
-                    style="font-size:10.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:7px;display:flex;align-items:center;gap:5px;">
-                    <i class="fas fa-arrow-right"></i> Example
+                <!-- Examples Container -->
+                <div class="dsa-section" style="margin-bottom:14px;">
+                  <div class="dsa-section-label">
+                    <i class="fas fa-list-check"></i> Examples
                   </div>
-                  <div class="io-section" style="margin-bottom:8px;">
-                    <h4
-                      style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:5px;display:flex;align-items:center;gap:4px;">
-                      <i class="fas fa-sign-in-alt"></i> Input
-                    </h4>
-                    <pre id="dsa-example-input"
-                      style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-primary);background:var(--bg-tertiary);padding:8px 10px;border-radius:var(--radius-sm);overflow-x:auto;white-space:pre-wrap;line-height:1.5;margin:0;"></pre>
-                  </div>
-                  <div class="io-section">
-                    <h4
-                      style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:5px;display:flex;align-items:center;gap:4px;">
-                      <i class="fas fa-sign-out-alt"></i> Output
-                    </h4>
-                    <pre id="dsa-example-output"
-                      style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-primary);background:var(--bg-tertiary);padding:8px 10px;border-radius:var(--radius-sm);overflow-x:auto;white-space:pre-wrap;line-height:1.5;margin:0;"></pre>
+                  <div id="dsa-examples-container" style="display:flex;flex-direction:column;gap:10px;">
+                    <!-- Fallback example card for backward compatibility -->
+                    <div class="dsa-example-card">
+                      <div class="example-title">Example 1</div>
+                      <div class="io-section" style="margin-bottom:6px;">
+                        <span class="io-tag">Input:</span>
+                        <pre id="dsa-example-input" class="dsa-io-code"></pre>
+                      </div>
+                      <div class="io-section">
+                        <span class="io-tag">Output:</span>
+                        <pre id="dsa-example-output" class="dsa-io-code"></pre>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -910,35 +968,60 @@
                     style="font-size:11.5px;color:var(--text-secondary);line-height:1.6;margin:0;"></p>
                 </div>
 
+                <!-- My Submissions (collapsible) -->
+                <div class="dsa-section" style="margin-top:14px;" id="dsa-my-submissions-section">
+                  <button class="dsa-section-toggle-btn" id="dsa-submissions-toggle-btn"
+                    onclick="toggleProblemSubmissions()"
+                    style="width:100%;display:flex;align-items:center;justify-content:space-between;background:none;border:none;cursor:pointer;padding:0;color:var(--text-secondary);">
+                    <div class="dsa-section-label" style="margin-bottom:0;">
+                      <i class="fas fa-history"></i> My Submissions
+                    </div>
+                    <i class="fas fa-chevron-down" id="dsa-submissions-toggle-icon" style="font-size:11px;color:var(--text-muted);"></i>
+                  </button>
+                  <div id="dsa-problem-submissions-panel" style="display:none;margin-top:10px;">
+                    <!-- Populated by renderProblemSubmissionsPanel() -->
+                  </div>
+                </div>
+
+                <!-- Secondary Solution button at bottom of problem description -->
+                <div style="display:flex;justify-content:flex-end;margin-top:16px;padding-top:12px;border-top:1px solid var(--border);">
+                  <button type="button" class="dsa-solution-btn" onclick="openDsaSolutionModal()" title="View Solution Approach">
+                    <i class="fas fa-lightbulb"></i> View Solution
+                  </button>
+                </div>
+
               </div>
             </div>
 
-            <!-- MIDDLE PANEL: Editor (flex:1) -->
-            <div class="editor-panel" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
-              <div class="editor-topbar">
-                <!-- Language -->
-                <select id="dsa-language-select" class="language-select" onchange="setDsaLanguage(this.value)">
-                  <option value="cpp">C++ 17</option>
-                  <option value="c">C</option>
-                  <option value="java">Java</option>
-                  <option value="python">Python 3</option>
-                  <option value="js">JavaScript</option>
-                </select>
+            <!-- DRAGGABLE HORIZONTAL RESIZER -->
+            <div class="dsa-resizer-h" id="dsa-resizer-h" title="Drag horizontally to resize problem panel"></div>
 
-                <div class="editor-actions" style="margin-left:auto;">
-                  <span id="dsa-compiler-status-indicator" class="compiler-status-indicator idle">
-                    <i class="fas fa-minus-circle"></i> Idle
+            <!-- RIGHT PANEL: Coding Workspace (Editor + Bottom Console) -->
+            <div class="dsa-workspace-panel" id="dsa-right-workspace-panel">
+
+              <!-- Top: Editor Panel (Occupies full height) -->
+              <div class="editor-panel" id="dsa-editor-panel">
+                <!-- Monaco Editor -->
+                <div id="dsa-monaco-editor" style="flex:1;min-height:0;width:100%;"></div>
+              </div>
+
+              <!-- DRAGGABLE VERTICAL RESIZER -->
+              <div class="dsa-resizer-v" id="dsa-resizer-v" title="Drag vertically to resize console"></div>
+
+              <!-- Bottom Bar: Console Header + Action Buttons (Run / Submit) -->
+              <div class="dsa-console-toolbar">
+                <div class="dsa-toolbar-left" onclick="toggleDsaConsole()" style="cursor:pointer;display:flex;align-items:center;gap:8px;" title="Toggle Testcase Console">
+                  <span class="dsa-console-tab-indicator">
+                    <i class="fas fa-terminal"></i> Test / Result Console
                   </span>
-                  <button class="reset-btn" id="dsa-stop-btn" onclick="stopExecution()"
-                    style="display: none; background: var(--accent-red); color: #fff; border-color: transparent;">
-                    <i class="fas fa-stop"></i> Stop
+                  <div class="status-badge idle" id="dsa-status-badge">
+                    <i class="fas fa-minus-circle"></i> Idle
+                  </div>
+                  <button class="dsa-console-toggle-btn" aria-label="Toggle Console">
+                    <i class="fas fa-chevron-down" id="dsa-console-toggle-icon"></i>
                   </button>
-                  <button class="reset-btn" id="dsa-reset-template-btn" onclick="resetDsaCode()">
-                    <i class="fas fa-undo"></i> Reset
-                  </button>
-                  <button class="reset-btn" id="dsa-fullscreen-btn" onclick="toggleDsaFullscreenEditor()">
-                    <i class="fas fa-expand"></i> Fullscreen
-                  </button>
+                </div>
+                <div class="dsa-toolbar-right" style="display:flex;gap:8px;align-items:center;">
                   <button class="run-btn" id="dsa-run-btn" onclick="dsaRunCode()">
                     <i class="fas fa-play"></i> Run
                   </button>
@@ -948,56 +1031,48 @@
                 </div>
               </div>
 
-              <!-- Monaco Editor -->
-              <div id="dsa-monaco-editor" style="flex:1;min-height:0;"></div>
-            </div>
+              <!-- Bottom: Test / Result Console Window -->
+              <div class="execution-panel dsa-results-panel" id="dsa-bottom-console">
+                <div class="execution-body">
 
-            <!-- RIGHT PANEL: DSA Results (340px) -->
-            <div class="execution-panel dsa-results-panel">
-              <div class="execution-header">
-                <h3><i class="fas fa-tasks"></i> Test Cases</h3>
-                <div class="status-badge idle" id="dsa-status-badge">
-                  <i class="fas fa-minus-circle"></i> Idle
-                </div>
+                  <!-- DSA Verdict Banner (hidden to keep console compact) -->
+                  <div id="dsa-status-banner" class="verdict-banner" style="display:none;"></div>
+
+                  <!-- Test Case Tabs (flex-shrink:0 via CSS) -->
+                  <div id="dsa-testcase-tabs">
+                    <!-- Dynamically populated with test case tabs -->
+                  </div>
+
+                  <!-- Test Case Content (flex:1, scrolls via CSS) -->
+                  <div id="dsa-testcase-content">
+                    <div style="color:var(--text-muted);font-size:12px;text-align:center;padding:16px 0;">
+                      Click <strong>Run</strong> for sample test cases or <strong>Submit</strong> for evaluation
+                    </div>
+                  </div>
+
+                </div><!-- /execution-body -->
+              </div><!-- /dsa-results-panel -->
+
+            </div><!-- /dsa-workspace-panel -->
+
+          </div>
+        </div>
+
+        <!-- Dedicated Solution Modal -->
+        <div id="dsa-solution-modal" class="dsa-modal-backdrop" style="display:none;" onclick="if(event.target===this)closeDsaSolutionModal()">
+          <div class="dsa-modal-dialog">
+            <div class="dsa-modal-header">
+              <div class="dsa-modal-title">
+                <i class="fas fa-lightbulb" style="color:var(--accent-yellow);"></i>
+                <span id="dsa-solution-modal-title">Solution Approach</span>
               </div>
-
-              <div class="execution-body">
-
-                <!-- DSA Verdict Banner (flex-shrink:0 via CSS) -->
-                <div id="dsa-status-banner" class="verdict-banner"></div>
-
-                <!-- Section Label: Test Results -->
-                <div class="dsa-results-section-label">
-                  <i class="fas fa-list"></i> Test Results
-                </div>
-
-                <!-- Test Case Tabs (flex-shrink:0 via CSS) -->
-                <div id="dsa-testcase-tabs">
-                  <!-- Dynamically populated with test case tabs -->
-                </div>
-
-                <!-- Test Case Content (flex:1, scrolls via CSS) -->
-                <div id="dsa-testcase-content">
-                  <div style="color:var(--text-muted);font-size:12px;text-align:center;padding:20px 0;">
-                    Run or submit to see test results
-                  </div>
-                </div>
-
-                <!-- Stats (pinned to bottom via flex-shrink:0 + border-top) -->
-                <div class="exec-stats">
-                  <div class="exec-stat">
-                    <div class="stat-val" id="dsa-exec-time">--</div>
-                    <div class="stat-lbl">⏱ Time</div>
-                  </div>
-                  <div class="exec-stat">
-                    <div class="stat-val" id="dsa-exec-memory">--</div>
-                    <div class="stat-lbl">💾 Memory</div>
-                  </div>
-                </div>
-
-              </div><!-- /execution-body -->
-            </div><!-- /dsa-results-panel -->
-
+              <button type="button" class="dsa-modal-close-btn" onclick="closeDsaSolutionModal()" aria-label="Close">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            <div class="dsa-modal-body" id="dsa-solution-modal-content">
+              <!-- Populated dynamically from currentQuestion.solution -->
+            </div>
           </div>
         </div>
 
@@ -1009,24 +1084,32 @@
   <div id="toast-container"></div>
 
   <!-- Scripts -->
+  <!-- Backend URL Configuration
+       Change this to your deployed backend URL for production.
+       Example: <script>window.ALGOQUEST_BACKEND_URL = 'https://your-backend.com';</script>
+  -->
+  <script>window.ALGOQUEST_BACKEND_URL = 'http://localhost:8000';</script>
+
   <script src="js/firebase-config.js"></script>
+  <script src="js/api.js"></script>
   <script src="js/firebase.js"></script>
   <script src="js/question-metadata.js"></script>
   <script src="js/compiler.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/history.js"></script>
 
 
   <!-- ======================================================
      FULL-SCREEN AUTHENTICATION LOADING OVERLAY
      ====================================================== -->
-  <div id="auth-loading-overlay" class="auth-loading-overlay" role="progressbar" aria-live="assertive" style="display:none;">
+  <div id="auth-loading-overlay" class="auth-loading-overlay active" role="progressbar" aria-live="assertive" style="display:flex;">
     <div class="auth-loading-content">
       <div class="auth-loading-logo-container" aria-hidden="true">
         <img class="auth-loading-logo-img" src="assets/app-icon.png" alt="Loading" />
       </div>
       <div class="auth-loading-spinner" aria-hidden="true"></div>
-      <h3 class="auth-loading-title" id="auth-loading-title">Signing you in...</h3>
-      <p class="auth-loading-subtitle">Please wait while we securely authenticate your account.</p>
+      <h3 class="auth-loading-title" id="auth-loading-title">AlgoQuest</h3>
+      <p class="auth-loading-subtitle">Initializing application...</p>
     </div>
   </div>
 
@@ -1034,19 +1117,25 @@
      AUTHENTICATION MODAL
      ====================================================== -->
   <div id="auth-modal" class="auth-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+    <div class="auth-backdrop-glow" aria-hidden="true"></div>
     <div class="auth-card">
 
-      <!-- Header -->
+      <!-- Header / Branding -->
       <div class="auth-header">
-      <div class="auth-logo-container" aria-hidden="true">
-        <img class="auth-logo-img" src="assets/app-icon.png" alt="AlgoQuest Logo" />
-      </div>
+        <div class="auth-logo-container" aria-hidden="true">
+          <img class="auth-logo-img" src="assets/app-icon.png" alt="AlgoQuest Logo" />
+        </div>
         <h2 class="auth-title" id="auth-title">AlgoQuest</h2>
-        <p class="auth-subtitle">DSA Dashboard — Placement Preparation</p>
+        <p class="auth-subtitle">Master DSA. Build problem-solving skills.</p>
       </div>
 
       <!-- ── LOGIN FORM ─────────────────────────────── -->
       <form id="login-form" class="auth-form" novalidate>
+        <div class="auth-form-header">
+          <h3 class="auth-form-title">Welcome back</h3>
+          <p class="auth-form-subtitle">Continue your coding journey.</p>
+        </div>
+
         <div class="form-error" id="login-error" role="alert" aria-live="polite" style="display:none;"></div>
 
         <div class="form-group">
@@ -1060,7 +1149,10 @@
         </div>
 
         <div class="form-group">
-          <label for="login-password">Password</label>
+          <div class="form-label-row">
+            <label for="login-password">Password</label>
+            <a href="#" class="auth-inline-link" onclick="switchAuthView('forgot', event)">Forgot password?</a>
+          </div>
           <div class="password-input-wrapper">
             <input
               type="password" id="login-password" name="password"
@@ -1080,7 +1172,7 @@
         <label class="remember-me-label">
           <input type="checkbox" id="remember-me" autocomplete="off" />
           <span class="remember-me-box"></span>
-          <span>Remember Me</span>
+          <span>Remember me</span>
         </label>
 
         <button type="submit" class="auth-submit-btn" id="login-submit-btn">
@@ -1088,13 +1180,7 @@
           <span class="btn-text">Sign In</span>
         </button>
 
-        <div class="auth-links">
-          <a href="#" onclick="switchAuthView('forgot', event)">Forgot Password?</a>
-          <span aria-hidden="true">•</span>
-          <a href="#" onclick="switchAuthView('register', event)">Create Account</a>
-        </div>
-
-        <div class="auth-or-divider" aria-hidden="true">or</div>
+        <div class="auth-or-divider" aria-hidden="true"><span>or</span></div>
 
         <button type="button" class="google-auth-btn" id="google-signin-btn" aria-label="Continue with Google">
           <svg width="18" height="18" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -1105,10 +1191,20 @@
           </svg>
           Continue with Google
         </button>
+
+        <div class="auth-links">
+          <span>Don't have an account?</span>
+          <a href="#" onclick="switchAuthView('register', event)">Create one</a>
+        </div>
       </form>
 
       <!-- ── REGISTER FORM ──────────────────────────── -->
       <form id="register-form" class="auth-form" novalidate style="display:none;">
+        <div class="auth-form-header">
+          <h3 class="auth-form-title">Create account</h3>
+          <p class="auth-form-subtitle">Start mastering algorithms today.</p>
+        </div>
+
         <div class="form-error" id="register-error" role="alert" aria-live="polite" style="display:none;"></div>
 
         <div class="form-group">
@@ -1157,7 +1253,7 @@
           <!-- Requirements -->
           <div class="pw-requirements" id="pw-requirements" aria-label="Password requirements">
             <span class="req-pill" id="req-length">
-              <span class="req-icon">✖</span> 8+ characters
+              <span class="req-icon">✖</span> 8+ chars
             </span>
             <span class="req-pill" id="req-uppercase">
               <span class="req-icon">✖</span> Uppercase
@@ -1169,7 +1265,7 @@
               <span class="req-icon">✖</span> Number
             </span>
             <span class="req-pill" id="req-special">
-              <span class="req-icon">✖</span> Special (!@#…)
+              <span class="req-icon">✖</span> Special
             </span>
           </div>
         </div>
@@ -1197,11 +1293,7 @@
           <span class="btn-text">Create Account</span>
         </button>
 
-        <div class="auth-links">
-          <a href="#" onclick="switchAuthView('login', event)">Already have an account? Sign In</a>
-        </div>
-
-        <div class="auth-or-divider" aria-hidden="true">or</div>
+        <div class="auth-or-divider" aria-hidden="true"><span>or</span></div>
 
         <button type="button" class="google-auth-btn" id="google-register-btn" aria-label="Sign up with Google">
           <svg width="18" height="18" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -1212,14 +1304,22 @@
           </svg>
           Sign up with Google
         </button>
+
+        <div class="auth-links">
+          <span>Already have an account?</span>
+          <a href="#" onclick="switchAuthView('login', event)">Sign In</a>
+        </div>
       </form>
 
       <!-- ── FORGOT PASSWORD FORM ───────────────────── -->
       <form id="forgot-form" class="auth-form" novalidate style="display:none;">
+        <div class="auth-form-header">
+          <h3 class="auth-form-title">Reset password</h3>
+          <p class="auth-form-subtitle">Enter your email and we'll send you a recovery link.</p>
+        </div>
+
         <div class="form-success" id="forgot-success" role="status" aria-live="polite" style="display:none;"></div>
         <div class="form-error"   id="forgot-error"   role="alert"  aria-live="polite" style="display:none;"></div>
-
-        <p class="auth-form-desc">Enter your email and we'll send you a reset link.</p>
 
         <div class="form-group">
           <label for="forgot-email">Email Address</label>

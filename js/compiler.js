@@ -47,8 +47,8 @@ const Compiler = (() => {
 
   let pollingInterval = null;
   let executionTimeout = null;
-  let rapidApiKey = '';
   let _isSubmit = false;
+  let _currentAbortController = null;
 
   let executionId = 0;
   let renderGenOutput = 0;
@@ -68,15 +68,12 @@ const Compiler = (() => {
   }
 
   function init() {
-    rapidApiKey = localStorage.getItem('judge0_api_key') || '';
+    // NOTE: Judge0 API key is now managed by the FastAPI backend.
+    // The key is stored in backend/.env (JUDGE0_API_KEY) and never sent to the browser.
+    // The api-key-input field is hidden but kept in the DOM for backward compatibility.
     const keyInput = document.getElementById('api-key-input');
     if (keyInput) {
-      keyInput.value = rapidApiKey;
-      keyInput.addEventListener('change', () => {
-        rapidApiKey = keyInput.value.trim();
-        localStorage.setItem('judge0_api_key', rapidApiKey);
-        showToast('API key saved', 'success');
-      });
+      keyInput.closest('.api-key-section') && (keyInput.closest('.api-key-section').style.display = 'none');
     }
     if (window.App && window.App.currentQuestion) {
       renderHistory(window.App.currentQuestion.id);
@@ -205,10 +202,14 @@ const Compiler = (() => {
     requestAnimationFrame(renderChunk);
   }
 
+  function isDsaPageActive() {
+    return window.App?.currentPage === 'dsa-compiler' || window.App?.currentPage === 'problem';
+  }
+
   function run(sourceCode, language, stdin) {
     _isSubmit = false;
 
-    const isDsaPage = window.App?.currentPage === 'dsa-compiler';
+    const isDsaPage = isDsaPageActive();
     const currentQ = window.App?.currentQuestion;
     let qMeta = currentQ ? window.QUESTION_METADATA_REGISTRY[currentQ.id] : null;
     if (qMeta && currentQ && qMeta.name !== currentQ.name) {
@@ -223,24 +224,18 @@ const Compiler = (() => {
 
     if (isDsaMode) {
       activeMetadata = qMeta;
-      const activeTests = qMeta.sampleTests;
-      const T = activeTests.length;
-      let combinedStdin = `${T}\n`;
-      activeTests.forEach(tc => {
-        combinedStdin += tc.stdin;
-        if (!tc.stdin.endsWith('\n')) combinedStdin += '\n';
-      });
-
+      // Driver code generation stays client-side — wraps user's Solution class
       const wrapped = generateDriverCode(qMeta, sourceCode, language);
-      _execute(wrapped, language, combinedStdin);
+      // Combined stdin is built server-side from test_cases.json for ALL sample cases
+      _execute(wrapped, language, currentQ.id, 'run', null, null);
     } else {
       activeMetadata = null;
       const inputVal = isDsaPage ? (window.App?.currentQuestion?.sampleInput || '') : (stdin || '');
       if (isDsaPage) {
-        _execute(sourceCode, language, inputVal);
+        _execute(sourceCode, language, null, 'general', inputVal, null);
       } else {
         checkInputAndExecute(sourceCode, language, inputVal, () => {
-          _execute(sourceCode, language, inputVal);
+          _execute(sourceCode, language, null, 'general', inputVal, null);
         });
       }
     }
@@ -249,7 +244,7 @@ const Compiler = (() => {
   function submit(sourceCode, language) {
     _isSubmit = true;
 
-    const isDsaPage = window.App?.currentPage === 'dsa-compiler';
+    const isDsaPage = isDsaPageActive();
     const currentQ = window.App?.currentQuestion;
     let qMeta = currentQ ? window.QUESTION_METADATA_REGISTRY[currentQ.id] : null;
     if (qMeta && currentQ && qMeta.name !== currentQ.name) {
@@ -264,31 +259,29 @@ const Compiler = (() => {
 
     if (isDsaMode) {
       activeMetadata = qMeta;
-      const activeTests = [...qMeta.sampleTests, ...qMeta.hiddenTests];
-      const T = activeTests.length;
-      let combinedStdin = `${T}\n`;
-      activeTests.forEach(tc => {
-        combinedStdin += tc.stdin;
-        if (!tc.stdin.endsWith('\n')) combinedStdin += '\n';
-      });
-
       const wrapped = generateDriverCode(qMeta, sourceCode, language);
-      _execute(wrapped, language, combinedStdin);
+      // Hidden test cases loaded server-side — never sent to browser
+      _execute(wrapped, language, currentQ.id, 'submit', null, null);
     } else {
       activeMetadata = null;
       const q = window.App?.currentQuestion;
-      const stdin = (q && q.sampleInput) ? q.sampleInput : '';
+      const sampleStdin = (q && q.sampleInput) ? q.sampleInput : '';
       if (isDsaPage) {
-        _execute(sourceCode, language, stdin);
+        _execute(sourceCode, language, null, 'general', sampleStdin, null);
       } else {
-        checkInputAndExecute(sourceCode, language, stdin, () => {
-          _execute(sourceCode, language, stdin);
+        checkInputAndExecute(sourceCode, language, sampleStdin, () => {
+          _execute(sourceCode, language, null, 'general', sampleStdin, null);
         });
       }
     }
   }
 
   function stopExecution(reason) {
+    // Abort in-flight backend request
+    if (_currentAbortController) {
+      _currentAbortController.abort();
+      _currentAbortController = null;
+    }
     clearInterval(pollingInterval);
     if (executionTimeout) {
       clearTimeout(executionTimeout);
@@ -342,17 +335,40 @@ const Compiler = (() => {
   }
   window.stopExecution = stopExecution;
 
-  async function _execute(sourceCode, language, stdin) {
+  /**
+   * _execute — sends code to the FastAPI backend, which owns Judge0 orchestration.
+   *
+   * For DSA mode (question_id provided):
+   *   - Backend loads test cases from test_cases.json (server-side)
+   *   - Backend constructs combined stdin and sends to Judge0
+   *   - Backend polls Judge0 and returns verdict + per-test-case results
+   *   - Hidden test case expected answers never reach the browser
+   *
+   * For execution_type='run' or 'general' (SYNCHRONOUS):
+   *   - Sends POST /api/submissions, waits for immediate response, renders result.
+   *
+   * For execution_type='submit' in DSA mode (ASYNCHRONOUS):
+   *   - Sends POST /api/submissions, receives HTTP 202 + job_id immediately.
+   *   - Polls GET /api/submissions/{job_id} while status=queued/running.
+   *   - Displays "Queued..." → "Running..." status messages during polling.
+   *   - On completed: renders verdict using existing UI logic.
+   *   - On failed: displays error.
+   *   - Stops polling after SUBMIT_POLL_MAX_WAIT_MS (60s timeout).
+   *   - Submit button is disabled while polling is active.
+   *
+   * Execution-ID guard prevents stale results from overwriting newer ones.
+   */
+  async function _execute(sourceCode, language, questionId, executionType, customStdin, testCaseIndex) {
     const langId = LANGUAGE_IDS[language] || 54;
     clearAllOutput();
     executionId++;
     const myExecutionId = executionId;
 
-    activeVerdict = 'Running…';
+    activeVerdict = 'Running\u2026';
     activeRuntime = '--';
     activeMemory = '--';
 
-    updateStatus('running', 'Running…');
+    updateStatus('running', 'Running\u2026');
     _setButtonsDisabled(true);
 
     ['stop-btn', 'dsa-stop-btn'].forEach(id => {
@@ -360,240 +376,517 @@ const Compiler = (() => {
       if (el) el.style.display = 'flex';
     });
 
-    if (executionTimeout) clearTimeout(executionTimeout);
-    executionTimeout = setTimeout(() => {
-      if (myExecutionId === executionId) {
-        stopExecution('Execution stopped by client timeout.');
-      }
-    }, 30000);
+    // AbortController lets stopExecution() cancel the in-flight backend request
+    if (_currentAbortController) _currentAbortController.abort();
+    _currentAbortController = new AbortController();
+    const signal = _currentAbortController.signal;
 
+    // For async submit, timeout is managed by the polling loop
+    // For sync run/general, keep the 55s client timeout
+    const isAsyncSubmit = (executionType === 'submit' && questionId !== null && questionId !== undefined);
+
+    if (!isAsyncSubmit) {
+      if (executionTimeout) clearTimeout(executionTimeout);
+      executionTimeout = setTimeout(() => {
+        if (myExecutionId === executionId) {
+          stopExecution('Execution stopped by client timeout.');
+        }
+      }, 55000); // Backend polls for max 40s; give it a 15s buffer
+    }
+
+    // Build payload for the backend
     const payload = {
       source_code: btoa(unescape(encodeURIComponent(sourceCode))),
       language_id: langId,
-      stdin: btoa(unescape(encodeURIComponent(stdin))),
-      compiler_options: language === 'cpp' ? "-std=c++17" : "",
-      redirect_stderr_to_stdout: false,
-      wait: false,
+      execution_type: executionType || 'general',
+      question_id: questionId || null,
+      compiler_options: language === 'cpp' ? '-std=c++17' : '',
     };
 
+    if (testCaseIndex !== undefined && testCaseIndex !== null) {
+      payload.test_case_index = testCaseIndex;
+    }
+
+    if (customStdin !== null && customStdin !== undefined) {
+      payload.stdin = btoa(unescape(encodeURIComponent(customStdin)));
+    }
+
     try {
-      let response;
-      if (rapidApiKey) {
-        response = await fetch(`${JUDGE0_BASE}/submissions?base64_encoded=true&wait=false`, {
-          method: 'POST',
-          headers: {
-            'content-type': 'application/json',
-            'x-rapidapi-host': 'judge0-ce.p.rapidapi.com',
-            'x-rapidapi-key': rapidApiKey,
-          },
-          body: JSON.stringify(payload),
+      if (!window.ApiClient) throw new Error('ApiClient not loaded. Ensure js/api.js is included.');
+
+      updateStatus('waiting', 'Waiting\u2026');
+      const initialResponse = await window.ApiClient.submitCode(payload, signal);
+
+      // ── Async Submit path: received HTTP 202 + job_id ────────────────────
+      // The backend returned {job_id, status:'queued'} before running Judge0.
+      // We now poll GET /api/submissions/{job_id} until completed or failed.
+      if (isAsyncSubmit && initialResponse && initialResponse.status === 'queued') {
+        const jobId = initialResponse.job_id;
+        if (!jobId) {
+          throw new Error('Backend returned 202 but no job_id.');
+        }
+
+        // Poll for result
+        const SUBMIT_POLL_INTERVAL_MS = 1000;   // poll every 1 second
+        const SUBMIT_POLL_MAX_WAIT_MS = 60000;  // give up after 60 seconds
+        const pollStart = Date.now();
+
+        let finalResult = null;
+
+        while (true) {
+          // Stale guard: a new execution was started, abort this polling
+          if (myExecutionId !== executionId) return;
+
+          // Timeout guard
+          if (Date.now() - pollStart > SUBMIT_POLL_MAX_WAIT_MS) {
+            if (_currentAbortController) {
+              _currentAbortController.abort();
+              _currentAbortController = null;
+            }
+            _setButtonsDisabled(false);
+            ['stop-btn', 'dsa-stop-btn'].forEach(id => {
+              const el = document.getElementById(id);
+              if (el) el.style.display = 'none';
+            });
+            updateStatus('error', 'Timed out');
+            const banner = document.getElementById('dsa-status-banner') || document.getElementById('verdict-banner');
+            if (banner) {
+              banner.className = 'verdict-banner show error';
+              banner.style.display = '';
+              banner.innerHTML = `
+                <div class="verdict-header"><i class="fas fa-clock"></i><span>Timed Out</span></div>
+                <div class="verdict-explanation">The submission timed out waiting for a result. Please try again.</div>
+              `;
+            }
+            return;
+          }
+
+          // Wait before polling
+          await new Promise(resolve => setTimeout(resolve, SUBMIT_POLL_INTERVAL_MS));
+          if (myExecutionId !== executionId) return;
+
+          let jobStatus;
+          try {
+            jobStatus = await window.ApiClient.pollJobStatus(jobId, signal);
+          } catch (pollErr) {
+            if (pollErr && pollErr.name === 'AbortError') return; // user stopped
+            // Network error on poll — wait and retry (don't abort)
+            continue;
+          }
+
+          if (myExecutionId !== executionId) return;
+
+          const s = jobStatus && jobStatus.status;
+
+          if (s === 'queued') {
+            updateStatus('waiting', 'Queued\u2026');
+          } else if (s === 'running') {
+            updateStatus('waiting', 'Running\u2026');
+          } else if (s === 'completed') {
+            finalResult = jobStatus.result;
+            break;
+          } else if (s === 'failed') {
+            // Job failed in the worker
+            _setButtonsDisabled(false);
+            ['stop-btn', 'dsa-stop-btn'].forEach(id => {
+              const el = document.getElementById(id);
+              if (el) el.style.display = 'none';
+            });
+            updateStatus('error', 'Failed');
+            const banner = document.getElementById('dsa-status-banner') || document.getElementById('verdict-banner');
+            if (banner) {
+              banner.className = 'verdict-banner show error';
+              banner.style.display = '';
+              banner.innerHTML = `
+                <div class="verdict-header"><i class="fas fa-exclamation-triangle"></i><span>Submission Failed</span></div>
+                <div class="verdict-explanation">${jobStatus.error || 'An unknown error occurred.'}</div>
+              `;
+            }
+            // After any submit (even failed), invalidate history cache
+            if (typeof window.invalidateHistoryCache === 'function') {
+              try { window.invalidateHistoryCache(); } catch (_) {}
+            }
+            return;
+          }
+        }
+
+        // ── Polling complete — render result ───────────────────────────────
+        if (myExecutionId !== executionId) return;
+
+        _currentAbortController = null;
+        _setButtonsDisabled(false);
+        ['stop-btn', 'dsa-stop-btn'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.style.display = 'none';
         });
-      } else {
-        response = await fetch(`${JUDGE0_SULU}/submissions?base64_encoded=true&wait=false`, {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
+
+        if (!finalResult) {
+          updateStatus('error', 'No result');
+          return;
+        }
+
+        // Re-use the existing synchronous result-rendering logic
+        _handleSyncResult(finalResult, myExecutionId);
+
+        // After submit completes, invalidate history cache
+        if (typeof window.invalidateHistoryCache === 'function') {
+          try { window.invalidateHistoryCache(); } catch (_) {}
+        }
+        return;
       }
 
+      // ── Synchronous path (run / general) ──────────────────────────────────
+      // Stale result guard — if a newer execution started, discard this result
       if (myExecutionId !== executionId) return;
 
-      if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      clearTimeout(executionTimeout);
+      executionTimeout = null;
+      _currentAbortController = null;
 
-      const data = await response.json();
-      if (myExecutionId !== executionId) return;
+      _setButtonsDisabled(false);
+      ['stop-btn', 'dsa-stop-btn'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+      });
 
-      if (!data.token) throw new Error('No submission token received. Check your API key or try again.');
+      _handleSyncResult(initialResponse, myExecutionId);
 
-      updateStatus('waiting', 'Waiting…');
-      pollResult(data.token, language, myExecutionId);
+      // After any submit completes (any verdict), invalidate the history cache
+      if (_isSubmit && typeof window.invalidateHistoryCache === 'function') {
+        try { window.invalidateHistoryCache(); } catch (_) {}
+      }
 
     } catch (err) {
-      if (myExecutionId === executionId) {
-        _handleError(err);
+      if (myExecutionId !== executionId) return;
+      clearTimeout(executionTimeout);
+      executionTimeout = null;
+      _currentAbortController = null;
+      _setButtonsDisabled(false);
+      ['stop-btn', 'dsa-stop-btn'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+      });
+      _handleError(err);
+    }
+  }
+
+  /**
+   * _handleSyncResult — renders a completed submission result.
+   * Used by both the synchronous (run/general) and async (submit polling) paths.
+   */
+  function _handleSyncResult(result, myExecutionId) {
+    if (myExecutionId !== executionId) return;
+
+    const statusId = result.status_id;
+    const time = result.runtime || '--';
+    const memory = result.memory || '--';
+    const verdict = result.verdict || 'Unknown';
+
+    activeVerdict = verdict;
+    activeRuntime = time;
+    activeMemory = memory;
+
+    const isDsaPage = isDsaPageActive();
+    const statusInfo = STATUSES[statusId] || { label: verdict, cls: 'error' };
+
+    if (isDsaPage && (result.test_cases || result.compile_output || result.stderr || statusId !== 3)) {
+      // DSA mode — backend returned per-test-case results or error
+      const allPassed = result.verdict === 'Accepted';
+      const finalCls = allPassed ? 'accepted' : (result.verdict === 'Wrong Answer' ? 'wrong' : 'error');
+      updateStatus(finalCls, verdict);
+
+      renderDsaResultsFromBackend(result, time, memory);
+
+      if (window.App?.currentQuestion) {
+        updateExecutionHistory(window.App.currentQuestion.id, verdict, _isSubmit);
+      }
+
+      // Auto-mark solved: backend already updated Firestore on accepted submit,
+      // but we also update local state/UI immediately.
+      if (allPassed && _isSubmit) {
+        _autoMarkSolved();
+      }
+
+    } else if (result.test_cases && result.test_cases.length > 0) {
+      // DSA mode — backend returned per-test-case results
+      const allPassed = result.verdict === 'Accepted';
+      const finalCls = allPassed ? 'accepted' : (result.verdict === 'Wrong Answer' ? 'wrong' : 'error');
+      updateStatus(finalCls, verdict);
+
+      renderDsaResultsFromBackend(result, time, memory);
+
+      if (window.App?.currentQuestion) {
+        updateExecutionHistory(window.App.currentQuestion.id, verdict, _isSubmit);
+      }
+
+      if (allPassed && _isSubmit) {
+        _autoMarkSolved();
+      }
+
+    } else {
+      // General mode — raw stdout
+      const stdout = result.stdout || '';
+      const errText = result.compile_output || result.stderr || '';
+
+      updateStatus(statusInfo.cls === 'waiting' || statusInfo.cls === 'running' ? 'idle' : statusInfo.cls, verdict);
+      _showOutput(stdout, errText, '', time, memory, statusId);
+      _showBanner(statusId, verdict, { status: { description: verdict }, message: '' });
+
+      if (window.App?.currentQuestion) {
+        updateExecutionHistory(window.App.currentQuestion.id, verdict, _isSubmit);
+      }
+
+      if (statusId === 3 && _isSubmit) {
+        _autoMarkSolved();
       }
     }
   }
 
-  function pollResult(token, language, myExecutionId) {
-    let attempts = 0;
-    const MAX_ATTEMPTS = 25;
+  let currentSampleTests = [];
+  let currentSelectedCaseIdx = 0;
+  let currentCaseResults = {};
+  let lastExecutionMeta = null;
 
-    clearInterval(pollingInterval);
-    pollingInterval = setInterval(async () => {
-      if (myExecutionId !== executionId) {
-        clearInterval(pollingInterval);
-        return;
+  function _escape(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  async function loadQuestionSampleTests(questionId) {
+    const qId = Number(questionId);
+    if (!qId) return;
+
+    currentSelectedCaseIdx = 0;
+    currentCaseResults = {};
+    lastExecutionMeta = null;
+
+    // Keep verdict banner hidden
+    const verdictBanner = document.getElementById('dsa-status-banner');
+    if (verdictBanner) {
+      verdictBanner.className = 'verdict-banner';
+      verdictBanner.style.display = 'none';
+      verdictBanner.innerHTML = '';
+    }
+
+    const execTimeEl = document.getElementById('dsa-exec-time');
+    if (execTimeEl) execTimeEl.textContent = '--';
+    const execMemEl = document.getElementById('dsa-exec-memory');
+    if (execMemEl) execMemEl.textContent = '--';
+
+    // 1. Immediately populate from client metadata registry
+    let metaTests = null;
+    if (window.QUESTION_METADATA_REGISTRY && window.QUESTION_METADATA_REGISTRY[qId]) {
+      const qMeta = window.QUESTION_METADATA_REGISTRY[qId];
+      if (Array.isArray(qMeta.sampleTests) && qMeta.sampleTests.length > 0) {
+        metaTests = qMeta.sampleTests.map((tc, idx) => ({
+          index: idx + 1,
+          input: tc.input || '',
+          expected: tc.expected || ''
+        }));
       }
+    }
 
-      attempts++;
-      if (attempts > MAX_ATTEMPTS) {
-        clearInterval(pollingInterval);
-        if (myExecutionId !== executionId) return;
+    if (metaTests && metaTests.length > 0) {
+      currentSampleTests = metaTests;
+      renderSampleTestConsole();
+    }
 
-        if (executionTimeout) {
-          clearTimeout(executionTimeout);
-          executionTimeout = null;
+    // 2. Fetch from backend API to ensure data from test_cases.json
+    try {
+      if (window.ApiClient && typeof window.ApiClient.getQuestionSampleTests === 'function') {
+        const backendData = await window.ApiClient.getQuestionSampleTests(qId);
+        if (window.App?.currentQuestion?.id === qId && backendData && Array.isArray(backendData.sample_tests)) {
+          if (backendData.sample_tests.length > 0) {
+            currentSampleTests = backendData.sample_tests.map((tc, idx) => ({
+              index: tc.index || (idx + 1),
+              input: tc.input || '',
+              expected: tc.expected || ''
+            }));
+          } else if (!metaTests) {
+            currentSampleTests = [];
+          }
+          renderSampleTestConsole();
         }
-        _setButtonsDisabled(false);
-        ['stop-btn', 'dsa-stop-btn'].forEach(id => {
-          const el = document.getElementById(id);
-          if (el) el.style.display = 'none';
-        });
-        updateStatus('error', 'Timeout');
-        _showOutput('', 'Request timed out. Please try again.', '', null, null, null);
-        return;
       }
-
-      try {
-        let response;
-        const fields = 'status,stdout,stderr,compile_output,time,memory,message';
-
-        if (rapidApiKey) {
-          response = await fetch(
-            `${JUDGE0_BASE}/submissions/${token}?base64_encoded=true&fields=${fields}`,
-            {
-              headers: {
-                'x-rapidapi-host': 'judge0-ce.p.rapidapi.com',
-                'x-rapidapi-key': rapidApiKey,
-              },
-            }
-          );
+    } catch (err) {
+      console.warn('[Compiler] Failed to fetch sample tests from backend, using metadata:', err);
+      if (!metaTests) {
+        const appQ = window.App?.currentQuestion;
+        if (appQ && Array.isArray(appQ.examples) && appQ.examples.length > 0) {
+          currentSampleTests = appQ.examples.map((ex, idx) => ({
+            index: idx + 1,
+            input: ex.input || '',
+            expected: ex.output || ''
+          }));
+        } else if (appQ && (appQ.sampleInput || appQ.sampleOutput)) {
+          currentSampleTests = [{
+            index: 1,
+            input: appQ.sampleInput || '',
+            expected: appQ.sampleOutput || ''
+          }];
         } else {
-          response = await fetch(
-            `${JUDGE0_SULU}/submissions/${token}?base64_encoded=true&fields=${fields}`
-          );
+          currentSampleTests = [];
         }
-
-        if (myExecutionId !== executionId) {
-          clearInterval(pollingInterval);
-          return;
-        }
-
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-        const result = await response.json();
-
-        if (myExecutionId !== executionId) {
-          clearInterval(pollingInterval);
-          return;
-        }
-
-        const statusId = result.status?.id;
-
-        if (statusId === 1 || statusId === 2) {
-          const statusInfo = STATUSES[statusId] || { label: 'Waiting', cls: 'waiting' };
-          updateStatus(statusInfo.cls, statusInfo.label);
-          return;
-        }
-
-        clearInterval(pollingInterval);
-        if (executionTimeout) {
-          clearTimeout(executionTimeout);
-          executionTimeout = null;
-        }
-        _setButtonsDisabled(false);
-        ['stop-btn', 'dsa-stop-btn'].forEach(id => {
-          const el = document.getElementById(id);
-          if (el) el.style.display = 'none';
-        });
-
-        const statusInfo = STATUSES[statusId] || { label: `Status ${statusId}`, cls: 'error' };
-        const stdout = _decode(result.stdout);
-        const stderr = _decode(result.stderr);
-        const compileOutput = _decode(result.compile_output);
-        const time = result.time ? `${result.time}s` : '--';
-        const memory = result.memory ? `${(result.memory / 1024).toFixed(1)} MB` : '--';
-
-        const category = getErrorCategory(statusId, result.status?.description || statusInfo.label, result.message);
-
-        const isDsaPage = window.App?.currentPage === 'dsa-compiler';
-        const currentQ = window.App?.currentQuestion;
-        let qMeta = currentQ ? window.QUESTION_METADATA_REGISTRY[currentQ.id] : null;
-        if (qMeta && currentQ && qMeta.name !== currentQ.name) {
-          for (const key in window.QUESTION_METADATA_REGISTRY) {
-            if (window.QUESTION_METADATA_REGISTRY[key].name === currentQ.name) {
-              qMeta = window.QUESTION_METADATA_REGISTRY[key];
-              break;
-            }
-          }
-        }
-        const isDsaMode = isDsaPage && window.App?.dsaCompilerMode === 'dsa' && !!qMeta;
-
-        activeVerdict = category;
-        activeRuntime = time;
-        activeMemory = memory;
-
-        if (isDsaPage) {
-          let activeTests;
-          if (isDsaMode) {
-            activeTests = _isSubmit ? [...qMeta.sampleTests, ...qMeta.hiddenTests] : [...qMeta.sampleTests];
-          } else {
-            const q = window.App?.currentQuestion;
-            activeTests = [{
-              input: q?.sampleInput || '(none)',
-              expected: q?.sampleOutput || '(none)',
-              expectedRaw: q?.sampleOutput || ''
-            }];
-          }
-
-          let passedCount = 0;
-          if (isDsaMode) {
-            const compareMode = qMeta?.compareMode || 'ordered';
-            let outputLines = stdout ? stdout.split('---END_TC---') : [];
-            outputLines = outputLines.map(line => line.trim());
-            if (outputLines.length > 0 && outputLines[outputLines.length - 1] === "") {
-              outputLines.pop();
-            }
-
-            activeTests.forEach((tc, idx) => {
-              const actualRaw = outputLines[idx] || '';
-              const passed = statusId === 3 && normalizeAndCompare(actualRaw, tc.expectedRaw, compareMode);
-              if (passed) passedCount++;
-            });
-          } else {
-            const passed = statusId === 3 && normalizeAndCompare(stdout, activeTests[0].expectedRaw, 'ordered');
-            if (passed) passedCount = 1;
-          }
-
-          const allPassed = passedCount === activeTests.length && statusId === 3;
-          const finalCategory = allPassed ? 'Accepted' : (statusId === 3 ? 'Wrong Answer' : category);
-          activeVerdict = finalCategory;
-
-          const finalCls = (finalCategory === 'Accepted') ? 'accepted' : ((finalCategory === 'Wrong Answer') ? 'wrong' : statusInfo.cls);
-          updateStatus(statusInfo.cls === 'waiting' || statusInfo.cls === 'running' ? 'idle' : finalCls, finalCategory);
-          const resolvedCompareMode = isDsaMode ? (qMeta?.compareMode || 'ordered') : 'ordered';
-          renderDsaResults(statusId, stdout, stderr || compileOutput, compileOutput, time, memory, activeTests, resolvedCompareMode);
-        } else {
-          updateStatus(statusInfo.cls === 'waiting' || statusInfo.cls === 'running' ? 'idle' : statusInfo.cls, category);
-          _showOutput(stdout, compileOutput || stderr, '', time, memory, statusId);
-
-          _showBanner(statusId, statusInfo.label, result);
-
-          if (window.App && window.App.currentQuestion) {
-            updateExecutionHistory(window.App.currentQuestion.id, category, _isSubmit);
-          }
-
-          if (statusId === 3 && _isSubmit) {
-            _autoMarkSolved();
-          }
-        }
-
-      } catch (err) {
-        if (myExecutionId !== executionId) return;
-        clearInterval(pollingInterval);
-        if (executionTimeout) {
-          clearTimeout(executionTimeout);
-          executionTimeout = null;
-        }
-        _setButtonsDisabled(false);
-        ['stop-btn', 'dsa-stop-btn'].forEach(id => {
-          const el = document.getElementById(id);
-          if (el) el.style.display = 'none';
-        });
-        _handleError(err);
+        renderSampleTestConsole();
       }
-    }, 1500);
+    }
+  }
+
+  function selectCase(idx) {
+    if (idx < 0 || idx >= currentSampleTests.length) return;
+    currentSelectedCaseIdx = idx;
+    renderSampleTestConsole();
+  }
+
+  function getSelectedCaseIndex() {
+    return currentSelectedCaseIdx;
+  }
+
+  function renderSampleTestConsole() {
+    const tabsContainer = document.getElementById('dsa-testcase-tabs');
+    const contentContainer = document.getElementById('dsa-testcase-content');
+    if (!tabsContainer || !contentContainer) return;
+
+    if (!currentSampleTests || currentSampleTests.length === 0) {
+      tabsContainer.innerHTML = '';
+      contentContainer.innerHTML = '<div class="dsa-no-tests-msg">No sample test cases available.</div>';
+      return;
+    }
+
+    if (currentSelectedCaseIdx >= currentSampleTests.length) {
+      currentSelectedCaseIdx = 0;
+    }
+
+    // Render Compact Tabs Bar: Testcase  Case 1  Case 2  ...  Run All
+    let tabsHtml = '<div class="dsa-testcase-tab-bar">';
+    tabsHtml += '<span class="dsa-tc-label">Testcase</span>';
+    tabsHtml += '<div class="dsa-tc-buttons">';
+    currentSampleTests.forEach((tc, idx) => {
+      const isActive = idx === currentSelectedCaseIdx;
+      const res = currentCaseResults[tc.index];
+      let statusClass = '';
+      let icon = '';
+      if (res) {
+        if (res.passed) {
+          statusClass = ' passed';
+          icon = '<i class="fas fa-check"></i> ';
+        } else {
+          statusClass = ' failed';
+          icon = '<i class="fas fa-times"></i> ';
+        }
+      }
+      tabsHtml += `<button type="button" class="dsa-tab-btn ${isActive ? 'active' : ''}${statusClass}" onclick="Compiler.selectCase(${idx})">${icon}Case ${tc.index}</button>`;
+    });
+    tabsHtml += '</div>';
+    tabsHtml += '</div>';
+    tabsContainer.innerHTML = tabsHtml;
+
+    // Render Active Case Content
+    const activeCase = currentSampleTests[currentSelectedCaseIdx];
+    const res = currentCaseResults[activeCase.index];
+
+    let contentHtml = '<div class="dsa-testcase-body">';
+
+    // Input
+    contentHtml += '<div class="dsa-testcase-line">';
+    contentHtml += '<label>Input</label>';
+    contentHtml += `<pre class="dsa-test-code-box">${_escape(activeCase.input || '')}</pre>`;
+    contentHtml += '</div>';
+
+    // Expected
+    contentHtml += '<div class="dsa-testcase-line">';
+    contentHtml += '<label>Expected</label>';
+    contentHtml += `<pre class="dsa-test-code-box match">${_escape(activeCase.expected || '')}</pre>`;
+    contentHtml += '</div>';
+
+    // Output
+    contentHtml += '<div class="dsa-testcase-line">';
+    contentHtml += '<label>Output</label>';
+    if (res && res.actual !== undefined && res.actual !== null) {
+      const isMatch = res.passed;
+      contentHtml += `<pre class="dsa-test-code-box ${isMatch ? 'match' : 'mismatch'}">${_escape(res.actual || '(no output)')}</pre>`;
+    } else {
+      contentHtml += '<pre class="dsa-test-code-box placeholder" style="color:var(--text-muted);font-style:italic;">(Run code to see output)</pre>';
+    }
+    contentHtml += '</div>';
+
+    // Status row (only if evaluated)
+    if (res) {
+      const isMatch = res.passed;
+      contentHtml += '<div class="dsa-testcase-status-row">';
+      contentHtml += `<span class="dsa-verdict-tag ${isMatch ? 'passed' : 'failed'}">`;
+      contentHtml += `<i class="fas ${isMatch ? 'fa-check' : 'fa-times'}"></i> ${isMatch ? 'Accepted' : (res.status || 'Wrong Answer')}`;
+      contentHtml += '</span>';
+
+      // Runtime + Memory appear ONLY after execution if provided
+      if (lastExecutionMeta) {
+        if (lastExecutionMeta.time) {
+          contentHtml += `<span class="dsa-exec-chip"><i class="fas fa-clock"></i> ${lastExecutionMeta.time}</span>`;
+        }
+        if (lastExecutionMeta.memory) {
+          contentHtml += `<span class="dsa-exec-chip"><i class="fas fa-memory"></i> ${lastExecutionMeta.memory}</span>`;
+        }
+      }
+
+      contentHtml += '</div>';
+    }
+
+    contentHtml += '</div>';
+    contentContainer.innerHTML = contentHtml;
+  }
+
+  function renderDsaResultsFromBackend(result, time, memory) {
+    const passedCount = result.passed_count || 0;
+    const totalCount = result.total_count || (result.test_cases || []).length;
+    const allPassed = result.verdict === 'Accepted';
+
+    // Store execution metadata only if valid
+    lastExecutionMeta = {
+      time: (time && time !== '--') ? time : null,
+      memory: (memory && memory !== '--') ? memory : null,
+      verdict: result.verdict,
+      passedCount,
+      totalCount
+    };
+
+    // Keep verdictBanner hidden to prevent giant colored box consuming console height
+    const verdictBanner = document.getElementById('dsa-status-banner');
+    if (verdictBanner) {
+      verdictBanner.className = 'verdict-banner';
+      verdictBanner.style.display = 'none';
+      verdictBanner.innerHTML = '';
+    }
+
+    // Process per-test-case results
+    const testCases = result.test_cases || [];
+    testCases.forEach(tc => {
+      if (!tc.is_hidden) {
+        currentCaseResults[tc.index] = {
+          ...tc,
+          status: tc.passed ? 'Accepted' : (result.verdict === 'Wrong Answer' ? 'Wrong Answer' : (result.verdict || 'Failed'))
+        };
+      }
+    });
+
+    // If there's an execution error and no test_cases returned (e.g. Compilation Error or Runtime Error)
+    if (testCases.length === 0 && (result.compile_output || result.stderr || result.status_id !== 3)) {
+      const errDetail = result.compile_output || result.stderr || result.verdict;
+      currentSampleTests.forEach(st => {
+        currentCaseResults[st.index] = {
+          index: st.index,
+          passed: false,
+          actual: errDetail,
+          status: result.verdict || 'Error'
+        };
+      });
+    }
+
+    renderSampleTestConsole();
   }
 
   function _autoMarkSolved() {
@@ -882,6 +1175,10 @@ const Compiler = (() => {
   }
 
   function resetState() {
+    if (_currentAbortController) {
+      try { _currentAbortController.abort(); } catch (_) {}
+      _currentAbortController = null;
+    }
     clearInterval(pollingInterval);
     if (executionTimeout) {
       clearTimeout(executionTimeout);
@@ -1705,6 +2002,10 @@ public:
     resetState,
     renderHistory,
     stopExecution,
+    loadQuestionSampleTests,
+    selectCase,
+    getSelectedCaseIndex,
+    renderSampleTestConsole,
   };
 
 })();

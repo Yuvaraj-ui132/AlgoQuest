@@ -23,7 +23,6 @@ const App = {
     search: '',
     difficulty: 'all',
     tier: 'all',
-    tcs: 'all',
     status: 'all',
   },
   sort: { col: 'id', dir: 'asc' },
@@ -67,15 +66,8 @@ window.getStorageKey = getStorageKey;
 function lsGet(key) {
   try {
     const nsKey = getStorageKey(key);
-    let val = localStorage.getItem(nsKey);
-    if (val === null) {
-      const legacyVal = localStorage.getItem(key);
-      if (legacyVal !== null) {
-        localStorage.setItem(nsKey, legacyVal);
-        val = legacyVal;
-      }
-    }
-    return JSON.parse(val) || [];
+    const val = localStorage.getItem(nsKey);
+    return (val !== null) ? (JSON.parse(val) || []) : [];
   } catch {
     return [];
   }
@@ -88,15 +80,8 @@ function lsSet(key, val) {
 function lsGetObj(key) {
   try {
     const nsKey = getStorageKey(key);
-    let val = localStorage.getItem(nsKey);
-    if (val === null) {
-      const legacyVal = localStorage.getItem(key);
-      if (legacyVal !== null) {
-        localStorage.setItem(nsKey, legacyVal);
-        val = legacyVal;
-      }
-    }
-    return JSON.parse(val) || {};
+    const val = localStorage.getItem(nsKey);
+    return (val !== null) ? (JSON.parse(val) || {}) : {};
   } catch {
     return {};
   }
@@ -218,20 +203,308 @@ rl.on('close', () => {
 };
 
 // ============================================================
+// SPA ROUTING & HISTORY MANAGEMENT
+// ============================================================
+let isNavigatingFromHistory = false;
+
+function buildUrlForState(state) {
+  if (!state || !state.page || state.page === 'all' || state.page === 'dashboard') {
+    return '#dashboard';
+  }
+  if (state.page === 'table') {
+    return '#all-questions';
+  }
+  if (state.page === 'bookmarks') {
+    return '#bookmarks';
+  }
+  if (state.page === 'compiler') {
+    return '#compiler';
+  }
+  if (state.page === 'history') {
+    return '#history';
+  }
+  if (state.page === 'analytics') {
+    return '#analytics';
+  }
+  if (state.page === 'problem' || state.page === 'dsa-compiler') {
+    return state.questionId ? `#problem=${state.questionId}` : '#problem';
+  }
+  if (state.page === 'questions') {
+    let url = `#topic=${encodeURIComponent(state.topic || 'all')}`;
+    if (state.pattern && state.pattern !== 'all') {
+      url += `&pattern=${encodeURIComponent(state.pattern)}`;
+    }
+    if (state.questionId) {
+      url += `&question=${state.questionId}`;
+    }
+    return url;
+  }
+  return '#dashboard';
+}
+
+function parseUrlState() {
+  const hash = window.location.hash || '';
+  if (!hash || hash === '#' || hash === '#dashboard') {
+    return { page: 'all', topic: 'all', pattern: 'all' };
+  }
+  if (hash === '#all-questions') {
+    return { page: 'table', topic: 'table', pattern: 'all' };
+  }
+  if (hash === '#bookmarks') {
+    return { page: 'bookmarks', topic: 'bookmarks', pattern: 'all' };
+  }
+  if (hash === '#compiler') {
+    return { page: 'compiler', topic: 'compiler', pattern: 'all' };
+  }
+  if (hash === '#history') {
+    return { page: 'history', topic: 'history', pattern: 'all' };
+  }
+  if (hash === '#analytics') {
+    return { page: 'analytics', topic: 'analytics', pattern: 'all' };
+  }
+  if (hash.startsWith('#problem') || hash.startsWith('#solve')) {
+    const parts = hash.split('=');
+    const qId = parts[1] ? parseInt(parts[1], 10) : null;
+    return { page: 'problem', questionId: qId };
+  }
+  if (hash.startsWith('#topic=')) {
+    const query = hash.slice(1);
+    const params = new URLSearchParams(query);
+    const topic = params.get('topic') || 'all';
+    const pattern = params.get('pattern') || 'all';
+    const questionId = params.get('question') ? parseInt(params.get('question'), 10) : null;
+    return { page: 'questions', topic, pattern, questionId };
+  }
+  return { page: 'all', topic: 'all', pattern: 'all' };
+}
+
+function pushAppState(isReplace = false) {
+  if (isNavigatingFromHistory) return;
+
+  const state = {
+    page: App.currentPage,
+    topic: App.currentTopic || 'all',
+    pattern: App.currentPattern || 'all',
+    questionId: App.currentQuestion ? App.currentQuestion.id : null,
+    search: App.filters.search || '',
+    difficulty: App.filters.difficulty || 'all',
+    status: App.filters.status || 'all'
+  };
+
+  const url = buildUrlForState(state);
+
+  const current = history.state;
+  if (current &&
+      current.page === state.page &&
+      current.topic === state.topic &&
+      current.pattern === state.pattern &&
+      current.questionId === state.questionId &&
+      current.search === state.search &&
+      current.difficulty === state.difficulty &&
+      current.status === state.status) {
+    return;
+  }
+
+  try {
+    if (isReplace || !history.state) {
+      history.replaceState(state, '', url);
+    } else {
+      history.pushState(state, '', url);
+    }
+  } catch (e) {
+    console.warn('History API error:', e);
+  }
+}
+
+function restoreAppState(state) {
+  if (!state || !state.page) {
+    state = { page: 'all', topic: 'all', pattern: 'all' };
+  }
+
+  // Restore filter values if present
+  if (state.difficulty) App.filters.difficulty = state.difficulty;
+  if (state.status) App.filters.status = state.status;
+  if (state.search !== undefined) App.filters.search = state.search;
+
+  // Sync table filter controls UI
+  document.querySelectorAll('[data-filter-diff]').forEach(b => {
+    b.classList.toggle('active', b.dataset.filterDiff === App.filters.difficulty);
+  });
+  document.querySelectorAll('[data-filter-status]').forEach(b => {
+    b.classList.toggle('active', b.dataset.filterStatus === App.filters.status);
+  });
+  const tableSearch = document.getElementById('table-search-input');
+  if (tableSearch) tableSearch.value = App.filters.search || '';
+
+  const appContainer = document.getElementById('app');
+  if (appContainer && state.page !== 'problem' && state.page !== 'dsa-compiler') {
+    appContainer.classList.remove('problem-workspace-active', 'dsa-workspace-active', 'general-editor-active');
+  }
+
+  if (state.page === 'all' || state.page === 'dashboard') {
+    navigateTo('all');
+  } else if (state.page === 'table') {
+    if (state.questionId) {
+      const q = App.questions.find(x => x.id === state.questionId);
+      if (q) App.currentQuestion = q;
+    }
+    navigateTo('table');
+  } else if (state.page === 'bookmarks') {
+    if (state.questionId) {
+      const q = App.questions.find(x => x.id === state.questionId);
+      if (q) App.currentQuestion = q;
+    }
+    navigateTo('bookmarks');
+  } else if (state.page === 'compiler') {
+    navigateTo('compiler');
+  } else if (state.page === 'history') {
+    navigateTo('history');
+  } else if (state.page === 'analytics') {
+    navigateTo('analytics');
+  } else if (state.page === 'problem' || state.page === 'dsa-compiler') {
+    if (state.questionId) {
+      const q = App.questions.find(x => x.id === state.questionId);
+      if (q) App.currentQuestion = q;
+    }
+    if (!App.currentQuestion && App.questions.length > 0) {
+      App.currentQuestion = App.questions[0];
+    }
+    openProblemWorkspace(App.currentQuestion?.id, false);
+  } else if (state.page === 'questions') {
+    if (appContainer) {
+      appContainer.classList.remove('problem-workspace-active', 'dsa-workspace-active', 'general-editor-active');
+    }
+
+    App.currentPage = 'questions';
+    App.currentTopic = state.topic || 'Arrays';
+    App.currentPattern = state.pattern || 'all';
+
+    if (state.questionId) {
+      const q = App.questions.find(x => x.id === state.questionId);
+      if (q) App.currentQuestion = q;
+    }
+
+    applyFilters();
+
+    if (App.filteredQuestions.length > 0) {
+      const exists = App.currentQuestion && App.filteredQuestions.some(q => q.id === App.currentQuestion.id);
+      if (!exists) {
+        App.currentQuestion = App.filteredQuestions[0];
+      }
+    } else {
+      App.currentQuestion = null;
+    }
+
+    navigateToTopicView();
+    buildSidebar();
+  } else {
+    navigateTo('all');
+  }
+}
+
+window.addEventListener('popstate', (event) => {
+  isNavigatingFromHistory = true;
+  try {
+    const state = event.state || parseUrlState();
+    restoreAppState(state);
+  } catch (err) {
+    console.error('Error handling popstate:', err);
+    try {
+      navigateTo('all');
+    } catch (_) {}
+  } finally {
+    isNavigatingFromHistory = false;
+  }
+});
+
+// ============================================================
 // INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', async () => {
   await loadQuestions();
-  buildSidebar();
   initTheme();
   initTopbar();
-  updateStreak();
-  navigateTo('all');
   initMonaco();
   Compiler.init();
-  restoreLastQuestion();
   initNotes();
+  initDsaResizers();
+  // Protected page rendering and routing will be triggered by onUserAuthenticated when auth resolves.
 });
+
+// ============================================================
+// AUTHENTICATED USER SESSION LIFECYCLE
+// ============================================================
+App.onUserAuthenticated = function (user, isNewUser) {
+  if (isNewUser) {
+    App.currentQuestion = null;
+    App.currentPage = 'dashboard';
+    App.currentTopic = 'all';
+    App.currentPattern = 'all';
+    App.filters = { search: '', difficulty: 'all', tier: 'all', status: 'all' };
+    App.sort = { col: 'id', dir: 'asc' };
+
+    // Clear testcase console
+    const dsaTabs = document.getElementById('dsa-testcase-tabs');
+    if (dsaTabs) dsaTabs.innerHTML = '';
+    const dsaContent = document.getElementById('dsa-testcase-content');
+    if (dsaContent) dsaContent.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:20px 0;">No test cases evaluated.</div>';
+  }
+
+  buildSidebar();
+  updateSidebarStats();
+  updateStreak();
+
+  // Restore initial routing state from history.state or URL hash
+  isNavigatingFromHistory = true;
+  try {
+    const initial = (!isNewUser && history.state) ? history.state : parseUrlState();
+    if (initial && initial.page && initial.page !== 'all' && initial.page !== 'dashboard') {
+      restoreAppState(initial);
+      history.replaceState(initial, '', buildUrlForState(initial));
+    } else {
+      navigateTo('all');
+      history.replaceState({ page: 'all', topic: 'all', pattern: 'all' }, '', '#dashboard');
+    }
+  } catch (e) {
+    console.error('Initial navigation error:', e);
+    navigateTo('all');
+  } finally {
+    isNavigatingFromHistory = false;
+  }
+};
+
+App.clearUserState = function () {
+  App.currentQuestion = null;
+  App.currentPage = 'dashboard';
+  App.currentTopic = 'all';
+  App.currentPattern = 'all';
+  App.filters = { search: '', difficulty: 'all', tier: 'all', status: 'all' };
+  App.sort = { col: 'id', dir: 'asc' };
+
+  // Clear question detail panel
+  const detailPlaceholder = document.querySelector('.detail-placeholder');
+  const detailContent = document.querySelector('.detail-content');
+  if (detailPlaceholder) detailPlaceholder.style.display = 'flex';
+  if (detailContent) detailContent.style.display = 'none';
+
+  // Clear notes textarea
+  const notesTextarea = document.getElementById('notes-textarea');
+  if (notesTextarea) notesTextarea.value = '';
+
+  // Clear problem submissions panel
+  const probSubPanel = document.getElementById('dsa-problem-submissions-panel');
+  if (probSubPanel) { probSubPanel.innerHTML = ''; probSubPanel.style.display = 'none'; }
+  const probSubIcon = document.getElementById('dsa-submissions-toggle-icon');
+  if (probSubIcon) probSubIcon.style.transform = 'rotate(0deg)';
+
+  // Reset editor text to starter template
+  if (App.editor && window.STARTER_CODE) {
+    App.editor.setValue(window.STARTER_CODE[App.editorLanguage || 'cpp'] || '');
+  }
+  if (App.dsaEditor && window.STARTER_CODE) {
+    App.dsaEditor.setValue(window.STARTER_CODE[App.dsaEditorLanguage || 'cpp'] || '');
+  }
+};
 
 // ============================================================
 // LOAD QUESTIONS
@@ -261,16 +534,18 @@ function buildSidebar() {
   // 1. Navigation Section
   html += `<div class="nav-section-title">Navigation</div>`;
   const mainItems = [
-    { id: 'all', label: 'Dashboard', icon: 'fa-th-large' },
-    { id: 'table', label: 'All Questions', icon: 'fa-table' },
-    { id: 'bookmarks', label: 'Bookmarks', icon: 'fa-bookmark' },
-    { id: 'compiler', label: 'Code Editor', icon: 'fa-code' }
+    { id: 'all',       label: 'Dashboard',           icon: 'fa-th-large' },
+    { id: 'table',     label: 'All Questions',        icon: 'fa-table' },
+    { id: 'bookmarks', label: 'Bookmarks',            icon: 'fa-bookmark' },
+    { id: 'compiler',  label: 'Code Editor',          icon: 'fa-code' },
+    { id: 'history',   label: 'Submission History',   icon: 'fa-history' },
+    { id: 'analytics', label: 'Analytics',            icon: 'fa-chart-bar' },
   ];
 
   mainItems.forEach(item => {
     const isActive = App.currentPage === item.id;
     html += `
-      <div class="nav-item ${isActive ? 'active' : ''}" data-nav="${item.id}" onclick="navigateTo('${item.id}')">
+      <div class="nav-item ${isActive ? 'active' : ''}" data-nav="${item.id}" data-tooltip="${item.label}" onclick="navigateTo('${item.id}')">
         <i class="fas ${item.icon}"></i>
         <span class="nav-label">${item.label}</span>
       </div>`;
@@ -291,7 +566,7 @@ function buildSidebar() {
 
     let topicHtml = `
       <div class="sidebar-topic-group ${isTopicActive ? 'expanded' : ''}">
-        <div class="sidebar-topic-header ${isTopicActive ? 'active' : ''}" onclick="selectTopic('${topic.id}')">
+        <div class="sidebar-topic-header ${isTopicActive ? 'active' : ''}" data-tooltip="${topic.label}" onclick="selectTopic('${topic.id}')">
           <i class="fas ${topic.icon}"></i>
           <span class="topic-label">${topic.label}</span>
           <span class="nav-badge">${solvedCount}/${totalCount}</span>
@@ -329,7 +604,7 @@ function buildSidebar() {
   const advancedActiveId = ADVANCED_TOPICS.find(t => t.id === App.currentTopic)?.id;
   const isAdvancedSectionOpen = !!advancedActiveId || App._advancedOpen;
   html += `
-    <div class="nav-section-title advanced-section-toggle" onclick="toggleAdvancedSection()" id="advanced-section-header" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;">
+    <div class="nav-section-title advanced-section-toggle" data-tooltip="Advanced Topics" onclick="toggleAdvancedSection()" id="advanced-section-header" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;">
       <span>Advanced Topics</span>
       <i class="fas fa-chevron-${isAdvancedSectionOpen ? 'up' : 'down'}" style="font-size:10px;"></i>
     </div>
@@ -388,6 +663,8 @@ function applyTheme(theme) {
   localStorage.setItem(LS.THEME, theme);
   const btn = document.getElementById('theme-toggle');
   if (btn) btn.innerHTML = `<i class="fas ${theme === 'dark' ? 'fa-sun' : 'fa-moon'}"></i>`;
+  const wsIcon = document.getElementById('workspace-theme-icon');
+  if (wsIcon) wsIcon.className = `fas ${theme === 'dark' ? 'fa-sun' : 'fa-moon'}`;
 
   // Keep the Monaco code editors (general + DSA compiler) in sync with the app theme.
   // monaco.editor.setTheme() is global and updates every existing editor instance at once.
@@ -396,51 +673,77 @@ function applyTheme(theme) {
   }
 }
 
+window.toggleThemeFromWorkspace = function () {
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+};
+
 // ============================================================
 // TOPBAR
 // ============================================================
 function initTopbar() {
-  // Sidebar toggle
-  document.getElementById('sidebar-toggle').addEventListener('click', () => {
-    document.getElementById('sidebar').classList.toggle('collapsed');
-  });
+  // Restore persisted sidebar state
+  const isSidebarCollapsed = localStorage.getItem('algoquest.sidebarCollapsed') === 'true';
+  const sidebarEl = document.getElementById('sidebar');
+  if (isSidebarCollapsed && sidebarEl) {
+    sidebarEl.classList.add('collapsed');
+  }
+
+  // Global toggle sidebar function
+  window.toggleSidebar = function () {
+    const sidebar = document.getElementById('sidebar');
+    if (!sidebar) return;
+    const collapsed = sidebar.classList.toggle('collapsed');
+    localStorage.setItem('algoquest.sidebarCollapsed', collapsed ? 'true' : 'false');
+    setTimeout(() => {
+      if (App.dsaEditor && typeof App.dsaEditor.layout === 'function') App.dsaEditor.layout();
+      if (App.editor && typeof App.editor.layout === 'function') App.editor.layout();
+    }, 220);
+  };
+
+  // Sidebar toggle button in topbar
+  const toggleBtn = document.getElementById('sidebar-toggle');
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', window.toggleSidebar);
+  }
 
   // Search — triggers filter on all pages except dashboard
   document.getElementById('search-input').addEventListener('input', e => {
     App.filters.search = e.target.value.toLowerCase();
+    const tableSearch = document.getElementById('table-search-input');
+    if (tableSearch && tableSearch.value !== e.target.value) {
+      tableSearch.value = e.target.value;
+    }
     if (App.currentPage !== 'all') {
       applyFilters();
       renderCurrentView();
     }
   });
 
+  const tableSearchInput = document.getElementById('table-search-input');
+  if (tableSearchInput) {
+    tableSearchInput.addEventListener('input', e => {
+      App.filters.search = e.target.value.toLowerCase();
+      const topSearch = document.getElementById('search-input');
+      if (topSearch && topSearch.value !== e.target.value) {
+        topSearch.value = e.target.value;
+      }
+      applyFilters();
+      renderTable();
+    });
+  }
 
-  // Filter buttons
-  // Generic filter wiring
+  // Filter buttons — Difficulty and Status on All Questions table only
   document.querySelectorAll('[data-filter-diff]').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('[data-filter-diff]').forEach(b => b.classList.remove('active'));
       document.querySelectorAll(`[data-filter-diff="${btn.dataset.filterDiff}"]`).forEach(b => b.classList.add('active'));
       App.filters.difficulty = btn.dataset.filterDiff;
-      if (App.currentPage !== 'all') { applyFilters(); renderCurrentView(); }
-    });
-  });
-
-  document.querySelectorAll('[data-filter-tier]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('[data-filter-tier]').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll(`[data-filter-tier="${btn.dataset.filterTier}"]`).forEach(b => b.classList.add('active'));
-      App.filters.tier = btn.dataset.filterTier;
-      if (App.currentPage !== 'all') { applyFilters(); renderCurrentView(); }
-    });
-  });
-
-  document.querySelectorAll('[data-filter-tcs]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('[data-filter-tcs]').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll(`[data-filter-tcs="${btn.dataset.filterTcs}"]`).forEach(b => b.classList.add('active'));
-      App.filters.tcs = btn.dataset.filterTcs;
-      if (App.currentPage !== 'all') { applyFilters(); renderCurrentView(); }
+      if (App.currentPage === 'table') {
+        applyFilters();
+        renderTable();
+        pushAppState();
+      }
     });
   });
 
@@ -449,7 +752,11 @@ function initTopbar() {
       document.querySelectorAll('[data-filter-status]').forEach(b => b.classList.remove('active'));
       document.querySelectorAll(`[data-filter-status="${btn.dataset.filterStatus}"]`).forEach(b => b.classList.add('active'));
       App.filters.status = btn.dataset.filterStatus;
-      if (App.currentPage !== 'all') { applyFilters(); renderCurrentView(); }
+      if (App.currentPage === 'table') {
+        applyFilters();
+        renderTable();
+        pushAppState();
+      }
     });
   });
 }
@@ -458,7 +765,7 @@ function initTopbar() {
 // FILTERS
 // ============================================================
 function applyFilters() {
-  const { search, difficulty, tier, tcs, status } = App.filters;
+  const { search, difficulty, status } = App.filters;
   const solved = lsGet(LS.SOLVED);
 
   App.filteredQuestions = App.questions.filter(q => {
@@ -477,20 +784,14 @@ function applyFilters() {
       (q.pattern || '').toLowerCase().includes(search) ||
       (q.tags || []).some(t => t.toLowerCase().includes(search));
 
-    // Difficulty
-    const diffMatch = difficulty === 'all' || (q.difficulty || '').toLowerCase() === difficulty;
-
-    // Tier
-    const tierMatch = tier === 'all' || (q.tier || '').toLowerCase() === tier;
-
-    // TCS
-    const tcsMatch = tcs === 'all' || (tcs === 'tcs' ? q.tcs : !q.tcs);
-
-    // Status
+    // When on table (All Questions page), apply Difficulty and Status filters!
+    // On all other pages/views, there are no filters, so difficulty and status do not restrict.
+    const isTablePage = (App.currentPage === 'table');
+    const diffMatch = !isTablePage || difficulty === 'all' || (q.difficulty || '').toLowerCase() === difficulty;
     const isSolved = solved.includes(q.id);
-    const statusMatch = status === 'all' || (status === 'solved' ? isSolved : !isSolved);
+    const statusMatch = !isTablePage || status === 'all' || (status === 'solved' ? isSolved : !isSolved);
 
-    return topicMatch && patternMatch && searchMatch && diffMatch && tierMatch && tcsMatch && statusMatch;
+    return topicMatch && patternMatch && searchMatch && diffMatch && statusMatch;
   });
 }
 
@@ -498,12 +799,17 @@ function applyFilters() {
 // NAVIGATION
 // ============================================================
 function navigateTo(id) {
-  if (id === 'compiler' || id === 'dsa-compiler') {
-    if (App.currentPage !== 'compiler' && App.currentPage !== 'dsa-compiler') {
+  if (id === 'compiler' || id === 'dsa-compiler' || id === 'problem') {
+    if (App.currentPage !== 'compiler' && App.currentPage !== 'dsa-compiler' && App.currentPage !== 'problem') {
       App.prevPage = App.currentPage;
       App.prevTopic = App.currentTopic;
       App.prevPattern = App.currentPattern;
     }
+  }
+
+  if (id === 'dsa-compiler' || id === 'problem') {
+    openProblemWorkspace(App.currentQuestion?.id, true);
+    return;
   }
 
   App.currentPage = id;
@@ -512,12 +818,7 @@ function navigateTo(id) {
 
   const appContainer = document.getElementById('app');
   if (appContainer) {
-    if (id === 'dsa-compiler') {
-      appContainer.classList.add('dsa-workspace-active');
-    } else {
-      appContainer.classList.remove('dsa-workspace-active');
-    }
-
+    appContainer.classList.remove('problem-workspace-active', 'dsa-workspace-active');
     if (id === 'compiler') {
       appContainer.classList.add('general-editor-active');
     } else {
@@ -532,16 +833,16 @@ function navigateTo(id) {
 
   applyFilters();
 
-  // Show/hide topbar filters (only on questions page, hidden on dashboard, editor, table, and bookmarks)
+  // Topbar filter bar should never be shown anywhere
   const filterBar = document.getElementById('topbar-filters');
   if (filterBar) {
-    filterBar.classList.toggle('hidden', id === 'all' || id === 'compiler' || id === 'table' || id === 'bookmarks');
+    filterBar.classList.add('hidden');
   }
 
-  // Show/hide search wrapper (hidden on dashboard, compiler, dsa-compiler, and bookmarks)
+  // Topbar search is hidden everywhere
   const searchWrap = document.querySelector('.search-wrapper');
   if (searchWrap) {
-    searchWrap.classList.toggle('hidden', id === 'all' || id === 'compiler' || id === 'dsa-compiler' || id === 'bookmarks');
+    searchWrap.classList.add('hidden');
   }
 
   // Show correct page
@@ -551,6 +852,8 @@ function navigateTo(id) {
     document.getElementById('page-dashboard').classList.add('active');
     renderDashboard();
   } else if (id === 'table') {
+    const tableSearch = document.getElementById('table-search-input');
+    if (tableSearch) tableSearch.value = App.filters.search || '';
     document.getElementById('page-table').classList.add('active');
     renderTable();
   } else if (id === 'bookmarks') {
@@ -560,9 +863,21 @@ function navigateTo(id) {
     document.getElementById('page-compiler').classList.add('active');
     updatePageTitle('Code Editor', 'Monaco + Judge0 CE');
     loadGeneralCompilerCode();
+  } else if (id === 'history') {
+    document.getElementById('page-history').classList.add('active');
+    if (window.HistoryModule) {
+      window.HistoryModule.renderHistoryPage();
+      window.HistoryModule.loadHistoryPage();
+    }
+  } else if (id === 'analytics') {
+    document.getElementById('page-analytics').classList.add('active');
+    if (window.HistoryModule) {
+      window.HistoryModule.renderAnalyticsPage();
+    }
   } else if (id === 'dsa-compiler') {
     // DSA Compiler page — do NOT reset currentQuestion
     document.getElementById('page-dsa-compiler').classList.add('active');
+    initDsaResizers();
     setTimeout(() => {
       if (App.dsaEditor) App.dsaEditor.layout();
     }, 150);
@@ -579,14 +894,17 @@ function navigateTo(id) {
   }
 
   updatePageTitle(
-    id === 'all' ? 'Dashboard' :
-      id === 'table' ? 'All Questions' :
-        id === 'bookmarks' ? 'Bookmarks' :
-          id === 'compiler' ? 'Code Editor' :
-            id === 'dsa-compiler' ? 'Solve Problem' : id,
+    id === 'all'         ? 'Dashboard' :
+    id === 'table'       ? 'All Questions' :
+    id === 'bookmarks'   ? 'Bookmarks' :
+    id === 'compiler'    ? 'Code Editor' :
+    id === 'history'     ? 'Submission History' :
+    id === 'analytics'   ? 'Analytics' :
+    id === 'dsa-compiler'? 'Solve Problem' : id,
     ''
   );
   buildSidebar();
+  pushAppState();
 }
 
 // Restore the view the user was on before entering the compiler/solve screen.
@@ -595,24 +913,20 @@ function navigateTo(id) {
 // specific topic/pattern that was active and match zero questions. Restore the
 // saved topic/pattern context instead whenever prevPage was 'questions'.
 function restorePreviousView() {
+  const appContainer = document.getElementById('app');
+  if (appContainer) {
+    appContainer.classList.remove('problem-workspace-active', 'dsa-workspace-active', 'general-editor-active');
+  }
+
   const page = App.prevPage || 'all';
   if (page === 'questions' && App.prevTopic) {
-    // Exiting the fullscreen compiler/solve workspace — remove the classes that
-    // hide the sidebar and topbar (normally handled inside navigateTo(), but this
-    // branch restores topic state directly instead of calling navigateTo()).
-    const appContainer = document.getElementById('app');
-    if (appContainer) {
-      appContainer.classList.remove('dsa-workspace-active');
-      appContainer.classList.remove('general-editor-active');
-    }
-
     App.currentTopic = App.prevTopic;
     App.currentPattern = App.prevPattern || 'all';
     App.currentPage = 'questions';
     applyFilters();
     navigateToTopicView();
     buildSidebar();
-  } else if (page === 'compiler' || !page) {
+  } else if (page === 'compiler' || page === 'problem' || page === 'dsa-compiler' || !page) {
     navigateTo('all');
   } else {
     navigateTo(page);
@@ -625,11 +939,8 @@ function selectTopic(topicId) {
   App.currentPage = 'questions';
   applyFilters();
 
-  // Show topbar filters & search
-  const filterBar = document.getElementById('topbar-filters');
-  if (filterBar) filterBar.classList.remove('hidden');
-  const searchWrap = document.querySelector('.search-wrapper');
-  if (searchWrap) searchWrap.classList.remove('hidden');
+  // Automatically select first question of the topic
+  App.currentQuestion = App.filteredQuestions.length > 0 ? App.filteredQuestions[0] : null;
 
   navigateToTopicView();
   buildSidebar();
@@ -641,17 +952,18 @@ function selectPattern(topicId, patternId) {
   App.currentPage = 'questions';
   applyFilters();
 
-  // Show topbar filters & search
-  const filterBar = document.getElementById('topbar-filters');
-  if (filterBar) filterBar.classList.remove('hidden');
-  const searchWrap = document.querySelector('.search-wrapper');
-  if (searchWrap) searchWrap.classList.remove('hidden');
+  // Automatically select first question of the pattern
+  App.currentQuestion = App.filteredQuestions.length > 0 ? App.filteredQuestions[0] : null;
 
   navigateToTopicView();
   buildSidebar();
 }
 
 function navigateToTopicView() {
+  const appContainer = document.getElementById('app');
+  if (appContainer) {
+    appContainer.classList.remove('problem-workspace-active', 'dsa-workspace-active', 'general-editor-active');
+  }
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-questions').classList.add('active');
   document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
@@ -660,13 +972,8 @@ function navigateToTopicView() {
   const subTitle = App.currentPattern === 'all' ? 'All Patterns' : App.currentPattern;
   updatePageTitle(topicLabel, `${subTitle} • ${App.filteredQuestions.length} questions`);
 
-  // Ensure topbar filters and search are visible on questions/topic view
-  const filterBar = document.getElementById('topbar-filters');
-  if (filterBar) filterBar.classList.remove('hidden');
-  const searchWrap = document.querySelector('.search-wrapper');
-  if (searchWrap) searchWrap.classList.remove('hidden');
-
   renderQuestionsPage();
+  pushAppState();
 }
 
 function renderCurrentView() {
@@ -887,6 +1194,9 @@ function renderQuestionsPage() {
   const badge = document.getElementById('questions-count-badge');
   if (badge) badge.textContent = `${qs.length} questions`;
 
+  const placeholder = document.getElementById('detail-placeholder');
+  const content = document.getElementById('detail-content');
+
   if (!qs.length) {
     container.innerHTML = `
       <div class="empty-state">
@@ -894,7 +1204,37 @@ function renderQuestionsPage() {
         <h3>No questions found</h3>
         <p>Try adjusting your filters or search term.</p>
       </div>`;
+    if (placeholder) placeholder.style.display = 'flex';
+    if (content) content.style.display = 'none';
+    App.currentQuestion = null;
     return;
+  }
+
+  // Ensure selected question belongs to current question collection
+  const isCurrentInList = App.currentQuestion && qs.some(q => q.id === App.currentQuestion.id);
+  if (!isCurrentInList) {
+    App.currentQuestion = qs[0];
+  }
+
+  // Render detail panel for the selected question
+  if (App.currentQuestion) {
+    renderQuestionDetail(App.currentQuestion);
+
+    // Sync notes textarea for newly selected question
+    const notesObj = lsGetObj(LS.NOTES);
+    const noteText = notesObj[App.currentQuestion.id] || '';
+    const textarea = document.getElementById('notes-textarea');
+    if (textarea) textarea.value = noteText;
+    if (typeof updateNotesStatus === 'function') {
+      updateNotesStatus('saved');
+    }
+
+    // Update Bookmark button state
+    if (typeof updateBookmarkButton === 'function') {
+      updateBookmarkButton(App.currentQuestion.id);
+    }
+
+    localStorage.setItem(getStorageKey(LS.LAST_Q), App.currentQuestion.id);
   }
 
   let html = '';
@@ -922,7 +1262,6 @@ function renderQuestionsPage() {
           ${isRev2 ? '<span class="rev-badge" title="Revision 2"><i class="fas fa-bookmark"></i></span>' : ''}
           ${isRev1 && !isRev2 ? '<span class="rev-badge" style="color:var(--accent-blue-light)" title="Revision 1"><i class="far fa-bookmark"></i></span>' : ''}
           <span class="tier-badge ${q.tier || 'optional'}">${q.tier ? q.tier.charAt(0).toUpperCase() + q.tier.slice(1) : 'Optional'}</span>
-          ${q.tcs ? '<span class="tcs-badge">TCS</span>' : ''}
           <span class="diff-badge ${q.difficulty.toLowerCase()}">${q.difficulty}</span>
         </div>
       </div>`;
@@ -935,86 +1274,15 @@ function renderQuestionsPage() {
 // OPEN QUESTION
 // ============================================================
 function openQuestion(id) {
-
-  const q = App.questions.find(q => q.id === id);
-  if (!q) return;
-
-  App.currentQuestion = q;
-  App.showHint = false;
-  App.showSolution = false;
-
-  // Reset compiler execution state when changing questions
-  if (window.Compiler && typeof window.Compiler.resetState === 'function') {
-    window.Compiler.resetState();
-  }
-
-  // Reset compiler mode when opening a new question
-  if (typeof window.setCompilerMode === 'function') {
-    window.setCompilerMode('general');
-  } else {
-    App.compilerMode = 'general';
-  }
-
-  // Navigate to questions page if on dashboard
-  if (App.currentPage === 'all' || App.currentPage === 'table') {
-    const canon = getCanonical(q);
-    App.currentTopic = canon;
-    App.currentPattern = q.pattern || 'all';
-    applyFilters();
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById('page-questions').classList.add('active');
-    document.querySelectorAll('.nav-item').forEach(item => {
-      item.classList.toggle('active', item.dataset.nav === canon);
-    });
-    // Show filters & search
-    const filterBar = document.getElementById('topbar-filters');
-    if (filterBar) filterBar.classList.remove('hidden');
-    const searchWrap = document.querySelector('.search-wrapper');
-    if (searchWrap) searchWrap.classList.remove('hidden');
-
-    App.currentPage = 'questions';
-    updatePageTitle(canon, `${App.filteredQuestions.length} questions`);
-    renderQuestionsPage();
-    buildSidebar();
-  }
-
-  // Highlight active row
-  document.querySelectorAll('.question-row').forEach(row => {
-    row.classList.toggle('active', parseInt(row.dataset.qid) === id);
-  });
-
-  // Save last opened
-  localStorage.setItem(getStorageKey(LS.LAST_Q), id);
-
-  // Render detail
-  renderQuestionDetail(q);
-
-  // Load notes
-  const notesObj = lsGetObj(LS.NOTES);
-  const noteText = notesObj[id] || '';
-  const textarea = document.getElementById('notes-textarea');
-  if (textarea) textarea.value = noteText;
-  if (typeof updateNotesStatus === 'function') {
-    updateNotesStatus('saved');
-  }
-
-  // Update Bookmark button state
-  if (typeof updateBookmarkButton === 'function') {
-    updateBookmarkButton(id);
-  }
+  openProblemWorkspace(id, true);
 }
+window.openQuestion = openQuestion;
 
 function solveCurrentQuestion() {
   if (!App.currentQuestion) return;
-  App.prevPage = App.currentPage;
-  App.prevTopic = App.currentTopic;
-  App.prevPattern = App.currentPattern;
-  // Navigate to DSA compiler (do NOT reset currentQuestion)
-  navigateTo('dsa-compiler');
-  // Load code and populate problem panel (done in navigateTo, but ensure it's called)
-  populateDsaProblemPanel(App.currentQuestion);
-  loadDsaCodeForQuestion(App.currentQuestion);
+  openProblemWorkspace(App.currentQuestion.id, true);
 }
+window.solveCurrentQuestion = solveCurrentQuestion;
 
 function restoreLastQuestion() {
   const lastId = parseInt(localStorage.getItem(getStorageKey(LS.LAST_Q)));
@@ -1057,8 +1325,7 @@ function renderQuestionDetail(q) {
   const badgesEl = document.getElementById('detail-badges');
   badgesEl.innerHTML = `
     <span class="tier-badge ${q.tier || 'optional'}">${q.tier ? q.tier.charAt(0).toUpperCase() + q.tier.slice(1) : 'Optional'}</span>
-    <span class="diff-badge ${q.difficulty.toLowerCase()}">${q.difficulty}</span>
-    ${q.tcs ? '<span class="tcs-badge">TCS</span>' : ''}`;
+    <span class="diff-badge ${q.difficulty.toLowerCase()}">${q.difficulty}</span>`;
 
   // Actions
   updateDetailActions(q);
@@ -1273,7 +1540,17 @@ function renderTable() {
           <p>Try adjusting your filters.</p>
         </div>
       </td></tr>`;
+    App.currentQuestion = null;
     return;
+  }
+
+  // Ensure currentQuestion belongs to current table question collection
+  const isCurrentInList = App.currentQuestion && qs.some(q => q.id === App.currentQuestion.id);
+  if (!isCurrentInList && qs.length > 0) {
+    App.currentQuestion = qs[0];
+  }
+  if (App.currentQuestion) {
+    localStorage.setItem(getStorageKey(LS.LAST_Q), App.currentQuestion.id);
   }
 
   let html = '';
@@ -1295,7 +1572,6 @@ function renderTable() {
         <td style="color:var(--text-muted);font-size:11.5px">${q.pattern || '—'}</td>
         <td><span class="diff-badge ${q.difficulty.toLowerCase()}">${q.difficulty}</span></td>
         <td><span class="tier-badge ${q.tier || 'optional'}">${tierDisplay}</span></td>
-        <td>${q.tcs ? '<span class="tcs-badge">TCS</span>' : '<span style="color:var(--text-muted);font-size:11px">—</span>'}</td>
         <td>
           <div class="q-status-icon ${isSolved ? 'solved' : 'unsolved'}">
             <i class="fas ${isSolved ? 'fa-check-circle' : 'fa-circle'}"></i>
@@ -1799,19 +2075,8 @@ function updateStreak() {
 
     if (lastDay === yesterday.toDateString()) {
       streak += 1;
-    } else if (!lastDay) {
-      // Compatibility fallback: check legacy keys
-      const legacyLastDay = localStorage.getItem(LS.LAST_DAY);
-      const legacyStreak = parseInt(localStorage.getItem(LS.STREAK)) || 0;
-      if (legacyLastDay === yesterday.toDateString()) {
-        streak = legacyStreak + 1;
-      } else if (legacyLastDay === today) {
-        streak = legacyStreak;
-      } else {
-        streak = 1;
-      }
     } else {
-      streak = 1; // Reset
+      streak = 1; // Start / Reset streak
     }
 
     localStorage.setItem(streakKey, streak);
@@ -1972,12 +2237,23 @@ window.toggleBookmark = function (id) {
 };
 
 window.updateBookmarkButton = function (id) {
-  const btn = document.getElementById('btn-bookmark');
-  if (!btn) return;
   const bookmarks = lsGet(LS.BOOKMARKS);
   const isBookmarked = bookmarks.includes(id);
-  btn.className = `action-btn ${isBookmarked ? 'active' : ''}`;
-  btn.innerHTML = `<i class="${isBookmarked ? 'fas' : 'far'} fa-bookmark"></i> ${isBookmarked ? 'Bookmarked ✓' : 'Bookmark'}`;
+
+  const btn = document.getElementById('btn-bookmark');
+  if (btn) {
+    btn.className = `action-btn ${isBookmarked ? 'active' : ''}`;
+    btn.innerHTML = `<i class="${isBookmarked ? 'fas' : 'far'} fa-bookmark"></i> ${isBookmarked ? 'Bookmarked ✓' : 'Bookmark'}`;
+  }
+
+  const dsaBmIcon = document.getElementById('dsa-header-bookmark-icon');
+  const dsaBmBtn = document.getElementById('dsa-header-bookmark-btn');
+  if (dsaBmIcon) {
+    dsaBmIcon.className = isBookmarked ? 'fas fa-bookmark' : 'far fa-bookmark';
+  }
+  if (dsaBmBtn) {
+    dsaBmBtn.classList.toggle('bookmarked', isBookmarked);
+  }
 };
 
 function renderBookmarksPage() {
@@ -2001,7 +2277,17 @@ function renderBookmarksPage() {
           <p>Click the bookmark button on any question details page to save it here.</p>
         </div>
       </td></tr>`;
+    App.currentQuestion = null;
     return;
+  }
+
+  // Ensure currentQuestion belongs to bookmarked questions
+  const isCurrentInList = App.currentQuestion && bookmarkedQuestions.some(q => q.id === App.currentQuestion.id);
+  if (!isCurrentInList && bookmarkedQuestions.length > 0) {
+    App.currentQuestion = bookmarkedQuestions[0];
+  }
+  if (App.currentQuestion) {
+    localStorage.setItem(getStorageKey(LS.LAST_Q), App.currentQuestion.id);
   }
 
   let html = '';
@@ -2019,7 +2305,6 @@ function renderBookmarksPage() {
         <td style="color:var(--text-muted);font-size:11.5px" onclick="openQuestion(${q.id})">${q.pattern || '—'}</td>
         <td onclick="openQuestion(${q.id})"><span class="diff-badge ${q.difficulty.toLowerCase()}">${q.difficulty}</span></td>
         <td onclick="openQuestion(${q.id})"><span class="tier-badge ${q.tier || 'optional'}">${tierDisplay}</span></td>
-        <td onclick="openQuestion(${q.id})">${q.tcs ? '<span class="tcs-badge">TCS</span>' : '<span style="color:var(--text-muted);font-size:11px">—</span>'}</td>
         <td onclick="openQuestion(${q.id})">
           <div class="q-status-icon ${isSolved ? 'solved' : 'unsolved'}">
             <i class="fas ${isSolved ? 'fa-check-circle' : 'fa-circle'}"></i>
@@ -2101,7 +2386,6 @@ function syncCompilerDescription(q) {
     badges.innerHTML = `
       <span class="tier-badge ${q.tier || 'optional'}">${q.tier ? q.tier.charAt(0).toUpperCase() + q.tier.slice(1) : 'Optional'}</span>
       <span class="diff-badge ${q.difficulty.toLowerCase()}">${q.difficulty}</span>
-      ${q.tcs ? '<span class="tcs-badge">TCS</span>' : ''}
     `;
   }
 
@@ -2201,42 +2485,62 @@ window.setCompilerMode = function (mode) {
 /**
  * Populate the left panel (#page-dsa-compiler) with problem details
  */
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+/**
+ * Populate the left panel (#page-dsa-compiler) with problem details
+ */
 function populateDsaProblemPanel(q) {
   if (!q) return;
 
   // Title
   const title = document.getElementById('dsa-problem-title');
-  if (title) title.textContent = q.name;
+  if (title) title.textContent = `${q.id}. ${q.name}`;
 
-  // Badges (difficulty, tier, TCS)
+  // Topic & Pattern subheading
+  const topicEl = document.getElementById('dsa-topic-text');
+  if (topicEl) topicEl.textContent = getCanonical(q) || q.topic || 'General';
+  const patternEl = document.getElementById('dsa-pattern-text');
+  if (patternEl) patternEl.textContent = q.pattern || 'Standard';
+
+  // Complexity chips in problem header
+  const timeEl = document.getElementById('dsa-header-time');
+  if (timeEl) timeEl.textContent = q.timeComplexity || 'O(n)';
+  const spaceEl = document.getElementById('dsa-header-space');
+  if (spaceEl) spaceEl.textContent = q.spaceComplexity || 'O(1)';
+
+  // Bookmark icon in header
+  updateBookmarkButton(q.id);
+
+  // Badges (difficulty, tier)
   const badgesContainer = document.getElementById('dsa-problem-badges');
   if (badgesContainer) {
     badgesContainer.innerHTML = '';
 
     // Difficulty badge
     const diffBadge = document.createElement('span');
-    diffBadge.className = `diff-badge ${q.difficulty}`;
+    diffBadge.className = `diff-badge ${q.difficulty.toLowerCase()}`;
     diffBadge.textContent = q.difficulty.toUpperCase();
     badgesContainer.appendChild(diffBadge);
 
     // Tier badge
     const tierBadge = document.createElement('span');
-    tierBadge.className = `tier-badge ${q.tier}`;
-    tierBadge.textContent = q.tier.charAt(0).toUpperCase() + q.tier.slice(1);
+    tierBadge.className = `tier-badge ${q.tier || 'optional'}`;
+    tierBadge.textContent = (q.tier || 'optional').toUpperCase();
     badgesContainer.appendChild(tierBadge);
-
-    // TCS badge (if applicable)
-    if (q.tcs) {
-      const tcsBadge = document.createElement('span');
-      tcsBadge.className = 'tcs-badge';
-      tcsBadge.textContent = 'TCS';
-      badgesContainer.appendChild(tcsBadge);
-    }
 
     const supported = getDsaSupportedLanguages(q);
     if (supported.length === 1 && supported[0] === 'cpp') {
       const cppOnlyBadge = document.createElement('span');
-      cppOnlyBadge.className = 'tcs-badge';
+      cppOnlyBadge.className = 'lang-chip';
       cppOnlyBadge.textContent = 'C++ Only';
       badgesContainer.appendChild(cppOnlyBadge);
 
@@ -2253,14 +2557,87 @@ function populateDsaProblemPanel(q) {
   const statement = document.getElementById('dsa-problem-statement');
   if (statement) statement.textContent = q.statement || 'No description available.';
 
+  // Input Format
+  const inputFormatBox = document.getElementById('dsa-input-format-box');
+  const inputFormatEl = document.getElementById('dsa-input-format');
+  if (inputFormatEl) {
+    if (q.inputFormat) {
+      inputFormatEl.textContent = q.inputFormat;
+      if (inputFormatBox) inputFormatBox.style.display = 'block';
+    } else if (inputFormatBox) {
+      inputFormatBox.style.display = 'none';
+    }
+  }
+
+  // Output Format
+  const outputFormatBox = document.getElementById('dsa-output-format-box');
+  const outputFormatEl = document.getElementById('dsa-output-format');
+  if (outputFormatEl) {
+    if (q.outputFormat) {
+      outputFormatEl.textContent = q.outputFormat;
+      if (outputFormatBox) outputFormatBox.style.display = 'block';
+    } else if (outputFormatBox) {
+      outputFormatBox.style.display = 'none';
+    }
+  }
+
   // Constraints
   const constraints = document.getElementById('dsa-constraints');
   if (constraints) constraints.textContent = q.constraints || 'No constraints specified.';
 
-  // Sample input/output
+  // Structured Examples
+  const examplesContainer = document.getElementById('dsa-examples-container');
+  if (examplesContainer) {
+    let examples = [];
+    if (Array.isArray(q.examples) && q.examples.length > 0) {
+      examples = q.examples;
+    } else if (window.QUESTION_METADATA_REGISTRY && window.QUESTION_METADATA_REGISTRY[q.id]?.sampleTests?.length > 0) {
+      examples = window.QUESTION_METADATA_REGISTRY[q.id].sampleTests.map(s => ({
+        input: s.input,
+        output: s.expected
+      }));
+    } else if (q.sampleInput || q.sampleOutput) {
+      examples = [{
+        input: q.sampleInput || 'N/A',
+        output: q.sampleOutput || 'N/A'
+      }];
+    }
+
+    if (examples.length > 0) {
+      examplesContainer.innerHTML = examples.map((ex, idx) => `
+        <div class="dsa-example-card">
+          <div class="example-title">Example ${idx + 1}</div>
+          <div class="io-section" style="margin-bottom:6px;">
+            <span class="io-tag">Input:</span>
+            <pre class="dsa-io-code">${escapeHtml(ex.input || '')}</pre>
+          </div>
+          <div class="io-section">
+            <span class="io-tag">Output:</span>
+            <pre class="dsa-io-code">${escapeHtml(ex.output || '')}</pre>
+          </div>
+          ${ex.explanation ? `<div class="example-explanation"><strong>Explanation:</strong> ${escapeHtml(ex.explanation)}</div>` : ''}
+        </div>
+      `).join('');
+    } else {
+      examplesContainer.innerHTML = `
+        <div class="dsa-example-card">
+          <div class="example-title">Example 1</div>
+          <div class="io-section" style="margin-bottom:6px;">
+            <span class="io-tag">Input:</span>
+            <pre id="dsa-example-input" class="dsa-io-code">${escapeHtml(q.sampleInput || 'N/A')}</pre>
+          </div>
+          <div class="io-section">
+            <span class="io-tag">Output:</span>
+            <pre id="dsa-example-output" class="dsa-io-code">${escapeHtml(q.sampleOutput || 'N/A')}</pre>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  // Fallback elements if present
   const sampleInput = document.getElementById('dsa-example-input');
   if (sampleInput) sampleInput.textContent = q.sampleInput || 'N/A';
-
   const sampleOutput = document.getElementById('dsa-example-output');
   if (sampleOutput) sampleOutput.textContent = q.sampleOutput || 'N/A';
 
@@ -2286,6 +2663,11 @@ function populateDsaProblemPanel(q) {
     } else {
       solBox.style.display = 'none';
     }
+  }
+
+  // Load question sample tests into bottom test console
+  if (window.Compiler && typeof window.Compiler.loadQuestionSampleTests === 'function') {
+    window.Compiler.loadQuestionSampleTests(q.id);
   }
 }
 
@@ -2539,11 +2921,38 @@ function toggleDsaFullscreenEditor() {
 }
 
 /**
- * Run DSA code
+ * Toggle or force expand/collapse the bottom test/result console
+ */
+function toggleDsaConsole(forceOpen) {
+  const consoleEl = document.getElementById('dsa-bottom-console');
+  const toggleIcon = document.getElementById('dsa-console-toggle-icon');
+  if (!consoleEl) return;
+
+  if (forceOpen === true) {
+    consoleEl.classList.remove('collapsed');
+    if (toggleIcon) toggleIcon.className = 'fas fa-chevron-down';
+  } else if (forceOpen === false) {
+    consoleEl.classList.add('collapsed');
+    if (toggleIcon) toggleIcon.className = 'fas fa-chevron-up';
+  } else {
+    const isCollapsed = consoleEl.classList.toggle('collapsed');
+    if (toggleIcon) toggleIcon.className = isCollapsed ? 'fas fa-chevron-up' : 'fas fa-chevron-down';
+  }
+
+  setTimeout(() => {
+    if (App.dsaEditor) App.dsaEditor.layout();
+  }, 120);
+}
+
+/**
+ * Run DSA code: executes ALL sample test cases in one execution
  */
 function dsaRunCode() {
   if (!App.dsaEditor) { showToast('Editor not ready', 'error'); return; }
   if (!App.currentQuestion) { showToast('No question selected', 'error'); return; }
+
+  // Ensure bottom console is open and visible
+  toggleDsaConsole(true);
 
   // Save code before running
   saveDsaEditorCode(App.currentQuestion.id);
@@ -2565,8 +2974,11 @@ function dsaRunCode() {
     App.compilerMode = 'general';
   }
 
+  // Run ALWAYS executes all visible sample test cases
   Compiler.run(code, lang, '');
 }
+
+window.dsaRunCode = dsaRunCode;
 
 /**
  * Submit DSA code
@@ -2574,6 +2986,9 @@ function dsaRunCode() {
 function dsaSubmitCode() {
   if (!App.dsaEditor) { showToast('Editor not ready', 'error'); return; }
   if (!App.currentQuestion) { showToast('No question selected', 'error'); return; }
+
+  // Ensure bottom console is open and visible
+  toggleDsaConsole(true);
 
   // Save code before submitting
   saveDsaEditorCode(App.currentQuestion.id);
@@ -2599,9 +3014,76 @@ function dsaSubmitCode() {
 }
 
 /**
- * Exit DSA Workspace: stops polling, cancels execution, clears results, and returns to dashboard
+ * Dedicated Full-Screen Problem Workspace Controller
  */
-window.exitDsaWorkspace = function () {
+window.openProblemWorkspace = function (id, shouldPushState = true) {
+  let q = null;
+  if (id !== undefined && id !== null) {
+    q = App.questions.find(x => x.id === Number(id));
+  }
+  if (!q && App.currentQuestion) {
+    q = App.currentQuestion;
+  }
+  if (!q && App.questions.length > 0) {
+    q = App.questions[0];
+  }
+  if (!q) return;
+
+  // Save return context if entering from a normal page
+  if (App.currentPage !== 'problem' && App.currentPage !== 'dsa-compiler') {
+    App.prevPage = App.currentPage;
+    App.prevTopic = App.currentTopic;
+    App.prevPattern = App.currentPattern;
+  }
+
+  App.currentQuestion = q;
+  App.currentPage = 'problem';
+
+  const appContainer = document.getElementById('app');
+  if (appContainer) {
+    appContainer.classList.add('problem-workspace-active');
+  }
+
+  // Deactivate other pages and activate #page-dsa-compiler
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const dsaPage = document.getElementById('page-dsa-compiler');
+  if (dsaPage) dsaPage.classList.add('active');
+
+  // Breadcrumbs in workspace topbar
+  const crumbTopic = document.getElementById('workspace-crumb-topic');
+  if (crumbTopic) crumbTopic.textContent = getCanonical(q) || q.topic || 'DSA';
+  const crumbTitle = document.getElementById('workspace-crumb-title');
+  if (crumbTitle) crumbTitle.textContent = `${q.id}. ${q.name}`;
+
+  // Populate problem details and editor code
+  populateDsaProblemPanel(q);
+  loadDsaCodeForQuestion(q);
+  initDsaResizers();
+
+  // Ensure theme icon is synced
+  const theme = document.documentElement.getAttribute('data-theme') || 'dark';
+  const wsIcon = document.getElementById('workspace-theme-icon');
+  if (wsIcon) wsIcon.className = `fas ${theme === 'dark' ? 'fa-sun' : 'fa-moon'}`;
+
+  // Persist last opened question
+  localStorage.setItem(getStorageKey(LS.LAST_Q), q.id);
+
+  if (shouldPushState) {
+    pushAppState();
+  }
+
+  // Ensure Monaco gets resized properly
+  setTimeout(() => {
+    if (App.dsaEditor && typeof App.dsaEditor.layout === 'function') {
+      App.dsaEditor.layout();
+    }
+  }, 100);
+};
+
+/**
+ * Exit Problem Workspace: stops polling, cancels execution, clears results, and returns to previous view
+ */
+window.exitProblemWorkspace = function () {
   // Cancel active compiler execution and polling
   if (window.Compiler) {
     if (typeof window.Compiler.stopExecution === 'function') {
@@ -2631,6 +3113,253 @@ window.exitDsaWorkspace = function () {
   const memVal = document.getElementById('dsa-exec-memory');
   if (memVal) memVal.textContent = '--';
 
-  // Restore dashboard layout
-  restorePreviousView();
+  const appContainer = document.getElementById('app');
+  if (appContainer) {
+    appContainer.classList.remove('problem-workspace-active', 'dsa-workspace-active');
+  }
+
+  // Close solution modal if open
+  if (typeof window.closeDsaSolutionModal === 'function') {
+    window.closeDsaSolutionModal();
+  }
+
+  // If previous history entry exists and current page was problem, use history.back() for true browser back
+  if (history.state && (history.state.page === 'problem' || history.state.page === 'dsa-compiler') && history.length > 1) {
+    history.back();
+  } else {
+    restorePreviousView();
+  }
 };
+window.exitDsaWorkspace = window.exitProblemWorkspace;
+
+/**
+ * Solution Modal Controller for Problem Workspace
+ */
+window.openDsaSolutionModal = function () {
+  const q = App.currentQuestion;
+  if (!q) {
+    showToast('No question selected', 'info');
+    return;
+  }
+  const modal = document.getElementById('dsa-solution-modal');
+  const titleEl = document.getElementById('dsa-solution-modal-title');
+  const contentEl = document.getElementById('dsa-solution-modal-content');
+  if (!modal || !contentEl) return;
+
+  if (titleEl) {
+    titleEl.textContent = `${q.id}. ${q.name} — Solution`;
+  }
+
+  const solution = q.solution || (window.QUESTION_METADATA_REGISTRY && window.QUESTION_METADATA_REGISTRY[q.id]?.solution);
+  const hint = q.hint || (window.QUESTION_METADATA_REGISTRY && window.QUESTION_METADATA_REGISTRY[q.id]?.hint);
+
+  if (solution) {
+    let bodyHtml = '';
+    if (hint) {
+      bodyHtml += `
+        <div class="dsa-solution-hint-card">
+          <div class="dsa-solution-section-title"><i class="fas fa-lightbulb"></i> Hint</div>
+          <p class="dsa-solution-text">${escapeHtml(hint)}</p>
+        </div>
+      `;
+    }
+    bodyHtml += `
+      <div class="dsa-solution-card">
+        <div class="dsa-solution-section-title"><i class="fas fa-check-double"></i> Approach & Solution</div>
+        <p class="dsa-solution-text">${escapeHtml(solution)}</p>
+      </div>
+    `;
+    if (q.timeComplexity || q.spaceComplexity) {
+      bodyHtml += `
+        <div class="dsa-solution-complexity-row">
+          ${q.timeComplexity ? `<span class="complexity-chip"><i class="fas fa-clock"></i> Time: ${escapeHtml(q.timeComplexity)}</span>` : ''}
+          ${q.spaceComplexity ? `<span class="complexity-chip"><i class="fas fa-database"></i> Space: ${escapeHtml(q.spaceComplexity)}</span>` : ''}
+        </div>
+      `;
+    }
+    contentEl.innerHTML = bodyHtml;
+  } else {
+    contentEl.innerHTML = `
+      <div class="dsa-no-solution-msg">
+        <i class="fas fa-info-circle"></i>
+        <span>Solution not available yet.</span>
+      </div>
+    `;
+  }
+
+  modal.style.display = 'flex';
+  modal.classList.add('active');
+};
+
+window.closeDsaSolutionModal = function () {
+  const modal = document.getElementById('dsa-solution-modal');
+  if (modal) {
+    modal.style.display = 'none';
+    modal.classList.remove('active');
+  }
+};
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    if (typeof window.closeDsaSolutionModal === 'function') {
+      window.closeDsaSolutionModal();
+    }
+  }
+});
+
+// ============================================================
+// DSA WORKSPACE RESIZABLE PANELS CONTROLLER
+// ============================================================
+function initDsaResizers() {
+  const problemPanel = document.getElementById('dsa-left-problem-panel');
+  const resizerH = document.getElementById('dsa-resizer-h');
+  const resizerV = document.getElementById('dsa-resizer-v');
+  const consolePanel = document.getElementById('dsa-bottom-console');
+
+  // Restore saved width for horizontal problem panel
+  const savedWidth = localStorage.getItem('algoquest.problemPanelWidth');
+  if (savedWidth && problemPanel) {
+    const w = parseInt(savedWidth, 10);
+    if (!isNaN(w) && w >= 320 && w <= window.innerWidth * 0.65) {
+      problemPanel.style.width = `${w}px`;
+    }
+  }
+
+  // Restore saved height for vertical console panel
+  const savedHeight = localStorage.getItem('algoquest.outputPanelHeight');
+  if (savedHeight && consolePanel) {
+    const h = parseInt(savedHeight, 10);
+    if (!isNaN(h) && h >= 100 && h <= window.innerHeight * 0.6) {
+      consolePanel.style.height = `${h}px`;
+    }
+  }
+
+  // 1. Horizontal Resizer (Problem panel <-> Editor)
+  if (resizerH && problemPanel && !resizerH.dataset.initialized) {
+    resizerH.dataset.initialized = 'true';
+    let startX = 0;
+    let startWidth = 0;
+
+    const onMouseMoveH = (e) => {
+      const clientX = e.clientX !== undefined ? e.clientX : (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+      const deltaX = clientX - startX;
+      const minW = 320;
+      const maxW = Math.min(window.innerWidth * 0.65, window.innerWidth - 400);
+      const newWidth = Math.min(Math.max(minW, startWidth + deltaX), maxW);
+      problemPanel.style.width = `${newWidth}px`;
+      if (App.dsaEditor && typeof App.dsaEditor.layout === 'function') {
+        App.dsaEditor.layout();
+      }
+    };
+
+    const onMouseUpH = () => {
+      document.body.classList.remove('resizing-h');
+      resizerH.classList.remove('resizing');
+      window.removeEventListener('mousemove', onMouseMoveH);
+      window.removeEventListener('mouseup', onMouseUpH);
+      window.removeEventListener('touchmove', onMouseMoveH);
+      window.removeEventListener('touchend', onMouseUpH);
+
+      const currentWidth = parseInt(problemPanel.style.width, 10);
+      if (!isNaN(currentWidth)) {
+        localStorage.setItem('algoquest.problemPanelWidth', currentWidth);
+      }
+      if (App.dsaEditor && typeof App.dsaEditor.layout === 'function') {
+        App.dsaEditor.layout();
+      }
+    };
+
+    const onMouseDownH = (e) => {
+      e.preventDefault();
+      startX = e.clientX !== undefined ? e.clientX : (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+      startWidth = problemPanel.getBoundingClientRect().width;
+      document.body.classList.add('resizing-h');
+      resizerH.classList.add('resizing');
+
+      window.addEventListener('mousemove', onMouseMoveH);
+      window.addEventListener('mouseup', onMouseUpH);
+      window.addEventListener('touchmove', onMouseMoveH, { passive: false });
+      window.addEventListener('touchend', onMouseUpH);
+    };
+
+    resizerH.addEventListener('mousedown', onMouseDownH);
+    resizerH.addEventListener('touchstart', onMouseDownH, { passive: false });
+  }
+
+  // 2. Vertical Resizer (Editor <-> Console)
+  if (resizerV && consolePanel && !resizerV.dataset.initialized) {
+    resizerV.dataset.initialized = 'true';
+    let startY = 0;
+    let startHeight = 0;
+
+    const onMouseMoveV = (e) => {
+      const clientY = e.clientY !== undefined ? e.clientY : (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
+      const deltaY = startY - clientY; // moving up increases bottom console height
+      const minH = 100;
+      const maxH = Math.min(window.innerHeight * 0.6, window.innerHeight - 200);
+      const newHeight = Math.min(Math.max(minH, startHeight + deltaY), maxH);
+
+      if (consolePanel.classList.contains('collapsed')) {
+        consolePanel.classList.remove('collapsed');
+        const toggleIcon = document.getElementById('dsa-console-toggle-icon');
+        if (toggleIcon) toggleIcon.className = 'fas fa-chevron-down';
+      }
+
+      consolePanel.style.height = `${newHeight}px`;
+      if (App.dsaEditor && typeof App.dsaEditor.layout === 'function') {
+        App.dsaEditor.layout();
+      }
+    };
+
+    const onMouseUpV = () => {
+      document.body.classList.remove('resizing-v');
+      resizerV.classList.remove('resizing');
+      window.removeEventListener('mousemove', onMouseMoveV);
+      window.removeEventListener('mouseup', onMouseUpV);
+      window.removeEventListener('touchmove', onMouseMoveV);
+      window.removeEventListener('touchend', onMouseUpV);
+
+      const currentHeight = parseInt(consolePanel.style.height, 10);
+      if (!isNaN(currentHeight)) {
+        localStorage.setItem('algoquest.outputPanelHeight', currentHeight);
+      }
+      if (App.dsaEditor && typeof App.dsaEditor.layout === 'function') {
+        App.dsaEditor.layout();
+      }
+    };
+
+    const onMouseDownV = (e) => {
+      e.preventDefault();
+      startY = e.clientY !== undefined ? e.clientY : (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
+      startHeight = consolePanel.getBoundingClientRect().height;
+      document.body.classList.add('resizing-v');
+      resizerV.classList.add('resizing');
+
+      window.addEventListener('mousemove', onMouseMoveV);
+      window.addEventListener('mouseup', onMouseUpV);
+      window.addEventListener('touchmove', onMouseMoveV, { passive: false });
+      window.addEventListener('touchend', onMouseUpV);
+    };
+
+    resizerV.addEventListener('mousedown', onMouseDownV);
+    resizerV.addEventListener('touchstart', onMouseDownV, { passive: false });
+  }
+
+  // Force layout call
+  setTimeout(() => {
+    if (App.dsaEditor && typeof App.dsaEditor.layout === 'function') {
+      App.dsaEditor.layout();
+    }
+  }, 100);
+}
+window.initDsaResizers = initDsaResizers;
+
+// Window resize handler for Monaco editors
+window.addEventListener('resize', () => {
+  if (App.dsaEditor && typeof App.dsaEditor.layout === 'function') {
+    App.dsaEditor.layout();
+  }
+  if (App.editor && typeof App.editor.layout === 'function') {
+    App.editor.layout();
+  }
+});

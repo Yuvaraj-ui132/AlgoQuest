@@ -5,7 +5,6 @@
     "topic": "Arrays",
     "pattern": "Hashing",
     "difficulty": "Easy",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/two-sum/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(n)",
@@ -20,7 +19,19 @@
     "hint": "Use a hash map to store visited elements and check if complement exists.",
     "solution": "Use a hash map. For each element, check if (target - element) exists in the map. If yes, return indices. Otherwise, add current element to map.",
     "tier": "core",
-    "canonicalTopic": "Arrays"
+    "canonicalTopic": "Arrays",
+    "inputFormat": "Parameters: nums (vector<int>), target (int).",
+    "outputFormat": "Returns vector<int>.",
+    "examples": [
+      {
+        "input": "nums = [2,7,11,15], target = 9",
+        "output": "[0,1]"
+      },
+      {
+        "input": "nums = [3,2,4], target = 6",
+        "output": "[1,2]"
+      }
+    ]
   },
   {
     "id": 2,
@@ -28,7 +39,6 @@
     "topic": "Arrays",
     "pattern": "Hashing",
     "difficulty": "Easy",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/contains-duplicate/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(n)",
@@ -44,7 +54,19 @@
     "hint": "Use a HashSet to track seen elements.",
     "solution": "Insert elements into a HashSet. If insertion fails (element already exists), return true. Otherwise return false after processing all elements.",
     "tier": "core",
-    "canonicalTopic": "Arrays"
+    "canonicalTopic": "Arrays",
+    "inputFormat": "Parameters: nums (vector<int>).",
+    "outputFormat": "Returns bool.",
+    "examples": [
+      {
+        "input": "nums = [1,2,3,1]",
+        "output": "true"
+      },
+      {
+        "input": "nums = [1,2,3,4]",
+        "output": "false"
+      }
+    ]
   },
   {
     "id": 3,
@@ -53,7 +75,6 @@
     "pattern": "Hashing",
     "difficulty": "Easy",
     "tier": "core",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/majority-element/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)",
@@ -69,7 +90,19 @@
     ],
     "hint": "Boyer-Moore Voting: maintain a candidate and count; count resets to 0 when it drops below zero.",
     "solution": "Initialize candidate=nums[0], count=1. For each element: if count==0 set candidate=element. If element==candidate increment count, else decrement. Return candidate.",
-    "canonicalTopic": "Arrays"
+    "canonicalTopic": "Arrays",
+    "inputFormat": "Parameters: nums (vector<int>).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "nums = [3,2,3]",
+        "output": "3"
+      },
+      {
+        "input": "nums = [2,2,1,1,1,2,2]",
+        "output": "2"
+      }
+    ]
   },
   {
     "id": 4,
@@ -79,11 +112,10 @@
     "pattern": "Hashing",
     "difficulty": "Easy",
     "tier": "core",
-    "tcs": true,
-    "statement": "Solve the problem efficiently using an appropriate algorithm.",
-    "sampleInput": "See LeetCode / competitive programming platform for examples.",
-    "sampleOutput": "Output depends on the specific input.",
-    "constraints": "1 ≤ n ≤ 10^5",
+    "statement": "Given an array nums containing n distinct numbers in the range [0, n], return the only number in the range that is missing from the array.",
+    "sampleInput": "nums = [3,0,1]",
+    "sampleOutput": "2",
+    "constraints": "n == nums.length\n1 <= n <= 10^4\n0 <= nums[i] <= n\nAll the numbers of nums are unique.",
     "hint": "Think about the time and space complexity. Consider edge cases.",
     "solution": "Apply the pattern described in the pattern field.",
     "tags": [
@@ -92,7 +124,21 @@
     ],
     "leetcode": "https://leetcode.com/problemset/",
     "timeComplexity": "O(n)",
-    "spaceComplexity": "O(1)"
+    "spaceComplexity": "O(1)",
+    "inputFormat": "An array of n distinct integers nums where each integer is in the range [0, n].",
+    "outputFormat": "Return the missing integer from the range [0, n].",
+    "examples": [
+      {
+        "input": "nums = [3,0,1]",
+        "output": "2",
+        "explanation": "n = 3 since there are 3 numbers, so all numbers are in the range [0,3]. 2 is the missing number in the range since it does not appear in nums."
+      },
+      {
+        "input": "nums = [0,1]",
+        "output": "2",
+        "explanation": "n = 2 since there are 2 numbers, so all numbers are in the range [0,2]. 2 is the missing number."
+      }
+    ]
   },
   {
     "id": 5,
@@ -102,11 +148,10 @@
     "pattern": "Hashing",
     "difficulty": "Easy",
     "tier": "core",
-    "tcs": false,
-    "statement": "Solve the problem efficiently using an appropriate algorithm.",
-    "sampleInput": "See LeetCode / competitive programming platform for examples.",
-    "sampleOutput": "Output depends on the specific input.",
-    "constraints": "1 ≤ n ≤ 10^5",
+    "statement": "Given an array of integers nums containing n + 1 integers where each integer is in the range [1, n] inclusive, return the duplicate number. You must solve the problem without modifying the array nums and using only constant extra space.",
+    "sampleInput": "nums = [1,3,4,2,2]",
+    "sampleOutput": "2",
+    "constraints": "1 <= n <= 10^5\nnums.length == n + 1\n1 <= nums[i] <= n\nAll the integers in nums appear only once except for precisely one integer which appears two or more times.",
     "hint": "Think about the time and space complexity. Consider edge cases.",
     "solution": "Apply the pattern described in the pattern field.",
     "tags": [
@@ -115,7 +160,19 @@
     ],
     "leetcode": "https://leetcode.com/problemset/",
     "timeComplexity": "O(n)",
-    "spaceComplexity": "O(1)"
+    "spaceComplexity": "O(1)",
+    "inputFormat": "An array of integers nums of length n + 1 with values between 1 and n.",
+    "outputFormat": "Return the repeated integer in nums.",
+    "examples": [
+      {
+        "input": "nums = [1,3,4,2,2]",
+        "output": "2"
+      },
+      {
+        "input": "nums = [3,1,3,4,2]",
+        "output": "3"
+      }
+    ]
   },
   {
     "id": 6,
@@ -125,11 +182,10 @@
     "pattern": "Hashing",
     "difficulty": "Easy",
     "tier": "core",
-    "tcs": true,
-    "statement": "Solve the problem efficiently using an appropriate algorithm.",
-    "sampleInput": "See LeetCode / competitive programming platform for examples.",
-    "sampleOutput": "Output depends on the specific input.",
-    "constraints": "1 ≤ n ≤ 10^5",
+    "statement": "Given an integer array nums and an integer target, return the total number of times target appears in nums.",
+    "sampleInput": "nums = [1,2,2,3,3,3], target = 3",
+    "sampleOutput": "3",
+    "constraints": "1 <= nums.length <= 10^5\n-10^9 <= nums[i], target <= 10^9",
     "hint": "Think about the time and space complexity. Consider edge cases.",
     "solution": "Apply the pattern described in the pattern field.",
     "tags": [
@@ -138,7 +194,19 @@
     ],
     "leetcode": "https://leetcode.com/problemset/",
     "timeComplexity": "O(n)",
-    "spaceComplexity": "O(1)"
+    "spaceComplexity": "O(1)",
+    "inputFormat": "An integer array nums and an integer target.",
+    "outputFormat": "Return an integer representing the frequency of target in nums.",
+    "examples": [
+      {
+        "input": "nums = [1,2,2,3,3,3], target = 3",
+        "output": "3"
+      },
+      {
+        "input": "nums = [1,2,2,3,3,3], target = 2",
+        "output": "2"
+      }
+    ]
   },
   {
     "id": 7,
@@ -148,11 +216,10 @@
     "pattern": "Hashing",
     "difficulty": "Easy",
     "tier": "core",
-    "tcs": true,
-    "statement": "Solve the problem efficiently using an appropriate algorithm.",
-    "sampleInput": "See LeetCode / competitive programming platform for examples.",
-    "sampleOutput": "Output depends on the specific input.",
-    "constraints": "1 ≤ n ≤ 10^5",
+    "statement": "Given an array of integers nums, find and return the first element that does not repeat (occurs exactly once in the array). If there is no such element, return -1.",
+    "sampleInput": "nums = [1,2,3,2,1,4]",
+    "sampleOutput": "3",
+    "constraints": "1 <= nums.length <= 10^5\n-10^9 <= nums[i] <= 10^9",
     "hint": "Think about the time and space complexity. Consider edge cases.",
     "solution": "Apply the pattern described in the pattern field.",
     "tags": [
@@ -161,7 +228,20 @@
     ],
     "leetcode": "https://leetcode.com/problemset/",
     "timeComplexity": "O(n)",
-    "spaceComplexity": "O(1)"
+    "spaceComplexity": "O(1)",
+    "inputFormat": "An array of integers nums.",
+    "outputFormat": "Return the first non-repeating integer, or -1 if every element repeats.",
+    "examples": [
+      {
+        "input": "nums = [1,2,3,2,1,4]",
+        "output": "3",
+        "explanation": "3 is the first element from the left that appears only once."
+      },
+      {
+        "input": "nums = [9,4,9,6,7,4]",
+        "output": "6"
+      }
+    ]
   },
   {
     "id": 8,
@@ -171,11 +251,10 @@
     "pattern": "Hashing",
     "difficulty": "Easy",
     "tier": "core",
-    "tcs": true,
-    "statement": "Solve the problem efficiently using an appropriate algorithm.",
-    "sampleInput": "See LeetCode / competitive programming platform for examples.",
-    "sampleOutput": "Output depends on the specific input.",
-    "constraints": "1 ≤ n ≤ 10^5",
+    "statement": "Given an array of integers nums, find the first repeating element whose duplicate (second occurrence) appears earliest when scanning from left to right. If no elements repeat, return -1.",
+    "sampleInput": "nums = [1,2,3,2,1]",
+    "sampleOutput": "2",
+    "constraints": "1 <= nums.length <= 10^5\n-10^9 <= nums[i] <= 10^9",
     "hint": "Think about the time and space complexity. Consider edge cases.",
     "solution": "Apply the pattern described in the pattern field.",
     "tags": [
@@ -184,7 +263,21 @@
     ],
     "leetcode": "https://leetcode.com/problemset/",
     "timeComplexity": "O(n)",
-    "spaceComplexity": "O(1)"
+    "spaceComplexity": "O(1)",
+    "inputFormat": "An array of integers nums.",
+    "outputFormat": "Return the integer value of the first repeating element, or -1 if no duplicates exist.",
+    "examples": [
+      {
+        "input": "nums = [1,2,3,2,1]",
+        "output": "2",
+        "explanation": "2 appears again at index 3, which is earlier than the second occurrence of 1 at index 4."
+      },
+      {
+        "input": "nums = [3,1,2,1,3]",
+        "output": "1",
+        "explanation": "1 appears again at index 3, before 3 appears again at index 4."
+      }
+    ]
   },
   {
     "id": 9,
@@ -192,7 +285,6 @@
     "topic": "Arrays",
     "pattern": "Hashing",
     "difficulty": "Medium",
-    "tcs": false,
     "leetcode": "https://leetcode.com/problems/longest-consecutive-sequence/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(n)",
@@ -208,7 +300,19 @@
     "hint": "Use a HashSet. Only start counting from numbers where num-1 is NOT in the set.",
     "solution": "Put all numbers in a HashSet. For each number, if num-1 is not in set, it's the start of a sequence. Count consecutive numbers starting from there.",
     "tier": "advanced",
-    "canonicalTopic": "Arrays"
+    "canonicalTopic": "Arrays",
+    "inputFormat": "Parameters: nums (vector<int>).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "nums = [100,4,200,1,3,2]",
+        "output": "4"
+      },
+      {
+        "input": "nums = [0,3,7,2,5,8,4,6,0,1]",
+        "output": "9"
+      }
+    ]
   },
   {
     "id": 10,
@@ -218,11 +322,10 @@
     "pattern": "Hashing",
     "difficulty": "Easy",
     "tier": "core",
-    "tcs": true,
-    "statement": "Solve the problem efficiently using an appropriate algorithm.",
-    "sampleInput": "See LeetCode / competitive programming platform for examples.",
-    "sampleOutput": "Output depends on the specific input.",
-    "constraints": "1 ≤ n ≤ 10^5",
+    "statement": "Given an integer array nums, count and return the number of distinct (unique) elements present in the array.",
+    "sampleInput": "nums = [1,2,3,2,1]",
+    "sampleOutput": "3",
+    "constraints": "1 <= nums.length <= 10^5\n-10^9 <= nums[i] <= 10^9",
     "hint": "Think about the time and space complexity. Consider edge cases.",
     "solution": "Apply the pattern described in the pattern field.",
     "tags": [
@@ -231,7 +334,20 @@
     ],
     "leetcode": "https://leetcode.com/problemset/",
     "timeComplexity": "O(n)",
-    "spaceComplexity": "O(1)"
+    "spaceComplexity": "O(1)",
+    "inputFormat": "An array of integers nums.",
+    "outputFormat": "Return the count of unique values in nums.",
+    "examples": [
+      {
+        "input": "nums = [1,2,3,2,1]",
+        "output": "3",
+        "explanation": "The distinct elements are 1, 2, and 3."
+      },
+      {
+        "input": "nums = [1,1,1,1]",
+        "output": "1"
+      }
+    ]
   },
   {
     "id": 11,
@@ -241,11 +357,10 @@
     "pattern": "Hashing",
     "difficulty": "Easy",
     "tier": "core",
-    "tcs": true,
-    "statement": "Solve the problem efficiently using an appropriate algorithm.",
-    "sampleInput": "See LeetCode / competitive programming platform for examples.",
-    "sampleOutput": "Output depends on the specific input.",
-    "constraints": "1 ≤ n ≤ 10^5",
+    "statement": "Given two integer arrays nums1 and nums2, return an array of their intersection. Each element in the result must be unique and you may return the result in any order.",
+    "sampleInput": "nums1 = [1,2,2,1], nums2 = [2,2]",
+    "sampleOutput": "[2]",
+    "constraints": "1 <= nums1.length, nums2.length <= 1000\n0 <= nums1[i], nums2[i] <= 1000",
     "hint": "Think about the time and space complexity. Consider edge cases.",
     "solution": "Apply the pattern described in the pattern field.",
     "tags": [
@@ -254,7 +369,19 @@
     ],
     "leetcode": "https://leetcode.com/problemset/",
     "timeComplexity": "O(n)",
-    "spaceComplexity": "O(1)"
+    "spaceComplexity": "O(1)",
+    "inputFormat": "Two integer arrays nums1 and nums2.",
+    "outputFormat": "Return a list of unique elements present in both arrays.",
+    "examples": [
+      {
+        "input": "nums1 = [1,2,2,1], nums2 = [2,2]",
+        "output": "[2]"
+      },
+      {
+        "input": "nums1 = [4,9,5], nums2 = [9,4,9,8,4]",
+        "output": "[9,4]"
+      }
+    ]
   },
   {
     "id": 12,
@@ -264,11 +391,10 @@
     "pattern": "Hashing",
     "difficulty": "Easy",
     "tier": "core",
-    "tcs": true,
-    "statement": "Solve the problem efficiently using an appropriate algorithm.",
-    "sampleInput": "See LeetCode / competitive programming platform for examples.",
-    "sampleOutput": "Output depends on the specific input.",
-    "constraints": "1 ≤ n ≤ 10^5",
+    "statement": "Given two integer arrays nums1 and nums2, determine the union of both arrays and return the total count of distinct elements in the union.",
+    "sampleInput": "nums1 = [1,2,3], nums2 = [2,3,4]",
+    "sampleOutput": "4",
+    "constraints": "1 <= nums1.length, nums2.length <= 10^5\n-10^9 <= nums1[i], nums2[i] <= 10^9",
     "hint": "Think about the time and space complexity. Consider edge cases.",
     "solution": "Apply the pattern described in the pattern field.",
     "tags": [
@@ -277,7 +403,21 @@
     ],
     "leetcode": "https://leetcode.com/problemset/",
     "timeComplexity": "O(n)",
-    "spaceComplexity": "O(1)"
+    "spaceComplexity": "O(1)",
+    "inputFormat": "Two integer arrays nums1 and nums2.",
+    "outputFormat": "Return an integer representing the number of unique elements in the union of nums1 and nums2.",
+    "examples": [
+      {
+        "input": "nums1 = [1,2,3], nums2 = [2,3,4]",
+        "output": "4",
+        "explanation": "The union contains distinct elements {1, 2, 3, 4}, so the count is 4."
+      },
+      {
+        "input": "nums1 = [1,2,1,3], nums2 = [2,2]",
+        "output": "3",
+        "explanation": "The union contains distinct elements {1, 2, 3}, count = 3."
+      }
+    ]
   },
   {
     "id": 13,
@@ -287,11 +427,10 @@
     "pattern": "Hashing",
     "difficulty": "Medium",
     "tier": "advanced",
-    "tcs": false,
-    "statement": "Solve the problem efficiently using an appropriate algorithm.",
-    "sampleInput": "See LeetCode / competitive programming platform for examples.",
-    "sampleOutput": "Output depends on the specific input.",
-    "constraints": "1 ≤ n ≤ 10^5",
+    "statement": "Given an integer array nums of size n, find all elements that appear more than ⌊ n/3 ⌋ times.",
+    "sampleInput": "nums = [3,2,3]",
+    "sampleOutput": "[3]",
+    "constraints": "1 <= nums.length <= 5 * 10^4\n-10^9 <= nums[i] <= 10^9",
     "hint": "Think about the time and space complexity. Consider edge cases.",
     "solution": "Apply the pattern described in the pattern field.",
     "tags": [
@@ -300,7 +439,19 @@
     ],
     "leetcode": "https://leetcode.com/problemset/",
     "timeComplexity": "O(n)",
-    "spaceComplexity": "O(1)"
+    "spaceComplexity": "O(1)",
+    "inputFormat": "An integer array nums.",
+    "outputFormat": "Return an array containing all majority elements that appear strictly more than n/3 times.",
+    "examples": [
+      {
+        "input": "nums = [3,2,3]",
+        "output": "[3]"
+      },
+      {
+        "input": "nums = [1,2]",
+        "output": "[1,2]"
+      }
+    ]
   },
   {
     "id": 14,
@@ -309,7 +460,6 @@
     "pattern": "Two Pointers",
     "difficulty": "Easy",
     "tier": "core",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/move-zeroes/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)",
@@ -323,7 +473,19 @@
     ],
     "hint": "Use a slow pointer insertPos for the next non-zero position.",
     "solution": "Keep insertPos=0. Iterate with i: when nums[i]!=0, place it at nums[insertPos] and advance insertPos. Fill positions from insertPos to end with 0.",
-    "canonicalTopic": "Arrays"
+    "canonicalTopic": "Arrays",
+    "inputFormat": "Parameters: nums (vector<int>).",
+    "outputFormat": "Returns void.",
+    "examples": [
+      {
+        "input": "nums = [0,1,0,3,12]",
+        "output": "[1,3,12,0,0]"
+      },
+      {
+        "input": "nums = [0]",
+        "output": "[0]"
+      }
+    ]
   },
   {
     "id": 15,
@@ -333,11 +495,10 @@
     "pattern": "Two Pointers",
     "difficulty": "Easy",
     "tier": "core",
-    "tcs": true,
-    "statement": "Solve the problem efficiently using an appropriate algorithm.",
-    "sampleInput": "See LeetCode / competitive programming platform for examples.",
-    "sampleOutput": "Output depends on the specific input.",
-    "constraints": "1 ≤ n ≤ 10^5",
+    "statement": "Given an integer array nums sorted in non-decreasing order, remove the duplicates in-place such that each unique element appears only once. The relative order of the elements should be kept the same. Return the number of unique elements k.",
+    "sampleInput": "nums = [1,1,2]",
+    "sampleOutput": "2",
+    "constraints": "1 <= nums.length <= 3 * 10^4\n-100 <= nums[i] <= 100\nnums is sorted in non-decreasing order.",
     "hint": "Think about the time and space complexity. Consider edge cases.",
     "solution": "Apply the pattern described in the pattern field.",
     "tags": [
@@ -346,7 +507,20 @@
     ],
     "leetcode": "https://leetcode.com/problemset/",
     "timeComplexity": "O(n)",
-    "spaceComplexity": "O(1)"
+    "spaceComplexity": "O(1)",
+    "inputFormat": "A sorted integer array nums in non-decreasing order.",
+    "outputFormat": "Return the integer k, the number of unique elements.",
+    "examples": [
+      {
+        "input": "nums = [1,1,2]",
+        "output": "2",
+        "explanation": "Your function should return k = 2, with the first two elements of nums being 1 and 2."
+      },
+      {
+        "input": "nums = [0,0,1,1,1,2,2,3,3,4]",
+        "output": "5"
+      }
+    ]
   },
   {
     "id": 16,
@@ -354,7 +528,6 @@
     "topic": "Arrays",
     "pattern": "Two Pointers",
     "difficulty": "Hard",
-    "tcs": false,
     "leetcode": "https://leetcode.com/problems/trapping-rain-water/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)",
@@ -372,7 +545,19 @@
     "hint": "Use two pointers. Water trapped at each position = min(maxLeft, maxRight) - height[i].",
     "solution": "Use two pointers l and r. Maintain maxLeft and maxRight. If maxLeft < maxRight, process left side: add maxLeft-height[l] to result, move l right. Otherwise process right side similarly.",
     "tier": "advanced",
-    "canonicalTopic": "Arrays"
+    "canonicalTopic": "Arrays",
+    "inputFormat": "Parameters: height (vector<int>).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "height = [0,1,0,2,1,0,1,3,2,1,2,1]",
+        "output": "6"
+      },
+      {
+        "input": "height = [4,2,0,3,2,5]",
+        "output": "9"
+      }
+    ]
   },
   {
     "id": 17,
@@ -380,7 +565,6 @@
     "topic": "Arrays",
     "pattern": "Two Pointers",
     "difficulty": "Medium",
-    "tcs": false,
     "leetcode": "https://leetcode.com/problems/container-with-most-water/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)",
@@ -396,7 +580,19 @@
     "hint": "Use two pointers at both ends. Move the pointer with smaller height inward.",
     "solution": "Start with pointers at both ends. Area = min(height[l], height[r]) * (r - l). Move the shorter pointer inward. Track maximum area.",
     "tier": "advanced",
-    "canonicalTopic": "Arrays"
+    "canonicalTopic": "Arrays",
+    "inputFormat": "Parameters: height (vector<int>).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "height = [1,8,6,2,5,4,8,3,7]",
+        "output": "49"
+      },
+      {
+        "input": "height = [1,1]",
+        "output": "1"
+      }
+    ]
   },
   {
     "id": 18,
@@ -406,11 +602,10 @@
     "pattern": "Two Pointers",
     "difficulty": "Easy",
     "tier": "core",
-    "tcs": true,
-    "statement": "Solve the problem efficiently using an appropriate algorithm.",
-    "sampleInput": "See LeetCode / competitive programming platform for examples.",
-    "sampleOutput": "Output depends on the specific input.",
-    "constraints": "1 ≤ n ≤ 10^5",
+    "statement": "You are given two integer arrays nums1 and nums2, sorted in non-decreasing order, and two integers m and n, representing the number of elements in nums1 and nums2 respectively. Merge nums2 into nums1 as one sorted array in-place. nums1 has a total length of m + n, where the first m elements denote the initial values and the last n elements are set to 0.",
+    "sampleInput": "nums1=[1,2,3,0,0,0], m=3, nums2=[2,5,6], n=3",
+    "sampleOutput": "[1,2,2,3,5,6]",
+    "constraints": "nums1.length == m + n\nnums2.length == n\n0 <= m, n <= 200\n1 <= m + n <= 200\n-10^9 <= nums1[i], nums2[j] <= 10^9",
     "hint": "Think about the time and space complexity. Consider edge cases.",
     "solution": "Apply the pattern described in the pattern field.",
     "tags": [
@@ -419,7 +614,19 @@
     ],
     "leetcode": "https://leetcode.com/problemset/",
     "timeComplexity": "O(n)",
-    "spaceComplexity": "O(1)"
+    "spaceComplexity": "O(1)",
+    "inputFormat": "Integer array nums1 of length m + n, integer m, integer array nums2 of length n, and integer n.",
+    "outputFormat": "Modify nums1 in-place so that it contains all sorted elements from both arrays.",
+    "examples": [
+      {
+        "input": "nums1 = [1,2,3,0,0,0], m = 3, nums2 = [2,5,6], n = 3",
+        "output": "[1,2,2,3,5,6]"
+      },
+      {
+        "input": "nums1 = [1], m = 1, nums2 = [], n = 0",
+        "output": "[1]"
+      }
+    ]
   },
   {
     "id": 19,
@@ -427,7 +634,6 @@
     "topic": "Arrays",
     "pattern": "Two Pointers",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/sort-colors/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)",
@@ -443,7 +649,19 @@
     "hint": "Dutch National Flag algorithm with three pointers: low, mid, high.",
     "solution": "Low points to next 0 position, high to next 2 position. Move mid: if 0, swap with low; if 2, swap with high; if 1, advance mid.",
     "tier": "core",
-    "canonicalTopic": "Arrays"
+    "canonicalTopic": "Arrays",
+    "inputFormat": "Parameters: nums (vector<int>).",
+    "outputFormat": "Returns void.",
+    "examples": [
+      {
+        "input": "nums = [2,0,2,1,1,0]",
+        "output": "[0,0,1,1,2,2]"
+      },
+      {
+        "input": "nums = [2,0,1]",
+        "output": "[0,1,2]"
+      }
+    ]
   },
   {
     "id": 20,
@@ -453,11 +671,10 @@
     "pattern": "Two Pointers",
     "difficulty": "Easy",
     "tier": "core",
-    "tcs": true,
-    "statement": "Solve the problem efficiently using an appropriate algorithm.",
-    "sampleInput": "See LeetCode / competitive programming platform for examples.",
-    "sampleOutput": "Output depends on the specific input.",
-    "constraints": "1 ≤ n ≤ 10^5",
+    "statement": "Given an array of integers nums and an integer target, determine whether there exists a pair of distinct elements nums[i] and nums[j] (where i != j) such that their sum equals target. Return true if such a pair exists, otherwise false.",
+    "sampleInput": "nums = [2,7,11,15], target = 9",
+    "sampleOutput": "true",
+    "constraints": "2 <= nums.length <= 10^5\n-10^9 <= nums[i], target <= 10^9",
     "hint": "Think about the time and space complexity. Consider edge cases.",
     "solution": "Apply the pattern described in the pattern field.",
     "tags": [
@@ -466,7 +683,20 @@
     ],
     "leetcode": "https://leetcode.com/problemset/",
     "timeComplexity": "O(n)",
-    "spaceComplexity": "O(1)"
+    "spaceComplexity": "O(1)",
+    "inputFormat": "An array of integers nums and an integer target.",
+    "outputFormat": "Return true if a pair summing to target exists, otherwise false.",
+    "examples": [
+      {
+        "input": "nums = [2,7,11,15], target = 9",
+        "output": "true",
+        "explanation": "2 + 7 = 9."
+      },
+      {
+        "input": "nums = [1,3,5], target = 10",
+        "output": "false"
+      }
+    ]
   },
   {
     "id": 21,
@@ -476,11 +706,10 @@
     "pattern": "Two Pointers",
     "difficulty": "Medium",
     "tier": "advanced",
-    "tcs": false,
-    "statement": "Solve the problem efficiently using an appropriate algorithm.",
-    "sampleInput": "See LeetCode / competitive programming platform for examples.",
-    "sampleOutput": "Output depends on the specific input.",
-    "constraints": "1 ≤ n ≤ 10^5",
+    "statement": "Given an integer array nums, return all unique triplets [nums[i], nums[j], nums[k]] such that i != j, i != k, and j != k, and nums[i] + nums[j] + nums[k] == 0. Notice that the solution set must not contain duplicate triplets.",
+    "sampleInput": "nums = [-1,0,1,2,-1,-4]",
+    "sampleOutput": "[[-1,-1,2],[-1,0,1]]",
+    "constraints": "3 <= nums.length <= 3000\n-10^5 <= nums[i] <= 10^5",
     "hint": "Think about the time and space complexity. Consider edge cases.",
     "solution": "Apply the pattern described in the pattern field.",
     "tags": [
@@ -489,7 +718,19 @@
     ],
     "leetcode": "https://leetcode.com/problemset/",
     "timeComplexity": "O(n)",
-    "spaceComplexity": "O(1)"
+    "spaceComplexity": "O(1)",
+    "inputFormat": "An integer array nums.",
+    "outputFormat": "Return a list of all unique triplets that sum to 0.",
+    "examples": [
+      {
+        "input": "nums = [-1,0,1,2,-1,-4]",
+        "output": "[[-1,-1,2],[-1,0,1]]"
+      },
+      {
+        "input": "nums = [0,1,1]",
+        "output": "[]"
+      }
+    ]
   },
   {
     "id": 22,
@@ -499,11 +740,10 @@
     "pattern": "Two Pointers",
     "difficulty": "Medium",
     "tier": "optional",
-    "tcs": false,
-    "statement": "Solve the problem efficiently using an appropriate algorithm.",
-    "sampleInput": "See LeetCode / competitive programming platform for examples.",
-    "sampleOutput": "Output depends on the specific input.",
-    "constraints": "1 ≤ n ≤ 10^5",
+    "statement": "Given an array nums of n integers and an integer target, return an array of all unique quadruplets [nums[a], nums[b], nums[c], nums[d]] such that 0 <= a, b, c, d < n are distinct indices and nums[a] + nums[b] + nums[c] + nums[d] == target. The solution set must not contain duplicate quadruplets.",
+    "sampleInput": "nums = [1,0,-1,0,-2,2], target = 0",
+    "sampleOutput": "[[-2,-1,1,2],[-2,0,0,2],[-1,0,0,1]]",
+    "constraints": "1 <= nums.length <= 200\n-10^9 <= nums[i], target <= 10^9",
     "hint": "Think about the time and space complexity. Consider edge cases.",
     "solution": "Apply the pattern described in the pattern field.",
     "tags": [
@@ -512,7 +752,19 @@
     ],
     "leetcode": "https://leetcode.com/problemset/",
     "timeComplexity": "O(n)",
-    "spaceComplexity": "O(1)"
+    "spaceComplexity": "O(1)",
+    "inputFormat": "An integer array nums and an integer target.",
+    "outputFormat": "Return all unique quadruplets that sum to target.",
+    "examples": [
+      {
+        "input": "nums = [1,0,-1,0,-2,2], target = 0",
+        "output": "[[-2,-1,1,2],[-2,0,0,2],[-1,0,0,1]]"
+      },
+      {
+        "input": "nums = [2,2,2,2,2], target = 8",
+        "output": "[[2,2,2,2]]"
+      }
+    ]
   },
   {
     "id": 23,
@@ -522,11 +774,10 @@
     "pattern": "Sliding Window",
     "difficulty": "Medium",
     "tier": "core",
-    "tcs": true,
-    "statement": "Solve the problem efficiently using an appropriate algorithm.",
-    "sampleInput": "See LeetCode / competitive programming platform for examples.",
-    "sampleOutput": "Output depends on the specific input.",
-    "constraints": "1 ≤ n ≤ 10^5",
+    "statement": "Given an integer array nums, find the contiguous subarray (containing at least one number) which has the largest sum and return its sum.",
+    "sampleInput": "nums = [-2,1,-3,4,-1,2,1,-5,4]",
+    "sampleOutput": "6",
+    "constraints": "1 <= nums.length <= 10^5\n-10^4 <= nums[i] <= 10^4",
     "hint": "Think about the time and space complexity. Consider edge cases.",
     "solution": "Apply the pattern described in the pattern field.",
     "tags": [
@@ -535,7 +786,20 @@
     ],
     "leetcode": "https://leetcode.com/problemset/",
     "timeComplexity": "O(n)",
-    "spaceComplexity": "O(1)"
+    "spaceComplexity": "O(1)",
+    "inputFormat": "An array of integers nums.",
+    "outputFormat": "Return the maximum sum of any contiguous subarray in nums.",
+    "examples": [
+      {
+        "input": "nums = [-2,1,-3,4,-1,2,1,-5,4]",
+        "output": "6",
+        "explanation": "The subarray [4,-1,2,1] has the largest sum 6."
+      },
+      {
+        "input": "nums = [1]",
+        "output": "1"
+      }
+    ]
   },
   {
     "id": 24,
@@ -543,7 +807,6 @@
     "topic": "Arrays",
     "pattern": "Sliding Window",
     "difficulty": "Hard",
-    "tcs": false,
     "leetcode": "https://leetcode.com/problems/sliding-window-maximum/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(k)",
@@ -561,7 +824,19 @@
     "hint": "Use a monotonic deque storing indices.",
     "solution": "Use deque. For each element, remove from back if smaller than current. Remove from front if out of window. Front is always the maximum.",
     "tier": "advanced",
-    "canonicalTopic": "Arrays"
+    "canonicalTopic": "Arrays",
+    "inputFormat": "Parameters: nums (vector<int>), k (int).",
+    "outputFormat": "Returns vector<int>.",
+    "examples": [
+      {
+        "input": "nums = [1,3,-1,-3,5,3,6,7], k = 3",
+        "output": "[3,3,5,5,6,7]"
+      },
+      {
+        "input": "nums = [1], k = 1",
+        "output": "[1]"
+      }
+    ]
   },
   {
     "id": 25,
@@ -569,7 +844,6 @@
     "topic": "Arrays",
     "pattern": "Sliding Window",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/longest-substring-without-repeating-characters/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(min(m,n))",
@@ -585,7 +859,19 @@
     "hint": "Use sliding window with a HashSet to track characters.",
     "solution": "Use two pointers l and r. Maintain a set of characters in the window. If s[r] is in the set, remove s[l] and move l right. Otherwise add s[r] and update maxLength.",
     "tier": "core",
-    "canonicalTopic": "Arrays"
+    "canonicalTopic": "Arrays",
+    "inputFormat": "Parameters: s (string).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "s = \"abcabcbb\"",
+        "output": "3"
+      },
+      {
+        "input": "s = \"bbbbb\"",
+        "output": "1"
+      }
+    ]
   },
   {
     "id": 26,
@@ -594,7 +880,6 @@
     "pattern": "Sliding Window",
     "difficulty": "Easy",
     "tier": "core",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/maximum-average-subarray-i/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)",
@@ -608,7 +893,19 @@
     ],
     "hint": "Compute sum of first k elements, then slide window: add next element, remove first element.",
     "solution": "Compute windowSum = sum of first k elements. Set maxSum=windowSum. For i=k to n-1: windowSum += arr[i] - arr[i-k]. Update maxSum. Return maxSum.",
-    "canonicalTopic": "Arrays"
+    "canonicalTopic": "Arrays",
+    "inputFormat": "Parameters: arr (vector<int>), k (int).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "arr = [2,3,4,1,5], k = 3",
+        "output": "10"
+      },
+      {
+        "input": "arr = [1,4,2,10,2,3,1,0,20], k = 4",
+        "output": "24"
+      }
+    ]
   },
   {
     "id": 27,
@@ -618,11 +915,10 @@
     "pattern": "Sliding Window",
     "difficulty": "Easy",
     "tier": "core",
-    "tcs": true,
-    "statement": "Solve the problem efficiently using an appropriate algorithm.",
-    "sampleInput": "See LeetCode / competitive programming platform for examples.",
-    "sampleOutput": "Output depends on the specific input.",
-    "constraints": "1 ≤ n ≤ 10^5",
+    "statement": "Given an array of integers nums and a positive integer k, find the first negative integer in every window (contiguous subarray) of size k. If a window does not contain any negative integer, then output 0 for that window.",
+    "sampleInput": "nums = [-8,2,-6,5,-4], k = 2",
+    "sampleOutput": "[-8,-6,-6,-4]",
+    "constraints": "1 <= k <= nums.length <= 10^5\n-10^5 <= nums[i] <= 10^5",
     "hint": "Think about the time and space complexity. Consider edge cases.",
     "solution": "Apply the pattern described in the pattern field.",
     "tags": [
@@ -631,7 +927,20 @@
     ],
     "leetcode": "https://leetcode.com/problemset/",
     "timeComplexity": "O(n)",
-    "spaceComplexity": "O(1)"
+    "spaceComplexity": "O(1)",
+    "inputFormat": "An array of integers nums and window size k.",
+    "outputFormat": "Return an array of size n - k + 1 containing the first negative number of each window.",
+    "examples": [
+      {
+        "input": "nums = [-8,2,-6,5,-4], k = 2",
+        "output": "[-8,-6,-6,-4]",
+        "explanation": "Windows: [-8, 2] -> -8; [2, -6] -> -6; [-6, 5] -> -6; [5, -4] -> -4."
+      },
+      {
+        "input": "nums = [1,2,3,4,5], k = 2",
+        "output": "[0,0,0,0]"
+      }
+    ]
   },
   {
     "id": 28,
@@ -641,11 +950,10 @@
     "pattern": "Sliding Window",
     "difficulty": "Medium",
     "tier": "advanced",
-    "tcs": false,
-    "statement": "Solve the problem efficiently using an appropriate algorithm.",
-    "sampleInput": "See LeetCode / competitive programming platform for examples.",
-    "sampleOutput": "Output depends on the specific input.",
-    "constraints": "1 ≤ n ≤ 10^5",
+    "statement": "Given two strings s and p, return the total count of substrings in s that are anagrams of pattern p.",
+    "sampleInput": "s = \"cbaebabacd\", p = \"abc\"",
+    "sampleOutput": "2",
+    "constraints": "1 <= s.length, p.length <= 3 * 10^4\ns and p consist of lowercase English letters.",
     "hint": "Think about the time and space complexity. Consider edge cases.",
     "solution": "Apply the pattern described in the pattern field.",
     "tags": [
@@ -654,7 +962,21 @@
     ],
     "leetcode": "https://leetcode.com/problemset/",
     "timeComplexity": "O(n)",
-    "spaceComplexity": "O(1)"
+    "spaceComplexity": "O(1)",
+    "inputFormat": "Two strings s and p consisting of lowercase English letters.",
+    "outputFormat": "Return an integer representing the count of anagram occurrences of p in s.",
+    "examples": [
+      {
+        "input": "s = \"cbaebabacd\", p = \"abc\"",
+        "output": "2",
+        "explanation": "Substrings at index 0 (\"cba\") and index 6 (\"bac\") are anagrams of \"abc\"."
+      },
+      {
+        "input": "s = \"abab\", p = \"ab\"",
+        "output": "3",
+        "explanation": "Substrings at index 0 (\"ab\"), index 1 (\"ba\"), and index 2 (\"ab\") are anagrams of \"ab\"."
+      }
+    ]
   },
   {
     "id": 29,
@@ -662,7 +984,6 @@
     "topic": "Arrays",
     "pattern": "Sliding Window",
     "difficulty": "Hard",
-    "tcs": false,
     "leetcode": "https://leetcode.com/problems/minimum-window-substring/",
     "timeComplexity": "O(n + m)",
     "spaceComplexity": "O(n + m)",
@@ -678,7 +999,19 @@
     "hint": "Use sliding window with character frequency counts. Track 'have' vs 'need' count.",
     "solution": "Count frequencies in t. Use sliding window on s. Expand right pointer adding chars. When window has all required chars, try shrinking from left. Track minimum window.",
     "tier": "advanced",
-    "canonicalTopic": "Arrays"
+    "canonicalTopic": "Arrays",
+    "inputFormat": "Parameters: s (string), t (string).",
+    "outputFormat": "Returns string.",
+    "examples": [
+      {
+        "input": "s = \"ADOBECODEBANC\", t = \"ABC\"",
+        "output": "\"BANC\""
+      },
+      {
+        "input": "s = \"a\", t = \"a\"",
+        "output": "\"a\""
+      }
+    ]
   },
   {
     "id": 30,
@@ -686,7 +1019,6 @@
     "topic": "Arrays",
     "pattern": "Prefix Sum",
     "difficulty": "Medium",
-    "tcs": false,
     "leetcode": "https://leetcode.com/problems/product-of-array-except-self/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(n)",
@@ -701,7 +1033,19 @@
     "hint": "Compute prefix products and suffix products separately.",
     "solution": "Build a prefix product array and a suffix product array. The answer for index i is prefix[i-1] * suffix[i+1].",
     "tier": "core",
-    "canonicalTopic": "Arrays"
+    "canonicalTopic": "Arrays",
+    "inputFormat": "Parameters: nums (vector<int>).",
+    "outputFormat": "Returns vector<int>.",
+    "examples": [
+      {
+        "input": "nums = [1,2,3,4]",
+        "output": "[24,12,8,6]"
+      },
+      {
+        "input": "nums = [-1,1,0,-3,3]",
+        "output": "[0,0,9,0,0]"
+      }
+    ]
   },
   {
     "id": 31,
@@ -709,7 +1053,6 @@
     "topic": "Arrays",
     "pattern": "Prefix Sum",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/subarray-sum-equals-k/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(n)",
@@ -725,7 +1068,19 @@
     "hint": "Use prefix sum. Count of subarrays = count of pairs where prefixSum[j] - prefixSum[i] = k.",
     "solution": "Maintain running prefix sum and a hashmap of prefix sum counts. For each element, check if (prefixSum - k) exists in map. Add prefixSum to map.",
     "tier": "core",
-    "canonicalTopic": "Arrays"
+    "canonicalTopic": "Arrays",
+    "inputFormat": "Parameters: nums (vector<int>), k (int).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "nums = [1,1,1], k = 2",
+        "output": "2"
+      },
+      {
+        "input": "nums = [1,2,3], k = 3",
+        "output": "2"
+      }
+    ]
   },
   {
     "id": 32,
@@ -734,7 +1089,6 @@
     "pattern": "Prefix Sum",
     "difficulty": "Easy",
     "tier": "core",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/running-sum-of-1d-array/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)",
@@ -748,7 +1102,19 @@
     ],
     "hint": "For each i from 1 to n-1, add previous element to current.",
     "solution": "Iterate from index 1 to n-1: nums[i] += nums[i-1]. Return modified nums.",
-    "canonicalTopic": "Arrays"
+    "canonicalTopic": "Arrays",
+    "inputFormat": "Parameters: nums (vector<int>).",
+    "outputFormat": "Returns vector<int>.",
+    "examples": [
+      {
+        "input": "nums = [1,2,3,4]",
+        "output": "[1,3,6,10]"
+      },
+      {
+        "input": "nums = [1,1,1,1,1]",
+        "output": "[1,2,3,4,5]"
+      }
+    ]
   },
   {
     "id": 33,
@@ -757,7 +1123,6 @@
     "pattern": "Prefix Sum",
     "difficulty": "Medium",
     "tier": "core",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/subarray-sum-equals-k/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(n)",
@@ -772,7 +1137,19 @@
     ],
     "hint": "Use prefix sum + hash map storing first occurrence index of each prefix sum.",
     "solution": "Maintain prefixSum and a map of {prefixSum: firstIndex}. For each i, if prefixSum-k exists in map, update maxLen = max(maxLen, i - map[prefixSum-k]). If prefixSum not in map, store it.",
-    "canonicalTopic": "Arrays"
+    "canonicalTopic": "Arrays",
+    "inputFormat": "Parameters: nums (vector<int>), k (int).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "nums = [10,5,2,7,1,9], k = 15",
+        "output": "4"
+      },
+      {
+        "input": "nums = [1,2,3], k = 3",
+        "output": "2"
+      }
+    ]
   },
   {
     "id": 34,
@@ -781,7 +1158,6 @@
     "pattern": "Prefix Sum",
     "difficulty": "Easy",
     "tier": "core",
-    "tcs": true,
     "leetcode": "https://www.geeksforgeeks.org/equilibrium-index-of-an-array/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)",
@@ -795,7 +1171,19 @@
     ],
     "hint": "totalSum - leftSum - arr[i] = rightSum. Return i when leftSum equals rightSum.",
     "solution": "Compute totalSum. Iterate maintaining leftSum. At each index if leftSum == totalSum - leftSum - arr[i], return index. Add arr[i] to leftSum. Return -1.",
-    "canonicalTopic": "Arrays"
+    "canonicalTopic": "Arrays",
+    "inputFormat": "Parameters: nums (vector<int>).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "nums = [-7,1,5,2,-4,3,0]",
+        "output": "3"
+      },
+      {
+        "input": "nums = [1,2,3]",
+        "output": "-1"
+      }
+    ]
   },
   {
     "id": 35,
@@ -805,11 +1193,10 @@
     "pattern": "Prefix Sum",
     "difficulty": "Easy",
     "tier": "core",
-    "tcs": true,
-    "statement": "Solve the problem efficiently using an appropriate algorithm.",
-    "sampleInput": "See LeetCode / competitive programming platform for examples.",
-    "sampleOutput": "Output depends on the specific input.",
-    "constraints": "1 ≤ n ≤ 10^5",
+    "statement": "Given an integer array nums and two indices left and right (with left <= right), calculate and return the sum of the elements of nums between indices left and right inclusive (i.e. nums[left] + nums[left + 1] + ... + nums[right]).",
+    "sampleInput": "nums = [-2,0,3,-5,2,-1], left = 0, right = 2",
+    "sampleOutput": "1",
+    "constraints": "1 <= nums.length <= 10^4\n-10^5 <= nums[i] <= 10^5\n0 <= left <= right < nums.length",
     "hint": "Think about the time and space complexity. Consider edge cases.",
     "solution": "Apply the pattern described in the pattern field.",
     "tags": [
@@ -818,7 +1205,21 @@
     ],
     "leetcode": "https://leetcode.com/problemset/",
     "timeComplexity": "O(n)",
-    "spaceComplexity": "O(1)"
+    "spaceComplexity": "O(1)",
+    "inputFormat": "An array of integers nums, and two 0-indexed integers left and right.",
+    "outputFormat": "Return the sum of elements from index left to right inclusive.",
+    "examples": [
+      {
+        "input": "nums = [-2,0,3,-5,2,-1], left = 0, right = 2",
+        "output": "1",
+        "explanation": "(-2) + 0 + 3 = 1."
+      },
+      {
+        "input": "nums = [-2,0,3,-5,2,-1], left = 2, right = 5",
+        "output": "-1",
+        "explanation": "3 + (-5) + 2 + (-1) = -1."
+      }
+    ]
   },
   {
     "id": 36,
@@ -827,7 +1228,6 @@
     "pattern": "General",
     "difficulty": "Medium",
     "tier": "core",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/rotate-array/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)",
@@ -842,7 +1242,19 @@
     ],
     "hint": "Reverse the whole array, then reverse first k, then reverse remaining n-k.",
     "solution": "k = k % n. Reverse entire array. Reverse first k elements. Reverse remaining n-k elements.",
-    "canonicalTopic": "Arrays"
+    "canonicalTopic": "Arrays",
+    "inputFormat": "Parameters: nums (vector<int>), k (int).",
+    "outputFormat": "Returns void.",
+    "examples": [
+      {
+        "input": "nums = [1,2,3,4,5,6,7], k = 3",
+        "output": "[5,6,7,1,2,3,4]"
+      },
+      {
+        "input": "nums = [-1,-100,3,99], k = 2",
+        "output": "[3,99,-1,-100]"
+      }
+    ]
   },
   {
     "id": 37,
@@ -851,7 +1263,6 @@
     "pattern": "General",
     "difficulty": "Easy",
     "tier": "core",
-    "tcs": true,
     "leetcode": "https://www.geeksforgeeks.org/leaders-in-an-array/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)",
@@ -864,7 +1275,19 @@
     ],
     "hint": "Traverse from right maintaining maxRight. If arr[i] > maxRight, it's a leader.",
     "solution": "Last element is always leader. Traverse right to left with maxRight. If arr[i] > maxRight, add to result and update maxRight. Reverse result.",
-    "canonicalTopic": "Arrays"
+    "canonicalTopic": "Arrays",
+    "inputFormat": "Parameters: nums (vector<int>).",
+    "outputFormat": "Returns vector<int>.",
+    "examples": [
+      {
+        "input": "nums = [16,17,4,3,5,2]",
+        "output": "[17,5,2]"
+      },
+      {
+        "input": "nums = [1,2,3,4]",
+        "output": "[4]"
+      }
+    ]
   },
   {
     "id": 38,
@@ -872,7 +1295,6 @@
     "topic": "Arrays",
     "pattern": "General",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/maximum-subarray/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)",
@@ -888,7 +1310,19 @@
     "hint": "Kadane's Algorithm: keep a running sum, reset to 0 when negative.",
     "solution": "Use Kadane's algorithm. Maintain currentSum and maxSum. If currentSum becomes negative, reset it to 0. Update maxSum at each step.",
     "tier": "core",
-    "canonicalTopic": "Arrays"
+    "canonicalTopic": "Arrays",
+    "inputFormat": "Parameters: nums (vector<int>).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "nums = [-2,1,-3,4,-1,2,1,-5,4]",
+        "output": "6"
+      },
+      {
+        "input": "nums = [1]",
+        "output": "1"
+      }
+    ]
   },
   {
     "id": 39,
@@ -896,7 +1330,6 @@
     "topic": "Arrays",
     "pattern": "General",
     "difficulty": "Medium",
-    "tcs": false,
     "leetcode": "https://leetcode.com/problems/maximum-product-subarray/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)",
@@ -911,7 +1344,19 @@
     "hint": "Track both max and min product (min can become max when multiplied by negative).",
     "solution": "Track curMax and curMin. For each element: newMax = max(num, curMax*num, curMin*num), newMin = min(num, curMax*num, curMin*num). Update global max.",
     "tier": "advanced",
-    "canonicalTopic": "Arrays"
+    "canonicalTopic": "Arrays",
+    "inputFormat": "Parameters: nums (vector<int>).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "nums = [2,3,-2,4]",
+        "output": "6"
+      },
+      {
+        "input": "nums = [-2,0,-1]",
+        "output": "0"
+      }
+    ]
   },
   {
     "id": 40,
@@ -919,7 +1364,6 @@
     "topic": "Arrays",
     "pattern": "General",
     "difficulty": "Medium",
-    "tcs": false,
     "leetcode": "https://leetcode.com/problems/merge-intervals/",
     "timeComplexity": "O(n log n)",
     "spaceComplexity": "O(n)",
@@ -934,7 +1378,19 @@
     "hint": "Sort by start time. Merge if current start <= previous end.",
     "solution": "Sort intervals by start. Initialize result with first interval. For each subsequent interval, if start <= result.back().end, merge by updating end to max of both ends. Otherwise add new interval.",
     "tier": "advanced",
-    "canonicalTopic": "Arrays"
+    "canonicalTopic": "Arrays",
+    "inputFormat": "Parameters: intervals (vector<vector<int>>).",
+    "outputFormat": "Returns count:vector<vector<int>>.",
+    "examples": [
+      {
+        "input": "intervals = [[1,3],[2,6],[8,10],[15,18]]",
+        "output": "[[1,6],[8,10],[15,18]]"
+      },
+      {
+        "input": "intervals = [[1,4],[4,5]]",
+        "output": "[[1,5]]"
+      }
+    ]
   },
   {
     "id": 41,
@@ -942,7 +1398,6 @@
     "topic": "Arrays",
     "pattern": "General",
     "difficulty": "Medium",
-    "tcs": false,
     "leetcode": "https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/",
     "timeComplexity": "O(log n)",
     "spaceComplexity": "O(1)",
@@ -957,7 +1412,19 @@
     "hint": "Binary search: the minimum is in the unsorted half.",
     "solution": "If nums[mid] > nums[right], minimum is in right half. Otherwise it's in left half (including mid). Continue until left == right.",
     "tier": "advanced",
-    "canonicalTopic": "Arrays"
+    "canonicalTopic": "Arrays",
+    "inputFormat": "Parameters: nums (vector<int>).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "nums = [3,4,5,1,2]",
+        "output": "1"
+      },
+      {
+        "input": "nums = [4,5,6,7,0,1,2]",
+        "output": "0"
+      }
+    ]
   },
   {
     "id": 42,
@@ -965,7 +1432,6 @@
     "topic": "Strings",
     "pattern": "Hashing",
     "difficulty": "Easy",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/valid-anagram/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)",
@@ -981,7 +1447,19 @@
     "hint": "Count character frequencies in both strings and compare.",
     "solution": "If lengths differ, return false. Count characters in s (increment) and t (decrement) using an array of size 26. If all counts are 0, they're anagrams.",
     "tier": "core",
-    "canonicalTopic": "Strings"
+    "canonicalTopic": "Strings",
+    "inputFormat": "Parameters: s (string), t (string).",
+    "outputFormat": "Returns bool.",
+    "examples": [
+      {
+        "input": "s = \"anagram\", t = \"nagaram\"",
+        "output": "true"
+      },
+      {
+        "input": "s = \"rat\", t = \"car\"",
+        "output": "false"
+      }
+    ]
   },
   {
     "id": 43,
@@ -989,7 +1467,6 @@
     "topic": "Strings",
     "pattern": "Hashing",
     "difficulty": "Medium",
-    "tcs": false,
     "leetcode": "https://leetcode.com/problems/group-anagrams/",
     "timeComplexity": "O(n * k log k)",
     "spaceComplexity": "O(n * k)",
@@ -1006,7 +1483,19 @@
     "hint": "Sort each string as key in a hash map.",
     "solution": "For each string, sort it to get a key. Use a hash map where sorted string maps to list of original strings. Return all values.",
     "tier": "advanced",
-    "canonicalTopic": "Strings"
+    "canonicalTopic": "Strings",
+    "inputFormat": "Parameters: strs (vector<string>).",
+    "outputFormat": "Returns count:vector<vector<string>>.",
+    "examples": [
+      {
+        "input": "strs = [\"eat\",\"tea\",\"tan\",\"ate\",\"nat\",\"bat\"]",
+        "output": "3 groups"
+      },
+      {
+        "input": "strs = [\"\"]",
+        "output": "1 group"
+      }
+    ]
   },
   {
     "id": 44,
@@ -1015,7 +1504,6 @@
     "pattern": "Hashing",
     "difficulty": "Easy",
     "tier": "core",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/first-unique-character-in-a-string/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)",
@@ -1030,7 +1518,19 @@
     ],
     "hint": "Count frequencies using array of 26. Return index of first char with count 1.",
     "solution": "Count frequency of each character using array[26]. Iterate string again, return index of first character with frequency == 1.",
-    "canonicalTopic": "Strings"
+    "canonicalTopic": "Strings",
+    "inputFormat": "Parameters: s (string).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "s = \"leetcode\"",
+        "output": "0"
+      },
+      {
+        "input": "s = \"loveleetcode\"",
+        "output": "2"
+      }
+    ]
   },
   {
     "id": 45,
@@ -1039,7 +1539,6 @@
     "pattern": "Hashing",
     "difficulty": "Easy",
     "tier": "core",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/roman-to-integer/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)",
@@ -1054,7 +1553,19 @@
     ],
     "hint": "If current value < next value, subtract current; otherwise add current.",
     "solution": "Map Roman symbols to values. Traverse string. If value[i] < value[i+1], subtract value[i] from total. Otherwise add value[i].",
-    "canonicalTopic": "Strings"
+    "canonicalTopic": "Strings",
+    "inputFormat": "Parameters: s (string).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "s = \"III\"",
+        "output": "3"
+      },
+      {
+        "input": "s = \"LVIII\"",
+        "output": "58"
+      }
+    ]
   },
   {
     "id": 46,
@@ -1063,7 +1574,6 @@
     "pattern": "Hashing",
     "difficulty": "Easy",
     "tier": "core",
-    "tcs": true,
     "leetcode": "https://www.geeksforgeeks.org/frequency-of-each-character-in-a-string/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)",
@@ -1078,7 +1588,19 @@
     ],
     "hint": "Use an array of 26 integers or a HashMap to count occurrences.",
     "solution": "Create freq[26] initialized to 0. For each char c in s: freq[c-'a']++. Return map of char to its frequency for all non-zero entries.",
-    "canonicalTopic": "Strings"
+    "canonicalTopic": "Strings",
+    "inputFormat": "Parameters: s (string), c (string).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "s = \"aababab\", c = \"a\"",
+        "output": "4"
+      },
+      {
+        "input": "s = \"hello\", c = \"l\"",
+        "output": "2"
+      }
+    ]
   },
   {
     "id": 47,
@@ -1088,11 +1610,10 @@
     "pattern": "Hashing",
     "difficulty": "Easy",
     "tier": "core",
-    "tcs": true,
-    "statement": "Solve the problem efficiently using an appropriate algorithm.",
-    "sampleInput": "See LeetCode / competitive programming platform for examples.",
-    "sampleOutput": "Output depends on the specific input.",
-    "constraints": "1 ≤ n ≤ 10^5",
+    "statement": "Given a string s, count and return the total number of vowels ('a', 'e', 'i', 'o', 'u', case-insensitive) present in the string.",
+    "sampleInput": "s = \"hello\"",
+    "sampleOutput": "2",
+    "constraints": "1 <= s.length <= 10^5\ns consists of printable ASCII characters.",
     "hint": "Think about the time and space complexity. Consider edge cases.",
     "solution": "Apply the pattern described in the pattern field.",
     "tags": [
@@ -1101,7 +1622,20 @@
     ],
     "leetcode": "https://leetcode.com/problemset/",
     "timeComplexity": "O(n)",
-    "spaceComplexity": "O(1)"
+    "spaceComplexity": "O(1)",
+    "inputFormat": "A string s.",
+    "outputFormat": "Return an integer representing the total count of vowels in s.",
+    "examples": [
+      {
+        "input": "s = \"hello\"",
+        "output": "2",
+        "explanation": "Vowels are 'e' and 'o'."
+      },
+      {
+        "input": "s = \"aeiou\"",
+        "output": "5"
+      }
+    ]
   },
   {
     "id": 48,
@@ -1109,7 +1643,6 @@
     "topic": "Strings",
     "pattern": "Two Pointers",
     "difficulty": "Easy",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/valid-palindrome/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)",
@@ -1124,7 +1657,19 @@
     "hint": "Use two pointers, skip non-alphanumeric characters.",
     "solution": "Use two pointers l and r. Skip non-alphanumeric characters. Compare lowercase versions of s[l] and s[r]. If mismatch, return false.",
     "tier": "core",
-    "canonicalTopic": "Strings"
+    "canonicalTopic": "Strings",
+    "inputFormat": "Parameters: s (string).",
+    "outputFormat": "Returns bool.",
+    "examples": [
+      {
+        "input": "s = \"A man a plan a canal Panama\"",
+        "output": "true"
+      },
+      {
+        "input": "s = \"race a car\"",
+        "output": "false"
+      }
+    ]
   },
   {
     "id": 49,
@@ -1133,7 +1678,6 @@
     "pattern": "Two Pointers",
     "difficulty": "Easy",
     "tier": "core",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/reverse-string/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)",
@@ -1147,7 +1691,19 @@
     ],
     "hint": "Use two pointers from both ends, swap until they meet in the middle.",
     "solution": "Initialize l=0, r=n-1. While l < r: swap s[l] and s[r], l++, r--.",
-    "canonicalTopic": "Strings"
+    "canonicalTopic": "Strings",
+    "inputFormat": "Parameters: s (vector<char>).",
+    "outputFormat": "Returns void.",
+    "examples": [
+      {
+        "input": "s = ['h','e','l','l','o']",
+        "output": "['o','l','l','e','h']"
+      },
+      {
+        "input": "s = ['H','a','n','n','a','h']",
+        "output": "['h','a','n','n','a','H']"
+      }
+    ]
   },
   {
     "id": 50,
@@ -1156,7 +1712,6 @@
     "pattern": "Two Pointers",
     "difficulty": "Medium",
     "tier": "core",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/reverse-words-in-a-string/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(n)",
@@ -1170,7 +1725,19 @@
     ],
     "hint": "Trim, split by whitespace, reverse the array, join with single space.",
     "solution": "Trim string. Split by one or more whitespace characters. Reverse the words array. Join with single space.",
-    "canonicalTopic": "Strings"
+    "canonicalTopic": "Strings",
+    "inputFormat": "Parameters: s (string:line).",
+    "outputFormat": "Returns string.",
+    "examples": [
+      {
+        "input": "s = \"the sky is blue\"",
+        "output": "\"blue is sky the\""
+      },
+      {
+        "input": "s = \"  hello world  \"",
+        "output": "\"world hello\""
+      }
+    ]
   },
   {
     "id": 51,
@@ -1179,7 +1746,6 @@
     "pattern": "Two Pointers",
     "difficulty": "Medium",
     "tier": "core",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/string-compression/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)",
@@ -1193,7 +1759,19 @@
     ],
     "hint": "Use read and write pointers. Count consecutive chars, write char then count digits.",
     "solution": "Read pointer i scans, write pointer w writes. Count consecutive same chars. Write char at w. If count>1, write each digit of count. Return w.",
-    "canonicalTopic": "Strings"
+    "canonicalTopic": "Strings",
+    "inputFormat": "Parameters: chars (vector<char>).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "chars = ['a','a','b','b','c','c','c']",
+        "output": "6"
+      },
+      {
+        "input": "chars = ['a']",
+        "output": "1"
+      }
+    ]
   },
   {
     "id": 52,
@@ -1203,11 +1781,10 @@
     "pattern": "Sliding Window",
     "difficulty": "Medium",
     "tier": "core",
-    "tcs": true,
-    "statement": "Solve the problem efficiently using an appropriate algorithm.",
-    "sampleInput": "See LeetCode / competitive programming platform for examples.",
-    "sampleOutput": "Output depends on the specific input.",
-    "constraints": "1 ≤ n ≤ 10^5",
+    "statement": "Given a string s, find the length of the longest substring without repeating characters.",
+    "sampleInput": "s = \"abcabcbb\"",
+    "sampleOutput": "3",
+    "constraints": "0 <= s.length <= 5 * 10^4",
     "hint": "Think about the time and space complexity. Consider edge cases.",
     "solution": "Apply the pattern described in the pattern field.",
     "tags": [
@@ -1216,7 +1793,21 @@
     ],
     "leetcode": "https://leetcode.com/problemset/",
     "timeComplexity": "O(n)",
-    "spaceComplexity": "O(1)"
+    "spaceComplexity": "O(1)",
+    "inputFormat": "A string s consisting of English letters, digits, symbols and spaces.",
+    "outputFormat": "Return an integer representing the maximum length of a non-repeating substring.",
+    "examples": [
+      {
+        "input": "s = \"abcabcbb\"",
+        "output": "3",
+        "explanation": "The answer is \"abc\", with the length of 3."
+      },
+      {
+        "input": "s = \"bbbbb\"",
+        "output": "1",
+        "explanation": "The answer is \"b\", with the length of 1."
+      }
+    ]
   },
   {
     "id": 53,
@@ -1224,7 +1815,6 @@
     "topic": "Strings",
     "pattern": "Sliding Window",
     "difficulty": "Medium",
-    "tcs": false,
     "leetcode": "https://leetcode.com/problems/longest-repeating-character-replacement/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)",
@@ -1240,7 +1830,19 @@
     "hint": "Window is valid if (windowLen - maxFreq) <= k.",
     "solution": "Use sliding window. Track frequency of each char. If (window_size - max_frequency) > k, shrink window from left. Update maxLen after each step.",
     "tier": "advanced",
-    "canonicalTopic": "Strings"
+    "canonicalTopic": "Strings",
+    "inputFormat": "Parameters: s (string), k (int).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "s = \"ABAB\", k = 2",
+        "output": "4"
+      },
+      {
+        "input": "s = \"AABABBA\", k = 1",
+        "output": "4"
+      }
+    ]
   },
   {
     "id": 54,
@@ -1248,7 +1850,6 @@
     "topic": "Strings",
     "pattern": "Sliding Window",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/find-all-anagrams-in-a-string/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)",
@@ -1264,7 +1865,19 @@
     "hint": "Use fixed-size sliding window of length p.length. Compare character frequencies.",
     "solution": "Use frequency arrays for p and current window. Slide window of size p.length across s. Add/remove characters at window boundaries. When frequencies match, add index.",
     "tier": "core",
-    "canonicalTopic": "Strings"
+    "canonicalTopic": "Strings",
+    "inputFormat": "Parameters: s (string), p (string).",
+    "outputFormat": "Returns vector<int>.",
+    "examples": [
+      {
+        "input": "s = \"cbaebabacd\", p = \"abc\"",
+        "output": "[0,6]"
+      },
+      {
+        "input": "s = \"abab\", p = \"ab\"",
+        "output": "[0,1,2]"
+      }
+    ]
   },
   {
     "id": 55,
@@ -1274,11 +1887,10 @@
     "pattern": "Sliding Window",
     "difficulty": "Hard",
     "tier": "advanced",
-    "tcs": false,
-    "statement": "Solve the problem efficiently using an appropriate algorithm.",
-    "sampleInput": "See LeetCode / competitive programming platform for examples.",
-    "sampleOutput": "Output depends on the specific input.",
-    "constraints": "1 ≤ n ≤ 10^5",
+    "statement": "Given two strings s and t of lengths m and n respectively, return the minimum window substring of s such that every character in t (including duplicates) is included in the window. If there is no such substring, return the empty string \"\".",
+    "sampleInput": "s = \"ADOBECODEBANC\", t = \"ABC\"",
+    "sampleOutput": "\"BANC\"",
+    "constraints": "m == s.length, n == t.length\n1 <= m, n <= 10^5\ns and t consist of uppercase and lowercase English letters.",
     "hint": "Think about the time and space complexity. Consider edge cases.",
     "solution": "Apply the pattern described in the pattern field.",
     "tags": [
@@ -1287,7 +1899,20 @@
     ],
     "leetcode": "https://leetcode.com/problemset/",
     "timeComplexity": "O(n)",
-    "spaceComplexity": "O(1)"
+    "spaceComplexity": "O(1)",
+    "inputFormat": "Two strings s and t.",
+    "outputFormat": "Return the shortest substring of s that contains all characters of t, or \"\" if none exists.",
+    "examples": [
+      {
+        "input": "s = \"ADOBECODEBANC\", t = \"ABC\"",
+        "output": "\"BANC\"",
+        "explanation": "The minimum window substring \"BANC\" includes 'A', 'B', and 'C' from string t."
+      },
+      {
+        "input": "s = \"a\", t = \"a\"",
+        "output": "\"a\""
+      }
+    ]
   },
   {
     "id": 56,
@@ -1296,7 +1921,6 @@
     "pattern": "General",
     "difficulty": "Easy",
     "tier": "core",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/longest-common-prefix/",
     "timeComplexity": "O(n * m)",
     "spaceComplexity": "O(1)",
@@ -1310,7 +1934,19 @@
     ],
     "hint": "Compare characters vertically across all strings. Stop at first mismatch.",
     "solution": "Use first string as reference. For each character position, check if all strings have same char. Stop when mismatch or any string ends. Return prefix found.",
-    "canonicalTopic": "Strings"
+    "canonicalTopic": "Strings",
+    "inputFormat": "Parameters: strs (vector<string>).",
+    "outputFormat": "Returns string.",
+    "examples": [
+      {
+        "input": "strs = [\"flower\",\"flow\",\"flight\"]",
+        "output": "\"fl\""
+      },
+      {
+        "input": "strs = [\"dog\",\"racecar\",\"car\"]",
+        "output": "\"\""
+      }
+    ]
   },
   {
     "id": 57,
@@ -1319,7 +1955,6 @@
     "pattern": "General",
     "difficulty": "Easy",
     "tier": "core",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/rotate-string/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(n)",
@@ -1333,7 +1968,19 @@
     ],
     "hint": "s is a rotation of goal if and only if goal is a substring of s+s.",
     "solution": "If lengths differ return false. Return whether goal is a substring of (s+s). Use indexOf or KMP.",
-    "canonicalTopic": "Strings"
+    "canonicalTopic": "Strings",
+    "inputFormat": "Parameters: s (string), goal (string).",
+    "outputFormat": "Returns bool.",
+    "examples": [
+      {
+        "input": "s = \"abcde\", goal = \"cdeab\"",
+        "output": "true"
+      },
+      {
+        "input": "s = \"abcde\", goal = \"abced\"",
+        "output": "false"
+      }
+    ]
   },
   {
     "id": 58,
@@ -1341,7 +1988,6 @@
     "topic": "Strings",
     "pattern": "General",
     "difficulty": "Medium",
-    "tcs": false,
     "leetcode": "https://leetcode.com/problems/encode-and-decode-strings/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(n)",
@@ -1357,7 +2003,19 @@
     "hint": "Prefix each string with its length and a delimiter.",
     "solution": "Encode: for each string, append len(s) + '#' + s. Decode: read length, then '#', then read that many characters.",
     "tier": "advanced",
-    "canonicalTopic": "Strings"
+    "canonicalTopic": "Strings",
+    "inputFormat": "Parameters: strs (vector<string>).",
+    "outputFormat": "Returns design:Codec.",
+    "examples": [
+      {
+        "input": "strs = [\"Hello\",\"World\"]",
+        "output": "2"
+      },
+      {
+        "input": "strs = [\"\"]",
+        "output": "1"
+      }
+    ]
   },
   {
     "id": 59,
@@ -1365,7 +2023,6 @@
     "topic": "Strings",
     "pattern": "General",
     "difficulty": "Medium",
-    "tcs": false,
     "leetcode": "https://leetcode.com/problems/longest-palindromic-substring/",
     "timeComplexity": "O(n²)",
     "spaceComplexity": "O(1)",
@@ -1381,7 +2038,19 @@
     "hint": "Expand around center. Try each character as center for odd and even length palindromes.",
     "solution": "For each index, expand around center for odd length (center at i) and even length (center between i and i+1). Track longest palindrome.",
     "tier": "advanced",
-    "canonicalTopic": "Strings"
+    "canonicalTopic": "Strings",
+    "inputFormat": "Parameters: s (string).",
+    "outputFormat": "Returns string.",
+    "examples": [
+      {
+        "input": "s = \"babad\"",
+        "output": "\"bab\" or \"aba\""
+      },
+      {
+        "input": "s = \"cbbd\"",
+        "output": "\"bb\""
+      }
+    ]
   },
   {
     "id": 60,
@@ -1389,7 +2058,6 @@
     "topic": "Strings",
     "pattern": "General",
     "difficulty": "Medium",
-    "tcs": false,
     "leetcode": "https://leetcode.com/problems/palindromic-substrings/",
     "timeComplexity": "O(n²)",
     "spaceComplexity": "O(1)",
@@ -1405,7 +2073,19 @@
     "hint": "Expand around center. Count each valid palindrome.",
     "solution": "For each center (n odd + n-1 even centers), expand while palindrome is valid. Count each valid expansion.",
     "tier": "advanced",
-    "canonicalTopic": "Strings"
+    "canonicalTopic": "Strings",
+    "inputFormat": "Parameters: s (string).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "s = \"abc\"",
+        "output": "3"
+      },
+      {
+        "input": "s = \"aaa\"",
+        "output": "6"
+      }
+    ]
   },
   {
     "id": 61,
@@ -1413,7 +2093,6 @@
     "topic": "Linked List",
     "pattern": "Fast & Slow Pointer",
     "difficulty": "Easy",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/linked-list-cycle/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)",
@@ -1429,7 +2108,19 @@
     "hint": "Floyd's cycle detection: slow and fast pointers.",
     "solution": "Use slow and fast pointers. Slow moves 1 step, fast moves 2 steps. If they meet, there's a cycle. If fast reaches null, no cycle.",
     "tier": "core",
-    "canonicalTopic": "Linked List"
+    "canonicalTopic": "Linked List",
+    "inputFormat": "Parameters: head (ListNode*:cycle).",
+    "outputFormat": "Returns bool.",
+    "examples": [
+      {
+        "input": "head = [3,2,0,-4], pos = 1",
+        "output": "true"
+      },
+      {
+        "input": "head = [1,2], pos = 0",
+        "output": "true"
+      }
+    ]
   },
   {
     "id": 62,
@@ -1438,7 +2129,6 @@
     "pattern": "Fast & Slow Pointer",
     "difficulty": "Easy",
     "tier": "core",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/middle-of-the-linked-list/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)",
@@ -1452,7 +2142,19 @@
     ],
     "hint": "Slow moves 1 step, fast moves 2 steps; when fast reaches end, slow is at middle.",
     "solution": "slow=head, fast=head. While fast!=null and fast.next!=null: slow=slow.next, fast=fast.next.next. Return slow.",
-    "canonicalTopic": "Linked List"
+    "canonicalTopic": "Linked List",
+    "inputFormat": "Parameters: head (ListNode*).",
+    "outputFormat": "Returns ListNode*->val.",
+    "examples": [
+      {
+        "input": "head = [1,2,3,4,5]",
+        "output": "3"
+      },
+      {
+        "input": "head = [1,2,3,4,5,6]",
+        "output": "4"
+      }
+    ]
   },
   {
     "id": 63,
@@ -1461,7 +2163,6 @@
     "pattern": "Fast & Slow Pointer",
     "difficulty": "Easy",
     "tier": "core",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/palindrome-linked-list/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)",
@@ -1477,7 +2178,19 @@
     ],
     "hint": "Find middle, reverse the second half, compare both halves.",
     "solution": "Find middle with slow/fast pointers. Reverse second half from middle.next. Compare first and reversed second half node by node.",
-    "canonicalTopic": "Linked List"
+    "canonicalTopic": "Linked List",
+    "inputFormat": "Parameters: head (ListNode*).",
+    "outputFormat": "Returns bool.",
+    "examples": [
+      {
+        "input": "head = [1,2,2,1]",
+        "output": "true"
+      },
+      {
+        "input": "head = [1,2]",
+        "output": "false"
+      }
+    ]
   },
   {
     "id": 64,
@@ -1486,7 +2199,6 @@
     "pattern": "Fast & Slow Pointer",
     "difficulty": "Medium",
     "tier": "advanced",
-    "tcs": false,
     "leetcode": "https://leetcode.com/problems/linked-list-cycle-ii/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)",
@@ -1501,7 +2213,19 @@
     ],
     "hint": "After slow and fast meet inside cycle, reset one pointer to head; move both one step at a time.",
     "solution": "Floyd's: detect meeting point. Reset slow to head. Move slow and fast one step at a time. Where they meet again is the cycle entry node.",
-    "canonicalTopic": "Linked List"
+    "canonicalTopic": "Linked List",
+    "inputFormat": "Parameters: head (ListNode*:cycle).",
+    "outputFormat": "Returns ListNode*->val.",
+    "examples": [
+      {
+        "input": "head = [3,2,0,-4], pos = 1",
+        "output": "2"
+      },
+      {
+        "input": "head = [1,2], pos = 0",
+        "output": "1"
+      }
+    ]
   },
   {
     "id": 65,
@@ -1509,7 +2233,6 @@
     "topic": "Linked List",
     "pattern": "Reversal",
     "difficulty": "Easy",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/reverse-linked-list/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)",
@@ -1524,7 +2247,19 @@
     "hint": "Use prev, curr, next pointers to reverse links iteratively.",
     "solution": "Initialize prev=null, curr=head. While curr exists: save next=curr.next, set curr.next=prev, move prev=curr, move curr=next. Return prev.",
     "tier": "core",
-    "canonicalTopic": "Linked List"
+    "canonicalTopic": "Linked List",
+    "inputFormat": "Parameters: head (ListNode*).",
+    "outputFormat": "Returns ListNode*.",
+    "examples": [
+      {
+        "input": "head = [1,2,3,4,5]",
+        "output": "[5,4,3,2,1]"
+      },
+      {
+        "input": "head = [1,2]",
+        "output": "[2,1]"
+      }
+    ]
   },
   {
     "id": 66,
@@ -1534,11 +2269,10 @@
     "pattern": "Reversal",
     "difficulty": "Medium",
     "tier": "advanced",
-    "tcs": false,
-    "statement": "Solve the problem efficiently using an appropriate algorithm.",
-    "sampleInput": "See LeetCode / competitive programming platform for examples.",
-    "sampleOutput": "Output depends on the specific input.",
-    "constraints": "1 ≤ n ≤ 10^5",
+    "statement": "Given the head of a linked list, reverse the nodes of the list k at a time, and return the modified list. k is a positive integer and is less than or equal to the length of the linked list. If the number of nodes is not a multiple of k then left-out nodes, in the end, should remain as it is.",
+    "sampleInput": "head = [1,2,3,4,5], k = 2",
+    "sampleOutput": "[2,1,4,3,5]",
+    "constraints": "The number of nodes in the list is n.\n1 <= k <= n <= 5000\n0 <= Node.val <= 1000",
     "hint": "Think about the time and space complexity. Consider edge cases.",
     "solution": "Apply the pattern described in the pattern field.",
     "tags": [
@@ -1547,7 +2281,19 @@
     ],
     "leetcode": "https://leetcode.com/problemset/",
     "timeComplexity": "O(n)",
-    "spaceComplexity": "O(1)"
+    "spaceComplexity": "O(1)",
+    "inputFormat": "The head of a singly linked list head and an integer k.",
+    "outputFormat": "Return the head of the modified linked list after group reversal.",
+    "examples": [
+      {
+        "input": "head = [1,2,3,4,5], k = 2",
+        "output": "[2,1,4,3,5]"
+      },
+      {
+        "input": "head = [1,2,3,4,5], k = 3",
+        "output": "[3,2,1,4,5]"
+      }
+    ]
   },
   {
     "id": 67,
@@ -1555,7 +2301,6 @@
     "topic": "Linked List",
     "pattern": "General",
     "difficulty": "Easy",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/merge-two-sorted-lists/",
     "timeComplexity": "O(n + m)",
     "spaceComplexity": "O(1)",
@@ -1570,7 +2315,19 @@
     "hint": "Use a dummy node. Compare heads and attach smaller one.",
     "solution": "Create dummy node. Use pointer curr=dummy. Compare list1.val and list2.val. Attach smaller to curr.next. Move that list's pointer and curr forward.",
     "tier": "core",
-    "canonicalTopic": "Linked List"
+    "canonicalTopic": "Linked List",
+    "inputFormat": "Parameters: list1 (ListNode*), list2 (ListNode*).",
+    "outputFormat": "Returns ListNode*.",
+    "examples": [
+      {
+        "input": "list1 = [1,2,4], list2 = [1,3,4]",
+        "output": "[1,1,2,3,4,4]"
+      },
+      {
+        "input": "list1 = [], list2 = []",
+        "output": "[]"
+      }
+    ]
   },
   {
     "id": 68,
@@ -1578,7 +2335,6 @@
     "topic": "Linked List",
     "pattern": "General",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/remove-nth-node-from-end-of-list/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)",
@@ -1593,7 +2349,19 @@
     "hint": "Use two pointers n apart. When fast reaches end, slow is at the node to remove.",
     "solution": "Use dummy node. Move fast pointer n+1 steps ahead. Move both slow and fast until fast is null. Remove slow.next.",
     "tier": "core",
-    "canonicalTopic": "Linked List"
+    "canonicalTopic": "Linked List",
+    "inputFormat": "Parameters: head (ListNode*), n (int).",
+    "outputFormat": "Returns ListNode*.",
+    "examples": [
+      {
+        "input": "head = [1,2,3,4,5], n = 2",
+        "output": "[1,2,3,5]"
+      },
+      {
+        "input": "head = [1], n = 1",
+        "output": "[]"
+      }
+    ]
   },
   {
     "id": 69,
@@ -1602,7 +2370,6 @@
     "pattern": "General",
     "difficulty": "Medium",
     "tier": "core",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/add-two-numbers/",
     "timeComplexity": "O(max(m,n))",
     "spaceComplexity": "O(max(m,n))",
@@ -1617,7 +2384,19 @@
     ],
     "hint": "Simulate digit-by-digit addition with carry using a dummy head node.",
     "solution": "Use dummy head. Add digits plus carry: sum=val1+val2+carry. New node = sum%10, carry=sum/10. Handle remaining nodes. Add extra node if carry remains.",
-    "canonicalTopic": "Linked List"
+    "canonicalTopic": "Linked List",
+    "inputFormat": "Parameters: l1 (ListNode*), l2 (ListNode*).",
+    "outputFormat": "Returns ListNode*.",
+    "examples": [
+      {
+        "input": "l1 = [2,4,3], l2 = [5,6,4]",
+        "output": "[7,0,8]"
+      },
+      {
+        "input": "l1 = [0], l2 = [0]",
+        "output": "[0]"
+      }
+    ]
   },
   {
     "id": 70,
@@ -1626,7 +2405,6 @@
     "pattern": "General",
     "difficulty": "Easy",
     "tier": "core",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/intersection-of-two-linked-lists/",
     "timeComplexity": "O(m+n)",
     "spaceComplexity": "O(1)",
@@ -1641,7 +2419,19 @@
     ],
     "hint": "Two pointers each traverse both lists; they meet at intersection after m+n steps.",
     "solution": "a=headA, b=headB. Advance both. When a==null redirect to headB; when b==null redirect to headA. They meet at intersection or both null.",
-    "canonicalTopic": "Linked List"
+    "canonicalTopic": "Linked List",
+    "inputFormat": "Parameters: headA (ListNode*:intersectA), headB (ListNode*:intersectB).",
+    "outputFormat": "Returns ListNode*->val.",
+    "examples": [
+      {
+        "input": "listA=[4,1,8,4,5], listB=[5,6,1,8,4,5], skipA=2, skipB=3",
+        "output": "8"
+      },
+      {
+        "input": "listA=[1,9,1,2,4], listB=[3,2,4], skipA=3, skipB=1",
+        "output": "2"
+      }
+    ]
   },
   {
     "id": 71,
@@ -1649,7 +2439,6 @@
     "topic": "Linked List",
     "pattern": "General",
     "difficulty": "Medium",
-    "tcs": false,
     "leetcode": "https://leetcode.com/problems/find-the-duplicate-number/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)",
@@ -1666,7 +2455,19 @@
     "hint": "Treat array as linked list. Use Floyd's cycle detection.",
     "solution": "Use Floyd's algorithm treating each value as pointer to index. Find cycle entry point which is the duplicate.",
     "tier": "core",
-    "canonicalTopic": "Linked List"
+    "canonicalTopic": "Linked List",
+    "inputFormat": "Parameters: nums (vector<int>).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "nums = [1,3,4,2,2]",
+        "output": "2"
+      },
+      {
+        "input": "nums = [3,1,3,4,2]",
+        "output": "3"
+      }
+    ]
   },
   {
     "id": 72,
@@ -1674,7 +2475,6 @@
     "topic": "Stacks & Queues",
     "pattern": "Stack",
     "difficulty": "Easy",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/valid-parentheses/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(n)",
@@ -1689,7 +2489,19 @@
     "hint": "Push opening brackets. On closing bracket, check if top matches.",
     "solution": "Use a stack. For '(', '[', '{', push. For ')', ']', '}', if stack empty or top doesn't match, return false. Pop otherwise. Return stack.empty() at end.",
     "tier": "core",
-    "canonicalTopic": "Stacks & Queues"
+    "canonicalTopic": "Stacks & Queues",
+    "inputFormat": "Parameters: s (string).",
+    "outputFormat": "Returns bool.",
+    "examples": [
+      {
+        "input": "s = \"()\"",
+        "output": "true"
+      },
+      {
+        "input": "s = \"()[]{\"",
+        "output": "true"
+      }
+    ]
   },
   {
     "id": 73,
@@ -1698,7 +2510,6 @@
     "pattern": "Stack",
     "difficulty": "Medium",
     "tier": "core",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/min-stack/",
     "timeComplexity": "O(1) all ops",
     "spaceComplexity": "O(n)",
@@ -1712,7 +2523,19 @@
     ],
     "hint": "Maintain two stacks: main stack and a min-tracking stack.",
     "solution": "Main stack stores all values. Min stack stores minimum at each level. On push: push to both (min stack gets min of new val and current min). On pop: pop from both.",
-    "canonicalTopic": "Stacks & Queues"
+    "canonicalTopic": "Stacks & Queues",
+    "inputFormat": "Parameters: nums (vector<int>).",
+    "outputFormat": "Returns design:MinStack.",
+    "examples": [
+      {
+        "input": "push(-2),push(0),push(-3),getMin()",
+        "output": "-3"
+      },
+      {
+        "input": "push(1),getMin()",
+        "output": "1"
+      }
+    ]
   },
   {
     "id": 74,
@@ -1720,7 +2543,6 @@
     "topic": "Stacks & Queues",
     "pattern": "Stack",
     "difficulty": "Easy",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/implement-queue-using-stacks/",
     "timeComplexity": "O(1) amortized",
     "spaceComplexity": "O(n)",
@@ -1736,7 +2558,19 @@
     "hint": "Use two stacks: input and output. Transfer when output is empty.",
     "solution": "Maintain two stacks. Push to stack1. Pop: if stack2 empty, transfer all from stack1 to stack2, then pop from stack2.",
     "tier": "core",
-    "canonicalTopic": "Stacks & Queues"
+    "canonicalTopic": "Stacks & Queues",
+    "inputFormat": "Parameters: nums (vector<int>).",
+    "outputFormat": "Returns design:MyQueue.",
+    "examples": [
+      {
+        "input": "push(1),push(2),peek()",
+        "output": "1"
+      },
+      {
+        "input": "push(1),peek()",
+        "output": "1"
+      }
+    ]
   },
   {
     "id": 75,
@@ -1744,7 +2578,6 @@
     "topic": "Stacks & Queues",
     "pattern": "Monotonic Stack",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/daily-temperatures/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(n)",
@@ -1760,7 +2593,19 @@
     "hint": "Use a monotonic decreasing stack storing indices.",
     "solution": "Use a stack of indices. For each temperature, pop indices from stack while current temp is greater than stack top temp. Set answer[popped] = current_idx - popped_idx.",
     "tier": "core",
-    "canonicalTopic": "Stacks & Queues"
+    "canonicalTopic": "Stacks & Queues",
+    "inputFormat": "Parameters: temperatures (vector<int>).",
+    "outputFormat": "Returns vector<int>.",
+    "examples": [
+      {
+        "input": "temperatures = [73,74,75,71,69,72,76,73]",
+        "output": "[1,1,4,2,1,1,0,0]"
+      },
+      {
+        "input": "temperatures = [30,40,50,60]",
+        "output": "[1,1,1,0]"
+      }
+    ]
   },
   {
     "id": 76,
@@ -1768,7 +2613,6 @@
     "topic": "Stacks & Queues",
     "pattern": "Monotonic Stack",
     "difficulty": "Hard",
-    "tcs": false,
     "leetcode": "https://leetcode.com/problems/largest-rectangle-in-histogram/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(n)",
@@ -1784,7 +2628,19 @@
     "hint": "Use monotonic increasing stack. Pop when current height is smaller.",
     "solution": "Use stack of (index, height). When popping, calculate area using popped height and current width. Extend start position. Process remaining stack at the end.",
     "tier": "advanced",
-    "canonicalTopic": "Stacks & Queues"
+    "canonicalTopic": "Stacks & Queues",
+    "inputFormat": "Parameters: heights (vector<int>).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "heights = [2,1,5,6,2,3]",
+        "output": "10"
+      },
+      {
+        "input": "heights = [2,4]",
+        "output": "4"
+      }
+    ]
   },
   {
     "id": 77,
@@ -1793,7 +2649,6 @@
     "pattern": "Monotonic Stack",
     "difficulty": "Easy",
     "tier": "core",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/next-greater-element-i/",
     "timeComplexity": "O(n+m)",
     "spaceComplexity": "O(n)",
@@ -1809,7 +2664,19 @@
     ],
     "hint": "Use monotonic decreasing stack on nums2 to map each element to its next greater.",
     "solution": "Process nums2 with monotonic stack. When larger element found, pop stack and map popped→current. For nums1 elements, return map value or -1.",
-    "canonicalTopic": "Stacks & Queues"
+    "canonicalTopic": "Stacks & Queues",
+    "inputFormat": "Parameters: nums1 (vector<int>), nums2 (vector<int>).",
+    "outputFormat": "Returns vector<int>.",
+    "examples": [
+      {
+        "input": "nums1 = [4,1,2], nums2 = [1,3,4,2]",
+        "output": "[-1,3,-1]"
+      },
+      {
+        "input": "nums1 = [2,4], nums2 = [1,2,3,4]",
+        "output": "[3,-1]"
+      }
+    ]
   },
   {
     "id": 78,
@@ -1818,7 +2685,6 @@
     "pattern": "Monotonic Stack",
     "difficulty": "Medium",
     "tier": "core",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/online-stock-span/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(n)",
@@ -1833,7 +2699,19 @@
     ],
     "hint": "Stack stores (price, span) pairs. Pop while top price <= current, accumulate spans.",
     "solution": "For each price: span=1. While stack not empty and top.price <= current price: span += top.span, pop. Push (price, span). Return span.",
-    "canonicalTopic": "Stacks & Queues"
+    "canonicalTopic": "Stacks & Queues",
+    "inputFormat": "Parameters: prices (vector<int>).",
+    "outputFormat": "Returns vector<int>.",
+    "examples": [
+      {
+        "input": "prices = [100,80,60,70,60,75,85]",
+        "output": "[1,1,1,2,1,4,6]"
+      },
+      {
+        "input": "prices = [10,4,5,90,120,80]",
+        "output": "[1,1,2,4,5,1]"
+      }
+    ]
   },
   {
     "id": 79,
@@ -1843,11 +2721,10 @@
     "pattern": "Monotonic Stack",
     "difficulty": "Hard",
     "tier": "advanced",
-    "tcs": false,
-    "statement": "Solve the problem efficiently using an appropriate algorithm.",
-    "sampleInput": "See LeetCode / competitive programming platform for examples.",
-    "sampleOutput": "Output depends on the specific input.",
-    "constraints": "1 ≤ n ≤ 10^5",
+    "statement": "You are given an array of integers nums, there is a sliding window of size k which is moving from the very left of the array to the very right. You can only see the k numbers in the window. Each time the sliding window moves right by one position. Return the max sliding window.",
+    "sampleInput": "nums = [1,3,-1,-3,5,3,6,7], k = 3",
+    "sampleOutput": "[3,3,5,5,6,7]",
+    "constraints": "1 <= nums.length <= 10^5\n-10^4 <= nums[i] <= 10^4\n1 <= k <= nums.length",
     "hint": "Think about the time and space complexity. Consider edge cases.",
     "solution": "Apply the pattern described in the pattern field.",
     "tags": [
@@ -1856,7 +2733,20 @@
     ],
     "leetcode": "https://leetcode.com/problemset/",
     "timeComplexity": "O(n)",
-    "spaceComplexity": "O(1)"
+    "spaceComplexity": "O(1)",
+    "inputFormat": "An array of integers nums and window size k.",
+    "outputFormat": "Return an array containing the maximum value from each window of size k.",
+    "examples": [
+      {
+        "input": "nums = [1,3,-1,-3,5,3,6,7], k = 3",
+        "output": "[3,3,5,5,6,7]",
+        "explanation": "Windows: [1 3 -1] -> 3; [3 -1 -3] -> 3; [-1 -3 5] -> 5; [-3 5 3] -> 5; [5 3 6] -> 6; [3 6 7] -> 7."
+      },
+      {
+        "input": "nums = [1], k = 1",
+        "output": "[1]"
+      }
+    ]
   },
   {
     "id": 80,
@@ -1865,7 +2755,6 @@
     "pattern": "Queue",
     "difficulty": "Medium",
     "tier": "core",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/design-circular-queue/",
     "timeComplexity": "O(1) all ops",
     "spaceComplexity": "O(k)",
@@ -1881,7 +2770,19 @@
     ],
     "hint": "Use array of size k with front and rear pointers. Use modular arithmetic for wrap-around.",
     "solution": "Array[k], front=0, rear=-1, count=0. enQueue: if full return false; rear=(rear+1)%k; array[rear]=val; count++. deQueue: if empty return false; front=(front+1)%k; count--.",
-    "canonicalTopic": "Stacks & Queues"
+    "canonicalTopic": "Stacks & Queues",
+    "inputFormat": "Parameters: nums (vector<int>), k (int).",
+    "outputFormat": "Returns design:MyCircularQueue.",
+    "examples": [
+      {
+        "input": "k=3, enQueue(1),enQueue(2),enQueue(3),Rear()",
+        "output": "3"
+      },
+      {
+        "input": "k=6, enQueue(6),Rear()",
+        "output": "6"
+      }
+    ]
   },
   {
     "id": 81,
@@ -1890,7 +2791,6 @@
     "pattern": "Queue",
     "difficulty": "Medium",
     "tier": "core",
-    "tcs": true,
     "leetcode": "https://www.geeksforgeeks.org/find-first-non-repeating-character-stream-characters/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)",
@@ -1905,7 +2805,19 @@
     ],
     "hint": "Use frequency array and a queue of candidates. Pop front when its frequency > 1.",
     "solution": "freq[26] array + queue. For each char: increment freq, enqueue char. While queue front has freq>1, dequeue. Print front or '#' if empty.",
-    "canonicalTopic": "Stacks & Queues"
+    "canonicalTopic": "Stacks & Queues",
+    "inputFormat": "Parameters: s (string).",
+    "outputFormat": "Returns string.",
+    "examples": [
+      {
+        "input": "stream = \"aabc\"",
+        "output": "\"a#bb\""
+      },
+      {
+        "input": "stream = \"abcabc\"",
+        "output": "\"aaabc#\""
+      }
+    ]
   },
   {
     "id": 82,
@@ -1913,7 +2825,6 @@
     "topic": "Trees & BST",
     "pattern": "DFS",
     "difficulty": "Easy",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/maximum-depth-of-binary-tree/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(h)",
@@ -1930,7 +2841,19 @@
     "hint": "Return 1 + max(depth of left, depth of right).",
     "solution": "If root is null, return 0. Return 1 + max(maxDepth(root.left), maxDepth(root.right)).",
     "tier": "core",
-    "canonicalTopic": "Trees & BST"
+    "canonicalTopic": "Trees & BST",
+    "inputFormat": "Parameters: root (TreeNode*).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "root = [3,9,20,null,null,15,7]",
+        "output": "3"
+      },
+      {
+        "input": "root = [1,null,2]",
+        "output": "2"
+      }
+    ]
   },
   {
     "id": 83,
@@ -1938,7 +2861,6 @@
     "topic": "Trees & BST",
     "pattern": "DFS",
     "difficulty": "Easy",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/invert-binary-tree/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(h)",
@@ -1955,7 +2877,19 @@
     "hint": "Recursively swap left and right children.",
     "solution": "Recursively call invertTree on left and right subtrees. Swap root.left and root.right. Return root.",
     "tier": "core",
-    "canonicalTopic": "Trees & BST"
+    "canonicalTopic": "Trees & BST",
+    "inputFormat": "Parameters: root (TreeNode*).",
+    "outputFormat": "Returns TreeNode*.",
+    "examples": [
+      {
+        "input": "root = [4,2,7,1,3,6,9]",
+        "output": "[4,7,2,9,6,3,1]"
+      },
+      {
+        "input": "root = [2,1,3]",
+        "output": "[2,3,1]"
+      }
+    ]
   },
   {
     "id": 84,
@@ -1963,7 +2897,6 @@
     "topic": "Trees & BST",
     "pattern": "DFS",
     "difficulty": "Easy",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/diameter-of-binary-tree/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(h)",
@@ -1979,7 +2912,19 @@
     "hint": "For each node, diameter through it = leftDepth + rightDepth.",
     "solution": "DFS returns height. At each node, update global maxDiameter = max(maxDiameter, leftH + rightH). Return 1 + max(leftH, rightH).",
     "tier": "core",
-    "canonicalTopic": "Trees & BST"
+    "canonicalTopic": "Trees & BST",
+    "inputFormat": "Parameters: root (TreeNode*).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "root = [1,2,3,4,5]",
+        "output": "3"
+      },
+      {
+        "input": "root = [1,2]",
+        "output": "1"
+      }
+    ]
   },
   {
     "id": 85,
@@ -1987,7 +2932,6 @@
     "topic": "Trees & BST",
     "pattern": "DFS",
     "difficulty": "Easy",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/balanced-binary-tree/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(h)",
@@ -2003,7 +2947,19 @@
     "hint": "Return -1 if unbalanced. Otherwise return height.",
     "solution": "DFS returns height or -1 if unbalanced. At each node: if either subtree returns -1, or |leftH-rightH| > 1, return -1. Else return 1 + max(leftH, rightH).",
     "tier": "core",
-    "canonicalTopic": "Trees & BST"
+    "canonicalTopic": "Trees & BST",
+    "inputFormat": "Parameters: root (TreeNode*).",
+    "outputFormat": "Returns bool.",
+    "examples": [
+      {
+        "input": "root = [3,9,20,null,null,15,7]",
+        "output": "true"
+      },
+      {
+        "input": "root = [1,2,2,3,3,null,null,4,4]",
+        "output": "false"
+      }
+    ]
   },
   {
     "id": 86,
@@ -2011,7 +2967,6 @@
     "topic": "Trees & BST",
     "pattern": "DFS",
     "difficulty": "Easy",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/path-sum/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(h)",
@@ -2028,7 +2983,19 @@
     "hint": "DFS. At leaf, check if remaining == node.val.",
     "solution": "DFS with remaining target. At each node, subtract node.val from target. At leaf, return target == 0.",
     "tier": "core",
-    "canonicalTopic": "Trees & BST"
+    "canonicalTopic": "Trees & BST",
+    "inputFormat": "Parameters: root (TreeNode*), targetSum (int).",
+    "outputFormat": "Returns bool.",
+    "examples": [
+      {
+        "input": "root = [5,4,8,11,null,13,4,7,2,null,null,null,1], targetSum = 22",
+        "output": "true"
+      },
+      {
+        "input": "root = [1,2,3], targetSum = 5",
+        "output": "false"
+      }
+    ]
   },
   {
     "id": 87,
@@ -2036,7 +3003,6 @@
     "topic": "Trees & BST",
     "pattern": "DFS",
     "difficulty": "Medium",
-    "tcs": false,
     "leetcode": "https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(n)",
@@ -2054,7 +3020,19 @@
     "hint": "Preorder first element is root. Find it in inorder to split left/right subtrees.",
     "solution": "Root is preorder[0]. Find its index in inorder. Elements to left are left subtree, right are right subtree. Recursively build.",
     "tier": "advanced",
-    "canonicalTopic": "Trees & BST"
+    "canonicalTopic": "Trees & BST",
+    "inputFormat": "Parameters: preorder (vector<int>), inorder (vector<int>).",
+    "outputFormat": "Returns TreeNode*:raw.",
+    "examples": [
+      {
+        "input": "preorder = [3,9,20,15,7], inorder = [9,3,15,20,7]",
+        "output": "[3,9,20,null,null,15,7]"
+      },
+      {
+        "input": "preorder = [-1], inorder = [-1]",
+        "output": "[-1]"
+      }
+    ]
   },
   {
     "id": 88,
@@ -2063,7 +3041,6 @@
     "pattern": "DFS",
     "difficulty": "Medium",
     "tier": "advanced",
-    "tcs": false,
     "leetcode": "https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(h)",
@@ -2078,7 +3055,19 @@
     ],
     "hint": "If root is p or q return root. Recurse left and right. If both non-null, root is LCA.",
     "solution": "If root==null or root==p or root==q return root. left=lca(left,p,q); right=lca(right,p,q). If both non-null return root. Return whichever is non-null.",
-    "canonicalTopic": "Trees & BST"
+    "canonicalTopic": "Trees & BST",
+    "inputFormat": "Parameters: root (TreeNode*), p (TreeNode*->val), q (TreeNode*->val).",
+    "outputFormat": "Returns TreeNode*->val.",
+    "examples": [
+      {
+        "input": "root=[3,5,1,6,2,0,8,null,null,7,4], p=5, q=1",
+        "output": "3"
+      },
+      {
+        "input": "root=[3,5,1,6,2,0,8,null,null,7,4], p=5, q=4",
+        "output": "5"
+      }
+    ]
   },
   {
     "id": 89,
@@ -2086,7 +3075,6 @@
     "topic": "Trees & BST",
     "pattern": "DFS",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/validate-binary-search-tree/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(h)",
@@ -2103,7 +3091,19 @@
     "hint": "Pass min and max bounds. Check if node.val is within bounds.",
     "solution": "Recursive helper with min/max bounds. For left subtree, max = node.val. For right subtree, min = node.val. If node.val not in (min, max), return false.",
     "tier": "core",
-    "canonicalTopic": "Trees & BST"
+    "canonicalTopic": "Trees & BST",
+    "inputFormat": "Parameters: root (TreeNode*).",
+    "outputFormat": "Returns bool.",
+    "examples": [
+      {
+        "input": "root = [2,1,3]",
+        "output": "true"
+      },
+      {
+        "input": "root = [5,1,4,null,null,3,6]",
+        "output": "false"
+      }
+    ]
   },
   {
     "id": 90,
@@ -2111,7 +3111,6 @@
     "topic": "Trees & BST",
     "pattern": "DFS",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/",
     "timeComplexity": "O(h)",
     "spaceComplexity": "O(1)",
@@ -2128,7 +3127,19 @@
     "hint": "Use BST property: if both p,q < root, go left. If both > root, go right. Otherwise root is LCA.",
     "solution": "If p.val and q.val < root.val, recurse left. If both > root.val, recurse right. Otherwise, return root.",
     "tier": "core",
-    "canonicalTopic": "Trees & BST"
+    "canonicalTopic": "Trees & BST",
+    "inputFormat": "Parameters: root (TreeNode*), p (TreeNode*->val), q (TreeNode*->val).",
+    "outputFormat": "Returns TreeNode*->val.",
+    "examples": [
+      {
+        "input": "root=[6,2,8,0,4,7,9,null,null,3,5], p=2, q=8",
+        "output": "6"
+      },
+      {
+        "input": "root=[6,2,8,0,4,7,9,null,null,3,5], p=2, q=4",
+        "output": "2"
+      }
+    ]
   },
   {
     "id": 91,
@@ -2136,7 +3147,6 @@
     "topic": "Trees & BST",
     "pattern": "DFS",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/kth-smallest-element-in-a-bst/",
     "timeComplexity": "O(h + k)",
     "spaceComplexity": "O(h)",
@@ -2153,7 +3163,19 @@
     "hint": "In-order traversal of BST gives sorted order. Return kth element.",
     "solution": "In-order DFS (left, root, right). Decrement k at each node. When k==0, record and return the value.",
     "tier": "core",
-    "canonicalTopic": "Trees & BST"
+    "canonicalTopic": "Trees & BST",
+    "inputFormat": "Parameters: root (TreeNode*), k (int).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "root = [3,1,4,null,2], k = 1",
+        "output": "1"
+      },
+      {
+        "input": "root = [5,3,6,2,4,null,null,1], k = 3",
+        "output": "3"
+      }
+    ]
   },
   {
     "id": 92,
@@ -2162,7 +3184,6 @@
     "pattern": "DFS",
     "difficulty": "Easy",
     "tier": "core",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/search-in-a-binary-search-tree/",
     "timeComplexity": "O(h)",
     "spaceComplexity": "O(1)",
@@ -2176,7 +3197,19 @@
     ],
     "hint": "Use BST property: if val < root go left, if val > root go right.",
     "solution": "If root==null or root.val==val return root. If val < root.val recurse left else recurse right.",
-    "canonicalTopic": "Trees & BST"
+    "canonicalTopic": "Trees & BST",
+    "inputFormat": "Parameters: root (TreeNode*), val (int).",
+    "outputFormat": "Returns TreeNode*.",
+    "examples": [
+      {
+        "input": "root = [4,2,7,1,3], val = 2",
+        "output": "[2,1,3]"
+      },
+      {
+        "input": "root = [4,2,7,1,3], val = 5",
+        "output": "[]"
+      }
+    ]
   },
   {
     "id": 93,
@@ -2185,7 +3218,6 @@
     "pattern": "DFS",
     "difficulty": "Medium",
     "tier": "core",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/insert-into-a-binary-search-tree/",
     "timeComplexity": "O(h)",
     "spaceComplexity": "O(1)",
@@ -2199,7 +3231,19 @@
     ],
     "hint": "Traverse using BST property; insert new node at the null leaf position.",
     "solution": "If root==null create and return new node. If val < root.val recurse left. Else recurse right. Return root.",
-    "canonicalTopic": "Trees & BST"
+    "canonicalTopic": "Trees & BST",
+    "inputFormat": "Parameters: root (TreeNode*), val (int).",
+    "outputFormat": "Returns count:TreeNode*.",
+    "examples": [
+      {
+        "input": "root = [4,2,7,1,3], val = 5",
+        "output": "6 nodes"
+      },
+      {
+        "input": "root = [40,20,60,10,30,50,70], val = 25",
+        "output": "8 nodes"
+      }
+    ]
   },
   {
     "id": 94,
@@ -2207,7 +3251,6 @@
     "topic": "Trees & BST",
     "pattern": "BFS",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/binary-tree-level-order-traversal/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(n)",
@@ -2223,7 +3266,19 @@
     "hint": "Use a queue. Process nodes level by level.",
     "solution": "Use BFS with a queue. For each level, record its size, process exactly that many nodes, add their children to queue. Append level values to result.",
     "tier": "core",
-    "canonicalTopic": "Trees & BST"
+    "canonicalTopic": "Trees & BST",
+    "inputFormat": "Parameters: root (TreeNode*).",
+    "outputFormat": "Returns count:vector<vector<int>>.",
+    "examples": [
+      {
+        "input": "root = [3,9,20,null,null,15,7]",
+        "output": "[[3],[9,20],[15,7]]"
+      },
+      {
+        "input": "root = [1]",
+        "output": "[[1]]"
+      }
+    ]
   },
   {
     "id": 95,
@@ -2231,7 +3286,6 @@
     "topic": "Trees & BST",
     "pattern": "BFS",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/binary-tree-right-side-view/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(n)",
@@ -2248,7 +3302,19 @@
     "hint": "BFS level order. Take the last element of each level.",
     "solution": "BFS level order traversal. At each level, the last node processed is visible from right side. Add it to result.",
     "tier": "core",
-    "canonicalTopic": "Trees & BST"
+    "canonicalTopic": "Trees & BST",
+    "inputFormat": "Parameters: root (TreeNode*).",
+    "outputFormat": "Returns vector<int>.",
+    "examples": [
+      {
+        "input": "root = [1,2,3,null,5,null,4]",
+        "output": "[1,3,4]"
+      },
+      {
+        "input": "root = [1,null,3]",
+        "output": "[1,3]"
+      }
+    ]
   },
   {
     "id": 96,
@@ -2257,7 +3323,6 @@
     "pattern": "BFS",
     "difficulty": "Medium",
     "tier": "advanced",
-    "tcs": false,
     "leetcode": "https://leetcode.com/problems/binary-tree-zigzag-level-order-traversal/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(n)",
@@ -2272,7 +3337,19 @@
     ],
     "hint": "BFS level order; toggle a direction flag per level and reverse accordingly.",
     "solution": "BFS with queue. For each level collect values. If level index is odd, reverse the values array before adding to result.",
-    "canonicalTopic": "Trees & BST"
+    "canonicalTopic": "Trees & BST",
+    "inputFormat": "Parameters: root (TreeNode*).",
+    "outputFormat": "Returns count:vector<vector<int>>.",
+    "examples": [
+      {
+        "input": "root = [3,9,20,null,null,15,7]",
+        "output": "[[3],[20,9],[15,7]]"
+      },
+      {
+        "input": "root = [1]",
+        "output": "[[1]]"
+      }
+    ]
   },
   {
     "id": 97,
@@ -2280,7 +3357,6 @@
     "topic": "Trees & BST",
     "pattern": "BFS",
     "difficulty": "Hard",
-    "tcs": false,
     "leetcode": "https://leetcode.com/problems/serialize-and-deserialize-binary-tree/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(n)",
@@ -2299,7 +3375,19 @@
     "hint": "Use BFS or DFS. Serialize null nodes explicitly.",
     "solution": "BFS serialize: level order, write 'null' for missing nodes. Deserialize: BFS, connect nodes to their parent using queue.",
     "tier": "optional",
-    "canonicalTopic": "Trees & BST"
+    "canonicalTopic": "Trees & BST",
+    "inputFormat": "Parameters: root (TreeNode*).",
+    "outputFormat": "Returns design:CodecTree.",
+    "examples": [
+      {
+        "input": "root = [1,2,3,null,null,4,5]",
+        "output": "5 nodes"
+      },
+      {
+        "input": "root = []",
+        "output": "0 nodes"
+      }
+    ]
   },
   {
     "id": 98,
@@ -2309,11 +3397,10 @@
     "pattern": "Comparison Sorts",
     "difficulty": "Easy",
     "tier": "core",
-    "tcs": true,
-    "statement": "Solve the problem efficiently using an appropriate algorithm.",
-    "sampleInput": "See LeetCode / competitive programming platform for examples.",
-    "sampleOutput": "Output depends on the specific input.",
-    "constraints": "1 ≤ n ≤ 10^5",
+    "statement": "Given an unsorted array of integers nums, sort the array in non-decreasing (ascending) order using the Bubble Sort algorithm and return the sorted array.",
+    "sampleInput": "nums = [64,34,25,12,22,11,90]",
+    "sampleOutput": "[11,12,22,25,34,64,90]",
+    "constraints": "1 <= nums.length <= 1000\n-10^4 <= nums[i] <= 10^4",
     "hint": "Think about the time and space complexity. Consider edge cases.",
     "solution": "Apply the pattern described in the pattern field.",
     "tags": [
@@ -2322,7 +3409,19 @@
     ],
     "leetcode": "https://leetcode.com/problemset/",
     "timeComplexity": "O(n)",
-    "spaceComplexity": "O(1)"
+    "spaceComplexity": "O(1)",
+    "inputFormat": "An integer array nums.",
+    "outputFormat": "Return the sorted array in non-decreasing order.",
+    "examples": [
+      {
+        "input": "nums = [64,34,25,12,22,11,90]",
+        "output": "[11,12,22,25,34,64,90]"
+      },
+      {
+        "input": "nums = [5,1,4,2,8]",
+        "output": "[1,2,4,5,8]"
+      }
+    ]
   },
   {
     "id": 99,
@@ -2332,11 +3431,10 @@
     "pattern": "Comparison Sorts",
     "difficulty": "Easy",
     "tier": "core",
-    "tcs": true,
-    "statement": "Solve the problem efficiently using an appropriate algorithm.",
-    "sampleInput": "See LeetCode / competitive programming platform for examples.",
-    "sampleOutput": "Output depends on the specific input.",
-    "constraints": "1 ≤ n ≤ 10^5",
+    "statement": "Given an unsorted array of integers nums, sort the array in non-decreasing (ascending) order using the Selection Sort algorithm and return the sorted array.",
+    "sampleInput": "nums = [64,25,12,22,11]",
+    "sampleOutput": "[11,12,22,25,64]",
+    "constraints": "1 <= nums.length <= 1000\n-10^4 <= nums[i] <= 10^4",
     "hint": "Think about the time and space complexity. Consider edge cases.",
     "solution": "Apply the pattern described in the pattern field.",
     "tags": [
@@ -2345,7 +3443,19 @@
     ],
     "leetcode": "https://leetcode.com/problemset/",
     "timeComplexity": "O(n)",
-    "spaceComplexity": "O(1)"
+    "spaceComplexity": "O(1)",
+    "inputFormat": "An integer array nums.",
+    "outputFormat": "Return the sorted array in non-decreasing order.",
+    "examples": [
+      {
+        "input": "nums = [64,25,12,22,11]",
+        "output": "[11,12,22,25,64]"
+      },
+      {
+        "input": "nums = [3,2,1]",
+        "output": "[1,2,3]"
+      }
+    ]
   },
   {
     "id": 100,
@@ -2355,11 +3465,10 @@
     "pattern": "Comparison Sorts",
     "difficulty": "Easy",
     "tier": "core",
-    "tcs": true,
-    "statement": "Solve the problem efficiently using an appropriate algorithm.",
-    "sampleInput": "See LeetCode / competitive programming platform for examples.",
-    "sampleOutput": "Output depends on the specific input.",
-    "constraints": "1 ≤ n ≤ 10^5",
+    "statement": "Given an unsorted array of integers nums, sort the array in non-decreasing (ascending) order using the Insertion Sort algorithm and return the sorted array.",
+    "sampleInput": "nums = [12,11,13,5,6]",
+    "sampleOutput": "[5,6,11,12,13]",
+    "constraints": "1 <= nums.length <= 1000\n-10^4 <= nums[i] <= 10^4",
     "hint": "Think about the time and space complexity. Consider edge cases.",
     "solution": "Apply the pattern described in the pattern field.",
     "tags": [
@@ -2368,7 +3477,19 @@
     ],
     "leetcode": "https://leetcode.com/problemset/",
     "timeComplexity": "O(n)",
-    "spaceComplexity": "O(1)"
+    "spaceComplexity": "O(1)",
+    "inputFormat": "An integer array nums.",
+    "outputFormat": "Return the sorted array in non-decreasing order.",
+    "examples": [
+      {
+        "input": "nums = [12,11,13,5,6]",
+        "output": "[5,6,11,12,13]"
+      },
+      {
+        "input": "nums = [5,2,4,6,1,3]",
+        "output": "[1,2,3,4,5,6]"
+      }
+    ]
   },
   {
     "id": 101,
@@ -2376,7 +3497,6 @@
     "topic": "Sorting",
     "pattern": "Comparison Sorts",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/sort-an-array/",
     "timeComplexity": "O(n log n)",
     "spaceComplexity": "O(n)",
@@ -2394,7 +3514,19 @@
     "hint": "Divide array into halves, recursively sort, then merge sorted halves.",
     "solution": "Recursively divide array into halves. Merge two sorted halves using auxiliary array by comparing elements one by one.",
     "tier": "core",
-    "canonicalTopic": "Sorting"
+    "canonicalTopic": "Sorting",
+    "inputFormat": "Parameters: nums (vector<int>).",
+    "outputFormat": "Returns vector<int>.",
+    "examples": [
+      {
+        "input": "nums = [38,27,43,3,9,82,10]",
+        "output": "[3,9,10,27,38,43,82]"
+      },
+      {
+        "input": "nums = [5,2,4,6,1,3]",
+        "output": "[1,2,3,4,5,6]"
+      }
+    ]
   },
   {
     "id": 102,
@@ -2404,11 +3536,10 @@
     "pattern": "Comparison Sorts",
     "difficulty": "Medium",
     "tier": "core",
-    "tcs": true,
-    "statement": "Solve the problem efficiently using an appropriate algorithm.",
-    "sampleInput": "See LeetCode / competitive programming platform for examples.",
-    "sampleOutput": "Output depends on the specific input.",
-    "constraints": "1 ≤ n ≤ 10^5",
+    "statement": "Given an unsorted array of integers nums, sort the array in non-decreasing (ascending) order using the Quick Sort algorithm and return the sorted array.",
+    "sampleInput": "nums = [3,6,8,10,1,2,1]",
+    "sampleOutput": "[1,1,2,3,6,8,10]",
+    "constraints": "1 <= nums.length <= 5 * 10^4\n-10^5 <= nums[i] <= 10^5",
     "hint": "Think about the time and space complexity. Consider edge cases.",
     "solution": "Apply the pattern described in the pattern field.",
     "tags": [
@@ -2417,7 +3548,19 @@
     ],
     "leetcode": "https://leetcode.com/problemset/",
     "timeComplexity": "O(n)",
-    "spaceComplexity": "O(1)"
+    "spaceComplexity": "O(1)",
+    "inputFormat": "An integer array nums.",
+    "outputFormat": "Return the sorted array in non-decreasing order.",
+    "examples": [
+      {
+        "input": "nums = [3,6,8,10,1,2,1]",
+        "output": "[1,1,2,3,6,8,10]"
+      },
+      {
+        "input": "nums = [5,2,4,6,1,3]",
+        "output": "[1,2,3,4,5,6]"
+      }
+    ]
   },
   {
     "id": 103,
@@ -2427,11 +3570,10 @@
     "pattern": "Non-Comparison Sorts",
     "difficulty": "Medium",
     "tier": "core",
-    "tcs": true,
-    "statement": "Solve the problem efficiently using an appropriate algorithm.",
-    "sampleInput": "See LeetCode / competitive programming platform for examples.",
-    "sampleOutput": "Output depends on the specific input.",
-    "constraints": "1 ≤ n ≤ 10^5",
+    "statement": "Given an array of non-negative integers nums, sort the array in non-decreasing (ascending) order using the Counting Sort algorithm and return the sorted array.",
+    "sampleInput": "nums = [4,2,2,8,3,3,1]",
+    "sampleOutput": "[1,2,2,3,3,4,8]",
+    "constraints": "1 <= nums.length <= 10^5\n0 <= nums[i] <= 10^5",
     "hint": "Think about the time and space complexity. Consider edge cases.",
     "solution": "Apply the pattern described in the pattern field.",
     "tags": [
@@ -2440,7 +3582,19 @@
     ],
     "leetcode": "https://leetcode.com/problemset/",
     "timeComplexity": "O(n)",
-    "spaceComplexity": "O(1)"
+    "spaceComplexity": "O(1)",
+    "inputFormat": "An array of non-negative integers nums.",
+    "outputFormat": "Return the sorted array in non-decreasing order.",
+    "examples": [
+      {
+        "input": "nums = [4,2,2,8,3,3,1]",
+        "output": "[1,2,2,3,3,4,8]"
+      },
+      {
+        "input": "nums = [2,0,2,1,1,0]",
+        "output": "[0,0,1,1,2,2]"
+      }
+    ]
   },
   {
     "id": 104,
@@ -2450,11 +3604,10 @@
     "pattern": "Non-Comparison Sorts",
     "difficulty": "Medium",
     "tier": "advanced",
-    "tcs": false,
-    "statement": "Solve the problem efficiently using an appropriate algorithm.",
-    "sampleInput": "See LeetCode / competitive programming platform for examples.",
-    "sampleOutput": "Output depends on the specific input.",
-    "constraints": "1 ≤ n ≤ 10^5",
+    "statement": "Given an array of non-negative integers nums, sort the array in non-decreasing (ascending) order using the Radix Sort algorithm and return the sorted array.",
+    "sampleInput": "nums = [170,45,75,90,802,24,2,66]",
+    "sampleOutput": "[2,24,45,66,75,90,170,802]",
+    "constraints": "1 <= nums.length <= 5 * 10^4\n0 <= nums[i] <= 10^6",
     "hint": "Think about the time and space complexity. Consider edge cases.",
     "solution": "Apply the pattern described in the pattern field.",
     "tags": [
@@ -2463,7 +3616,19 @@
     ],
     "leetcode": "https://leetcode.com/problemset/",
     "timeComplexity": "O(n)",
-    "spaceComplexity": "O(1)"
+    "spaceComplexity": "O(1)",
+    "inputFormat": "An array of non-negative integers nums.",
+    "outputFormat": "Return the sorted array in non-decreasing order.",
+    "examples": [
+      {
+        "input": "nums = [170,45,75,90,802,24,2,66]",
+        "output": "[2,24,45,66,75,90,170,802]"
+      },
+      {
+        "input": "nums = [3,6,8,10,1,2]",
+        "output": "[1,2,3,6,8,10]"
+      }
+    ]
   },
   {
     "id": 105,
@@ -2473,11 +3638,10 @@
     "pattern": "Application",
     "difficulty": "Medium",
     "tier": "core",
-    "tcs": true,
-    "statement": "Solve the problem efficiently using an appropriate algorithm.",
-    "sampleInput": "See LeetCode / competitive programming platform for examples.",
-    "sampleOutput": "Output depends on the specific input.",
-    "constraints": "1 ≤ n ≤ 10^5",
+    "statement": "Given an array of intervals where intervals[i] = [start_i, end_i], merge all overlapping intervals, and return an array of the non-overlapping intervals that cover all the intervals in the input.",
+    "sampleInput": "intervals = [[1,3],[2,6],[8,10],[15,18]]",
+    "sampleOutput": "[[1,6],[8,10],[15,18]]",
+    "constraints": "1 <= intervals.length <= 10^4\nintervals[i].length == 2\n0 <= start_i <= end_i <= 10^4",
     "hint": "Think about the time and space complexity. Consider edge cases.",
     "solution": "Apply the pattern described in the pattern field.",
     "tags": [
@@ -2486,7 +3650,21 @@
     ],
     "leetcode": "https://leetcode.com/problemset/",
     "timeComplexity": "O(n)",
-    "spaceComplexity": "O(1)"
+    "spaceComplexity": "O(1)",
+    "inputFormat": "An array of intervals intervals where each interval has start and end time [start_i, end_i].",
+    "outputFormat": "Return an array of merged, non-overlapping intervals.",
+    "examples": [
+      {
+        "input": "intervals = [[1,3],[2,6],[8,10],[15,18]]",
+        "output": "[[1,6],[8,10],[15,18]]",
+        "explanation": "Since intervals [1,3] and [2,6] overlap, merge them into [1,6]."
+      },
+      {
+        "input": "intervals = [[1,4],[4,5]]",
+        "output": "[[1,5]]",
+        "explanation": "Intervals [1,4] and [4,5] overlap at 4, so merge them into [1,5]."
+      }
+    ]
   },
   {
     "id": 106,
@@ -2496,11 +3674,10 @@
     "pattern": "Application",
     "difficulty": "Medium",
     "tier": "core",
-    "tcs": true,
-    "statement": "Solve the problem efficiently using an appropriate algorithm.",
-    "sampleInput": "See LeetCode / competitive programming platform for examples.",
-    "sampleOutput": "Output depends on the specific input.",
-    "constraints": "1 ≤ n ≤ 10^5",
+    "statement": "Given an array nums with n objects colored red, white, or blue, sort them in-place so that objects of the same color are adjacent, with the colors in the order red, white, and blue. We will use the integers 0, 1, and 2 to represent the color red, white, and blue, respectively. You must solve this problem without using the library's sort function.",
+    "sampleInput": "nums = [2,0,2,1,1,0]",
+    "sampleOutput": "[0,0,1,1,2,2]",
+    "constraints": "n == nums.length\n1 <= n <= 300\nnums[i] is either 0, 1, or 2.",
     "hint": "Think about the time and space complexity. Consider edge cases.",
     "solution": "Apply the pattern described in the pattern field.",
     "tags": [
@@ -2509,7 +3686,19 @@
     ],
     "leetcode": "https://leetcode.com/problemset/",
     "timeComplexity": "O(n)",
-    "spaceComplexity": "O(1)"
+    "spaceComplexity": "O(1)",
+    "inputFormat": "An integer array nums where nums[i] is 0, 1, or 2.",
+    "outputFormat": "Modify nums in-place so that all 0s come first, then 1s, then 2s.",
+    "examples": [
+      {
+        "input": "nums = [2,0,2,1,1,0]",
+        "output": "[0,0,1,1,2,2]"
+      },
+      {
+        "input": "nums = [2,0,1]",
+        "output": "[0,1,2]"
+      }
+    ]
   },
   {
     "id": 107,
@@ -2517,7 +3706,6 @@
     "topic": "Sorting",
     "pattern": "Application",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/kth-largest-element-in-an-array/",
     "timeComplexity": "O(n log k)",
     "spaceComplexity": "O(k)",
@@ -2535,7 +3723,19 @@
     "hint": "Use a min-heap of size k. Maintain k largest elements.",
     "solution": "Use a min-heap of size k. For each element, push to heap. If heap size > k, pop minimum. At end, top of heap is kth largest.",
     "tier": "core",
-    "canonicalTopic": "Sorting"
+    "canonicalTopic": "Sorting",
+    "inputFormat": "Parameters: nums (vector<int>), k (int).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "nums = [3,2,1,5,6,4], k = 2",
+        "output": "5"
+      },
+      {
+        "input": "nums = [3,2,3,1,2,4,5,5,6], k = 4",
+        "output": "4"
+      }
+    ]
   },
   {
     "id": 108,
@@ -2543,7 +3743,6 @@
     "topic": "Binary Search",
     "pattern": "Binary Search",
     "difficulty": "Easy",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/binary-search/",
     "timeComplexity": "O(log n)",
     "spaceComplexity": "O(1)",
@@ -2558,7 +3757,19 @@
     "hint": "Classic binary search with left and right pointers.",
     "solution": "Set l=0, r=n-1. While l<=r, mid=(l+r)/2. If nums[mid]==target return mid. If nums[mid]<target, l=mid+1. Else r=mid-1.",
     "tier": "core",
-    "canonicalTopic": "Binary Search"
+    "canonicalTopic": "Binary Search",
+    "inputFormat": "Parameters: nums (vector<int>), target (int).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "nums = [-1,0,3,5,9,12], target = 9",
+        "output": "4"
+      },
+      {
+        "input": "nums = [-1,0,3,5,9,12], target = 2",
+        "output": "-1"
+      }
+    ]
   },
   {
     "id": 109,
@@ -2566,7 +3777,6 @@
     "topic": "Binary Search",
     "pattern": "Binary Search",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/search-in-rotated-sorted-array/",
     "timeComplexity": "O(log n)",
     "spaceComplexity": "O(1)",
@@ -2581,7 +3791,19 @@
     "hint": "Determine which half is sorted. Check if target lies in the sorted half.",
     "solution": "At each step, one half must be sorted. If left half is sorted (nums[l]<=nums[mid]) and target is in that range, search left. Otherwise search right. Vice versa for right half.",
     "tier": "core",
-    "canonicalTopic": "Binary Search"
+    "canonicalTopic": "Binary Search",
+    "inputFormat": "Parameters: nums (vector<int>), target (int).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "nums = [4,5,6,7,0,1,2], target = 0",
+        "output": "4"
+      },
+      {
+        "input": "nums = [4,5,6,7,0,1,2], target = 3",
+        "output": "-1"
+      }
+    ]
   },
   {
     "id": 110,
@@ -2590,7 +3812,6 @@
     "pattern": "Binary Search",
     "difficulty": "Medium",
     "tier": "core",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/find-peak-element/",
     "timeComplexity": "O(log n)",
     "spaceComplexity": "O(1)",
@@ -2604,7 +3825,19 @@
     ],
     "hint": "If nums[mid] < nums[mid+1], peak must be to the right; else to the left.",
     "solution": "Binary search: if nums[mid] < nums[mid+1], set l=mid+1 else r=mid. Loop while l<r. Return l.",
-    "canonicalTopic": "Binary Search"
+    "canonicalTopic": "Binary Search",
+    "inputFormat": "Parameters: nums (vector<int>).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "nums = [1,2,3,1]",
+        "output": "2"
+      },
+      {
+        "input": "nums = [1,2,1,3,5,6,4]",
+        "output": "5"
+      }
+    ]
   },
   {
     "id": 111,
@@ -2613,7 +3846,6 @@
     "pattern": "Binary Search",
     "difficulty": "Easy",
     "tier": "core",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/search-insert-position/",
     "timeComplexity": "O(log n)",
     "spaceComplexity": "O(1)",
@@ -2627,7 +3859,19 @@
     ],
     "hint": "Standard binary search; when not found, the left pointer is the insertion position.",
     "solution": "Binary search with l=0, r=n-1. When target found return mid. When l>r, return l (insertion point).",
-    "canonicalTopic": "Binary Search"
+    "canonicalTopic": "Binary Search",
+    "inputFormat": "Parameters: nums (vector<int>), target (int).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "nums = [1,3,5,6], target = 5",
+        "output": "2"
+      },
+      {
+        "input": "nums = [1,3,5,6], target = 2",
+        "output": "1"
+      }
+    ]
   },
   {
     "id": 112,
@@ -2636,7 +3880,6 @@
     "pattern": "Binary Search",
     "difficulty": "Medium",
     "tier": "core",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/",
     "timeComplexity": "O(log n)",
     "spaceComplexity": "O(1)",
@@ -2650,7 +3893,19 @@
     ],
     "hint": "Run binary search twice: once biased left for first occurrence, once biased right for last.",
     "solution": "First: binary search, when found continue searching left (r=mid-1). Last: binary search, when found continue searching right (l=mid+1). Return both positions.",
-    "canonicalTopic": "Binary Search"
+    "canonicalTopic": "Binary Search",
+    "inputFormat": "Parameters: nums (vector<int>), target (int).",
+    "outputFormat": "Returns vector<int>.",
+    "examples": [
+      {
+        "input": "nums = [5,7,7,8,8,10], target = 8",
+        "output": "[3,4]"
+      },
+      {
+        "input": "nums = [5,7,7,8,8,10], target = 6",
+        "output": "[-1,-1]"
+      }
+    ]
   },
   {
     "id": 113,
@@ -2659,7 +3914,6 @@
     "pattern": "Binary Search",
     "difficulty": "Easy",
     "tier": "core",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/sqrtx/",
     "timeComplexity": "O(log n)",
     "spaceComplexity": "O(1)",
@@ -2673,7 +3927,19 @@
     ],
     "hint": "Binary search from 1 to x. Find largest mid where mid*mid <= x.",
     "solution": "If x<2 return x. Binary search l=1, r=x/2. If mid*mid==x return mid. If mid*mid<x, ans=mid, l=mid+1. Else r=mid-1. Return ans.",
-    "canonicalTopic": "Binary Search"
+    "canonicalTopic": "Binary Search",
+    "inputFormat": "Parameters: x (int).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "x = 4",
+        "output": "2"
+      },
+      {
+        "input": "x = 8",
+        "output": "2"
+      }
+    ]
   },
   {
     "id": 114,
@@ -2681,7 +3947,6 @@
     "topic": "Binary Search",
     "pattern": "Binary Search",
     "difficulty": "Medium",
-    "tcs": false,
     "leetcode": "https://leetcode.com/problems/koko-eating-bananas/",
     "timeComplexity": "O(n log m)",
     "spaceComplexity": "O(1)",
@@ -2696,7 +3961,19 @@
     "hint": "Binary search on the answer (speed k). Check if given speed k can finish in h hours.",
     "solution": "Binary search between 1 and max(piles). For each mid speed, calculate total hours needed (ceil(pile/mid) for each pile). If hours <= h, try smaller speed.",
     "tier": "advanced",
-    "canonicalTopic": "Binary Search"
+    "canonicalTopic": "Binary Search",
+    "inputFormat": "Parameters: piles (vector<int>), h (int).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "piles = [3,6,7,11], h = 8",
+        "output": "4"
+      },
+      {
+        "input": "piles = [30,11,23,4,20], h = 5",
+        "output": "30"
+      }
+    ]
   },
   {
     "id": 115,
@@ -2706,11 +3983,10 @@
     "pattern": "Binary Search",
     "difficulty": "Medium",
     "tier": "advanced",
-    "tcs": false,
-    "statement": "Solve the problem efficiently using an appropriate algorithm.",
-    "sampleInput": "See LeetCode / competitive programming platform for examples.",
-    "sampleOutput": "Output depends on the specific input.",
-    "constraints": "1 ≤ n ≤ 10^5",
+    "statement": "Suppose an array of length n sorted in ascending order is rotated between 1 and n times. Given the sorted rotated array nums of unique elements, return the minimum element of this array. You must write an algorithm that runs in O(log n) time.",
+    "sampleInput": "nums = [3,4,5,1,2]",
+    "sampleOutput": "1",
+    "constraints": "n == nums.length\n1 <= n <= 5000\n-5000 <= nums[i] <= 5000\nAll the integers of nums are unique.\nnums is sorted and rotated between 1 and n times.",
     "hint": "Think about the time and space complexity. Consider edge cases.",
     "solution": "Apply the pattern described in the pattern field.",
     "tags": [
@@ -2719,7 +3995,20 @@
     ],
     "leetcode": "https://leetcode.com/problemset/",
     "timeComplexity": "O(n)",
-    "spaceComplexity": "O(1)"
+    "spaceComplexity": "O(1)",
+    "inputFormat": "A 1-indexed rotated sorted integer array nums of unique elements.",
+    "outputFormat": "Return the minimum integer value in nums.",
+    "examples": [
+      {
+        "input": "nums = [3,4,5,1,2]",
+        "output": "1",
+        "explanation": "The original array was [1,2,3,4,5] rotated 3 times."
+      },
+      {
+        "input": "nums = [4,5,6,7,0,1,2]",
+        "output": "0"
+      }
+    ]
   },
   {
     "id": 116,
@@ -2728,7 +4017,6 @@
     "pattern": "Binary Search",
     "difficulty": "Medium",
     "tier": "core",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/search-a-2d-matrix/",
     "timeComplexity": "O(log(m*n))",
     "spaceComplexity": "O(1)",
@@ -2743,7 +4031,19 @@
     ],
     "hint": "Treat 2D matrix as 1D sorted array. Virtual index mid maps to matrix[mid/n][mid%n].",
     "solution": "lo=0, hi=m*n-1. While lo<=hi: mid=(lo+hi)/2; val=matrix[mid/n][mid%n]. If val==target return true. If val<target lo=mid+1 else hi=mid-1. Return false.",
-    "canonicalTopic": "Binary Search"
+    "canonicalTopic": "Binary Search",
+    "inputFormat": "Parameters: matrix (vector<vector<int>>), target (int).",
+    "outputFormat": "Returns bool.",
+    "examples": [
+      {
+        "input": "matrix = [[1,3,5,7],[10,11,16,20],[23,30,34,60]], target = 3",
+        "output": "true"
+      },
+      {
+        "input": "matrix = [[1,3,5,7],[10,11,16,20],[23,30,34,60]], target = 13",
+        "output": "false"
+      }
+    ]
   },
   {
     "id": 117,
@@ -2751,7 +4051,6 @@
     "topic": "Greedy",
     "pattern": "Greedy",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/jump-game/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)",
@@ -2767,7 +4066,19 @@
     "hint": "Track the maximum reachable index. If current index > maxReach, return false.",
     "solution": "Maintain maxReach. For each index i, if i > maxReach, return false. Update maxReach = max(maxReach, i + nums[i]). If maxReach >= n-1, return true.",
     "tier": "core",
-    "canonicalTopic": "Greedy"
+    "canonicalTopic": "Greedy",
+    "inputFormat": "Parameters: nums (vector<int>).",
+    "outputFormat": "Returns bool.",
+    "examples": [
+      {
+        "input": "nums = [2,3,1,1,4]",
+        "output": "true"
+      },
+      {
+        "input": "nums = [3,2,1,0,4]",
+        "output": "false"
+      }
+    ]
   },
   {
     "id": 118,
@@ -2776,7 +4087,6 @@
     "pattern": "Greedy",
     "difficulty": "Medium",
     "tier": "advanced",
-    "tcs": false,
     "leetcode": "https://leetcode.com/problems/jump-game-ii/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)",
@@ -2791,7 +4101,19 @@
     ],
     "hint": "Track current jump end and farthest reachable. Jump when reaching current end.",
     "solution": "jumps=0, currentEnd=0, farthest=0. For each i (except last): farthest=max(farthest,i+nums[i]). If i==currentEnd: jumps++, currentEnd=farthest. Return jumps.",
-    "canonicalTopic": "Greedy"
+    "canonicalTopic": "Greedy",
+    "inputFormat": "Parameters: nums (vector<int>).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "nums = [2,3,1,1,4]",
+        "output": "2"
+      },
+      {
+        "input": "nums = [2,3,0,1,4]",
+        "output": "2"
+      }
+    ]
   },
   {
     "id": 119,
@@ -2799,7 +4121,6 @@
     "topic": "Greedy",
     "pattern": "Greedy",
     "difficulty": "Medium",
-    "tcs": false,
     "leetcode": "https://leetcode.com/problems/gas-station/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)",
@@ -2814,7 +4135,19 @@
     "hint": "If total gas >= total cost, a solution exists. Start from the station after deficit.",
     "solution": "If total gas < total cost, no solution. Otherwise, find starting point by tracking running tank. When tank goes negative, reset start to next station.",
     "tier": "advanced",
-    "canonicalTopic": "Greedy"
+    "canonicalTopic": "Greedy",
+    "inputFormat": "Parameters: gas (vector<int>), cost (vector<int>).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "gas=[1,2,3,4,5], cost=[3,4,5,1,2]",
+        "output": "3"
+      },
+      {
+        "input": "gas=[2,3,4], cost=[3,4,3]",
+        "output": "-1"
+      }
+    ]
   },
   {
     "id": 120,
@@ -2822,7 +4155,6 @@
     "topic": "Greedy",
     "pattern": "Greedy",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)",
@@ -2838,7 +4170,19 @@
     "hint": "Add all positive differences between consecutive days.",
     "solution": "Sum all positive differences: for each consecutive pair, if prices[i] > prices[i-1], add the difference to profit.",
     "tier": "core",
-    "canonicalTopic": "Greedy"
+    "canonicalTopic": "Greedy",
+    "inputFormat": "Parameters: prices (vector<int>).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "prices = [7,1,5,3,6,4]",
+        "output": "7"
+      },
+      {
+        "input": "prices = [1,2,3,4,5]",
+        "output": "4"
+      }
+    ]
   },
   {
     "id": 121,
@@ -2847,7 +4191,6 @@
     "pattern": "Greedy",
     "difficulty": "Easy",
     "tier": "core",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/assign-cookies/",
     "timeComplexity": "O(n log n)",
     "spaceComplexity": "O(1)",
@@ -2863,7 +4206,19 @@
     ],
     "hint": "Sort both arrays. Use two pointers: if cookie >= greed, satisfy child and advance both.",
     "solution": "Sort g and s. i=0 (children), j=0 (cookies). While both valid: if s[j]>=g[i] increment i (satisfied). Always increment j. Return i.",
-    "canonicalTopic": "Greedy"
+    "canonicalTopic": "Greedy",
+    "inputFormat": "Parameters: g (vector<int>), s (vector<int>).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "g = [1,2,3], s = [1,1]",
+        "output": "1"
+      },
+      {
+        "input": "g = [1,2], s = [1,2,3]",
+        "output": "2"
+      }
+    ]
   },
   {
     "id": 122,
@@ -2872,7 +4227,6 @@
     "pattern": "Greedy",
     "difficulty": "Medium",
     "tier": "advanced",
-    "tcs": false,
     "leetcode": "https://leetcode.com/problems/non-overlapping-intervals/",
     "timeComplexity": "O(n log n)",
     "spaceComplexity": "O(1)",
@@ -2888,7 +4242,19 @@
     ],
     "hint": "Sort by end time. Greedily keep intervals with earliest end. Count removed.",
     "solution": "Sort by end. prevEnd=intervals[0][1], count=0. For i=1 to n-1: if start>=prevEnd update prevEnd. Else count++ (remove current, keep smaller end). Return count.",
-    "canonicalTopic": "Greedy"
+    "canonicalTopic": "Greedy",
+    "inputFormat": "Parameters: intervals (vector<vector<int>>).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "intervals = [[1,2],[2,3],[3,4],[1,3]]",
+        "output": "1"
+      },
+      {
+        "input": "intervals = [[1,2],[1,2],[1,2]]",
+        "output": "2"
+      }
+    ]
   },
   {
     "id": 123,
@@ -2897,7 +4263,6 @@
     "pattern": "Greedy",
     "difficulty": "Easy",
     "tier": "core",
-    "tcs": true,
     "leetcode": "https://www.geeksforgeeks.org/activity-selection-problem-greedy-algo-1/",
     "timeComplexity": "O(n log n)",
     "spaceComplexity": "O(1)",
@@ -2912,7 +4277,19 @@
     ],
     "hint": "Sort by end time. Greedily select activity if start >= lastEnd.",
     "solution": "Sort activities by end time. Select first, count=1, lastEnd=end[0]. For each i>0: if start[i]>=lastEnd, count++, lastEnd=end[i]. Return count.",
-    "canonicalTopic": "Greedy"
+    "canonicalTopic": "Greedy",
+    "inputFormat": "Parameters: start (vector<int>), end (vector<int>).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "start=[1,3,0,5,8,5], end=[2,4,6,7,9,9]",
+        "output": "4"
+      },
+      {
+        "input": "start=[1,2,3], end=[3,4,5]",
+        "output": "2"
+      }
+    ]
   },
   {
     "id": 124,
@@ -2921,7 +4298,6 @@
     "pattern": "Greedy",
     "difficulty": "Medium",
     "tier": "core",
-    "tcs": true,
     "leetcode": "https://www.geeksforgeeks.org/job-sequencing-problem/",
     "timeComplexity": "O(n log n)",
     "spaceComplexity": "O(n)",
@@ -2936,7 +4312,19 @@
     ],
     "hint": "Sort by profit descending. For each job, find latest free slot before deadline.",
     "solution": "Sort by profit desc. Boolean slots array. For each job: find latest free slot from min(deadline,maxD) down to 1. Schedule if slot found.",
-    "canonicalTopic": "Greedy"
+    "canonicalTopic": "Greedy",
+    "inputFormat": "Parameters: deadlines (vector<int>), profits (vector<int>).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "deadlines=[2,1,2,1,3], profits=[100,19,27,25,15]",
+        "output": "142"
+      },
+      {
+        "input": "deadlines=[2,1,2,1,3], profits=[100,19,27,25,15] (variant)",
+        "output": "142"
+      }
+    ]
   },
   {
     "id": 125,
@@ -2944,7 +4332,6 @@
     "topic": "Greedy",
     "pattern": "Greedy",
     "difficulty": "Easy",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/best-time-to-buy-and-sell-stock/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)",
@@ -2959,7 +4346,19 @@
     "hint": "Track the minimum price seen so far and the maximum profit.",
     "solution": "Iterate through the array keeping track of the minimum price seen so far. For each price, calculate profit = price - minPrice, and update maxProfit if it's greater.",
     "tier": "core",
-    "canonicalTopic": "Greedy"
+    "canonicalTopic": "Greedy",
+    "inputFormat": "Parameters: prices (vector<int>).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "prices = [7,1,5,3,6,4]",
+        "output": "5"
+      },
+      {
+        "input": "prices = [7,6,4,3,1]",
+        "output": "0"
+      }
+    ]
   },
   {
     "id": 126,
@@ -2969,11 +4368,10 @@
     "pattern": "Greedy",
     "difficulty": "Medium",
     "tier": "core",
-    "tcs": true,
-    "statement": "Solve the problem efficiently using an appropriate algorithm.",
-    "sampleInput": "See LeetCode / competitive programming platform for examples.",
-    "sampleOutput": "Output depends on the specific input.",
-    "constraints": "1 ≤ n ≤ 10^5",
+    "statement": "You are given an integer array coins representing coins of different denominations and an integer amount representing a total amount of money. Return the fewest number of coins that you need to make up that amount. If that amount of money cannot be made up by any combination of the coins, return -1. You may assume that you have an infinite number of each kind of coin.",
+    "sampleInput": "coins = [1,5,6,9], amount = 11",
+    "sampleOutput": "2",
+    "constraints": "1 <= coins.length <= 12\n1 <= coins[i] <= 2^31 - 1\n0 <= amount <= 10^4",
     "hint": "Think about the time and space complexity. Consider edge cases.",
     "solution": "Apply the pattern described in the pattern field.",
     "tags": [
@@ -2982,7 +4380,20 @@
     ],
     "leetcode": "https://leetcode.com/problemset/",
     "timeComplexity": "O(n)",
-    "spaceComplexity": "O(1)"
+    "spaceComplexity": "O(1)",
+    "inputFormat": "An integer array coins and an integer amount.",
+    "outputFormat": "Return the minimum number of coins needed, or -1 if impossible.",
+    "examples": [
+      {
+        "input": "coins = [1,5,6,9], amount = 11",
+        "output": "2",
+        "explanation": "11 = 6 + 5 (2 coins)."
+      },
+      {
+        "input": "coins = [2], amount = 3",
+        "output": "-1"
+      }
+    ]
   },
   {
     "id": 127,
@@ -2990,7 +4401,6 @@
     "topic": "Dynamic Programming",
     "pattern": "1D DP",
     "difficulty": "Easy",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/climbing-stairs/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)",
@@ -3006,7 +4416,19 @@
     "hint": "This is Fibonacci. ways(n) = ways(n-1) + ways(n-2).",
     "solution": "dp[i] = dp[i-1] + dp[i-2]. Base cases dp[1]=1, dp[2]=2. Or use two variables for O(1) space.",
     "tier": "core",
-    "canonicalTopic": "Dynamic Programming"
+    "canonicalTopic": "Dynamic Programming",
+    "inputFormat": "Parameters: n (int).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "n = 2",
+        "output": "2"
+      },
+      {
+        "input": "n = 3",
+        "output": "3"
+      }
+    ]
   },
   {
     "id": 128,
@@ -3014,7 +4436,6 @@
     "topic": "Dynamic Programming",
     "pattern": "1D DP",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/house-robber/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)",
@@ -3029,7 +4450,19 @@
     "hint": "dp[i] = max(dp[i-1], dp[i-2] + nums[i]).",
     "solution": "For each house, either skip it (take dp[i-1]) or rob it (dp[i-2] + nums[i]). Use two variables prev1 and prev2.",
     "tier": "core",
-    "canonicalTopic": "Dynamic Programming"
+    "canonicalTopic": "Dynamic Programming",
+    "inputFormat": "Parameters: nums (vector<int>).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "nums = [1,2,3,1]",
+        "output": "4"
+      },
+      {
+        "input": "nums = [2,7,9,3,1]",
+        "output": "12"
+      }
+    ]
   },
   {
     "id": 129,
@@ -3037,7 +4470,6 @@
     "topic": "Dynamic Programming",
     "pattern": "1D DP",
     "difficulty": "Easy",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/fibonacci-number/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(n)",
@@ -3054,7 +4486,19 @@
     "hint": "F(n) = F(n-1) + F(n-2), base cases F(0)=0, F(1)=1.",
     "solution": "Use memoization with recursion. Or iterative: keep track of previous two values.",
     "tier": "core",
-    "canonicalTopic": "Dynamic Programming"
+    "canonicalTopic": "Dynamic Programming",
+    "inputFormat": "Parameters: n (int).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "n = 2",
+        "output": "1"
+      },
+      {
+        "input": "n = 3",
+        "output": "2"
+      }
+    ]
   },
   {
     "id": 130,
@@ -3062,7 +4506,6 @@
     "topic": "Dynamic Programming",
     "pattern": "1D DP",
     "difficulty": "Easy",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/n-th-tribonacci-number/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)",
@@ -3078,7 +4521,19 @@
     "hint": "Similar to Fibonacci but uses 3 previous values.",
     "solution": "Track three variables t0, t1, t2. Each step: next = t0+t1+t2, shift values. Return t2 after n steps.",
     "tier": "core",
-    "canonicalTopic": "Dynamic Programming"
+    "canonicalTopic": "Dynamic Programming",
+    "inputFormat": "Parameters: n (int).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "n = 4",
+        "output": "4"
+      },
+      {
+        "input": "n = 25",
+        "output": "1389537"
+      }
+    ]
   },
   {
     "id": 131,
@@ -3086,7 +4541,6 @@
     "topic": "Dynamic Programming",
     "pattern": "1D DP",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/decode-ways/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)",
@@ -3101,7 +4555,19 @@
     "hint": "Similar to Fibonacci. Check if 1-digit and 2-digit substrings form valid letters.",
     "solution": "Use prev1 and prev2. If s[i] != '0', add prev1. If s[i-1..i] is between '10' and '26', add prev2. Shift variables.",
     "tier": "advanced",
-    "canonicalTopic": "Dynamic Programming"
+    "canonicalTopic": "Dynamic Programming",
+    "inputFormat": "Parameters: s (string).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "s = \"12\"",
+        "output": "2"
+      },
+      {
+        "input": "s = \"226\"",
+        "output": "3"
+      }
+    ]
   },
   {
     "id": 132,
@@ -3109,7 +4575,6 @@
     "topic": "Dynamic Programming",
     "pattern": "1D DP",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/word-break/",
     "timeComplexity": "O(n^2 * m)",
     "spaceComplexity": "O(n)",
@@ -3125,7 +4590,19 @@
     "hint": "dp[i] = true if s[0..i-1] can be segmented. Check all valid substrings ending at i.",
     "solution": "dp[0] = true. For each i from 1 to len: check all j < i where dp[j] is true. If s[j..i-1] is in dict, set dp[i]=true and break inner loop.",
     "tier": "advanced",
-    "canonicalTopic": "Dynamic Programming"
+    "canonicalTopic": "Dynamic Programming",
+    "inputFormat": "Parameters: s (string), wordDict (vector<string>).",
+    "outputFormat": "Returns bool.",
+    "examples": [
+      {
+        "input": "s = \"leetcode\", wordDict = [\"leet\",\"code\"]",
+        "output": "true"
+      },
+      {
+        "input": "s = \"applepenapple\", wordDict = [\"apple\",\"pen\"]",
+        "output": "true"
+      }
+    ]
   },
   {
     "id": 133,
@@ -3133,7 +4610,6 @@
     "topic": "Dynamic Programming",
     "pattern": "1D DP",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/longest-increasing-subsequence/",
     "timeComplexity": "O(n log n)",
     "spaceComplexity": "O(n)",
@@ -3149,7 +4625,19 @@
     "hint": "O(n log n): maintain tails array. Binary search for position to replace.",
     "solution": "Maintain tails array. For each num, binary search for first tail >= num. Replace it. If num > all tails, extend. tails.length is answer.",
     "tier": "advanced",
-    "canonicalTopic": "Dynamic Programming"
+    "canonicalTopic": "Dynamic Programming",
+    "inputFormat": "Parameters: nums (vector<int>).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "nums = [10,9,2,5,3,7,101,18]",
+        "output": "4"
+      },
+      {
+        "input": "nums = [0,1,0,3,2,3]",
+        "output": "4"
+      }
+    ]
   },
   {
     "id": 134,
@@ -3157,7 +4645,6 @@
     "topic": "Dynamic Programming",
     "pattern": "1D DP (Unbounded Knapsack)",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/coin-change/",
     "timeComplexity": "O(amount * coins.length)",
     "spaceComplexity": "O(amount)",
@@ -3173,7 +4660,19 @@
     "hint": "dp[i] = minimum coins to make amount i. dp[i] = min(dp[i], dp[i-coin]+1) for each coin <= i.",
     "solution": "Bottom-up DP: dp[0]=0, dp[i]=amount+1 (sentinel) for i>0. For each amount i from 1 to target, try every coin <= i and take dp[i]=min(dp[i], dp[i-coin]+1). Return dp[amount] if <= amount else -1.",
     "tier": "core",
-    "canonicalTopic": "Dynamic Programming"
+    "canonicalTopic": "Dynamic Programming",
+    "inputFormat": "Parameters: coins (vector<int>), amount (int).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "coins = [1,5,6,9], amount = 11",
+        "output": "2"
+      },
+      {
+        "input": "coins = [2], amount = 3",
+        "output": "-1"
+      }
+    ]
   },
   {
     "id": 135,
@@ -3181,7 +4680,6 @@
     "topic": "Dynamic Programming",
     "pattern": "2D DP",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/longest-common-subsequence/",
     "timeComplexity": "O(m * n)",
     "spaceComplexity": "O(m * n)",
@@ -3196,7 +4694,19 @@
     "hint": "dp[i][j] = LCS of text1[0..i] and text2[0..j].",
     "solution": "2D DP table. If text1[i]==text2[j], dp[i][j]=1+dp[i-1][j-1]. Else dp[i][j]=max(dp[i-1][j], dp[i][j-1]).",
     "tier": "advanced",
-    "canonicalTopic": "Dynamic Programming"
+    "canonicalTopic": "Dynamic Programming",
+    "inputFormat": "Parameters: s (string), t (string).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "text1 = \"abcde\", text2 = \"ace\"",
+        "output": "3"
+      },
+      {
+        "input": "text1 = \"abc\", text2 = \"abc\"",
+        "output": "3"
+      }
+    ]
   },
   {
     "id": 136,
@@ -3204,7 +4714,6 @@
     "topic": "Dynamic Programming",
     "pattern": "2D DP",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://www.geeksforgeeks.org/0-1-knapsack-problem-dp-10/",
     "timeComplexity": "O(n * W)",
     "spaceComplexity": "O(W)",
@@ -3219,7 +4728,19 @@
     "hint": "dp[w] = max value using items processed so far with capacity w.",
     "solution": "Use a 1D DP array of size W+1. For each item, iterate backwards from W to item weight: dp[w] = max(dp[w], dp[w-weight] + value).",
     "tier": "core",
-    "canonicalTopic": "Dynamic Programming"
+    "canonicalTopic": "Dynamic Programming",
+    "inputFormat": "Parameters: weights (vector<int>), values (vector<int>), W (int).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "weights=[1,3,4,5], values=[1,4,5,7], W=7",
+        "output": "9"
+      },
+      {
+        "input": "weights=[2,3], values=[3,4], W=2",
+        "output": "3"
+      }
+    ]
   },
   {
     "id": 137,
@@ -3227,7 +4748,6 @@
     "topic": "Dynamic Programming",
     "pattern": "2D DP",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/minimum-path-sum/",
     "timeComplexity": "O(m * n)",
     "spaceComplexity": "O(n)",
@@ -3243,7 +4763,19 @@
     "hint": "dp[i][j] = grid[i][j] + min(dp[i-1][j], dp[i][j-1]).",
     "solution": "Build a 2D dp table where dp[i][j] is the min path sum to reach cell (i,j). First row/column can only be reached one way (sum of prefix). For other cells, dp[i][j] = grid[i][j] + min(dp[i-1][j], dp[i][j-1]). Return dp[m-1][n-1].",
     "tier": "core",
-    "canonicalTopic": "Dynamic Programming"
+    "canonicalTopic": "Dynamic Programming",
+    "inputFormat": "Parameters: grid (vector<vector<int>>).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "grid = [[1,3,1],[1,5,1],[4,2,1]]",
+        "output": "7"
+      },
+      {
+        "input": "grid = [[1,2,3],[4,5,6]]",
+        "output": "12"
+      }
+    ]
   },
   {
     "id": 138,
@@ -3251,7 +4783,6 @@
     "topic": "Dynamic Programming",
     "pattern": "2D DP",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/unique-paths/",
     "timeComplexity": "O(m * n)",
     "spaceComplexity": "O(n)",
@@ -3267,7 +4798,19 @@
     "hint": "dp[i][j] = dp[i-1][j] + dp[i][j-1].",
     "solution": "Maintain a 1D DP array for the current row. For each cell, dp[j] += dp[j-1]. The last element is the answer.",
     "tier": "core",
-    "canonicalTopic": "Dynamic Programming"
+    "canonicalTopic": "Dynamic Programming",
+    "inputFormat": "Parameters: m (int), n (int).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "m = 3, n = 7",
+        "output": "28"
+      },
+      {
+        "input": "m = 3, n = 2",
+        "output": "3"
+      }
+    ]
   },
   {
     "id": 139,
@@ -3275,7 +4818,6 @@
     "topic": "Dynamic Programming",
     "pattern": "2D DP",
     "difficulty": "Hard",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/edit-distance/",
     "timeComplexity": "O(m * n)",
     "spaceComplexity": "O(m * n)",
@@ -3290,7 +4832,19 @@
     "hint": "dp[i][j] = min(insert, delete, replace) + 1 if characters differ.",
     "solution": "Fill DP matrix. If chars match: dp[i][j]=dp[i-1][j-1]. Else: dp[i][j] = min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]) + 1.",
     "tier": "advanced",
-    "canonicalTopic": "Dynamic Programming"
+    "canonicalTopic": "Dynamic Programming",
+    "inputFormat": "Parameters: s (string), t (string).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "word1 = \"horse\", word2 = \"ros\"",
+        "output": "3"
+      },
+      {
+        "input": "word1 = \"intention\", word2 = \"execution\"",
+        "output": "5"
+      }
+    ]
   },
   {
     "id": 140,
@@ -3298,7 +4852,6 @@
     "topic": "Dynamic Programming",
     "pattern": "0/1 Knapsack",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/partition-equal-subset-sum/",
     "timeComplexity": "O(n * sum)",
     "spaceComplexity": "O(sum)",
@@ -3313,7 +4866,19 @@
     "hint": "If total sum is odd, return false. Find subset with sum = total/2.",
     "solution": "target=totalSum/2. 1D DP boolean array of size target+1. For num in nums, iterate backwards: dp[j] = dp[j] || dp[j-num].",
     "tier": "advanced",
-    "canonicalTopic": "Dynamic Programming"
+    "canonicalTopic": "Dynamic Programming",
+    "inputFormat": "Parameters: nums (vector<int>).",
+    "outputFormat": "Returns bool.",
+    "examples": [
+      {
+        "input": "nums = [1,5,11,5]",
+        "output": "true"
+      },
+      {
+        "input": "nums = [1,2,3,5]",
+        "output": "false"
+      }
+    ]
   },
   {
     "id": 141,
@@ -3321,7 +4886,6 @@
     "topic": "Dynamic Programming",
     "pattern": "Interval DP",
     "difficulty": "Hard",
-    "tcs": false,
     "leetcode": "https://leetcode.com/problems/burst-balloons/",
     "timeComplexity": "O(n^3)",
     "spaceComplexity": "O(n^2)",
@@ -3336,7 +4900,19 @@
     "hint": "Think in reverse: instead of which balloon to burst first, decide which balloon to burst LAST in each interval.",
     "solution": "Pad nums with 1 on both ends. dp[l][r] = max coins from bursting all balloons strictly between l and r (exclusive), where l and r are never burst within this subproblem. For each k between l and r as the LAST balloon burst in that range: dp[l][r] = max(dp[l][r], dp[l][k-1] + nums[l-1]*nums[k]*nums[r+1] + dp[k+1][r]). Answer is dp[1][n] on the padded array.",
     "tier": "advanced",
-    "canonicalTopic": "Dynamic Programming"
+    "canonicalTopic": "Dynamic Programming",
+    "inputFormat": "Parameters: nums (vector<int>).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "nums = [3,1,5,8]",
+        "output": "167"
+      },
+      {
+        "input": "nums = [1,5]",
+        "output": "10"
+      }
+    ]
   },
   {
     "id": 142,
@@ -3344,7 +4920,6 @@
     "topic": "Arrays",
     "pattern": "General",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/maximum-subarray/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)",
@@ -3360,7 +4935,19 @@
     "hint": "Kadane's Algorithm: keep a running sum, reset to 0 when negative.",
     "solution": "Use Kadane's algorithm. Maintain currentSum and maxSum. If currentSum becomes negative, reset it to 0. Update maxSum at each step.",
     "tier": "core",
-    "canonicalTopic": "Arrays"
+    "canonicalTopic": "Arrays",
+    "inputFormat": "Parameters: nums (vector<int>).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "nums = [-2,1,-3,4,-1,2,1,-5,4]",
+        "output": "6"
+      },
+      {
+        "input": "nums = [1]",
+        "output": "1"
+      }
+    ]
   },
   {
     "id": 143,
@@ -3368,7 +4955,6 @@
     "topic": "Dynamic Programming",
     "pattern": "1D DP",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/maximum-product-subarray/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(1)",
@@ -3383,7 +4969,19 @@
     "hint": "Keep track of both the maximum and minimum products ending at the current element.",
     "solution": "Track curMax and curMin. If num is negative, swap curMax and curMin. curMax = max(num, curMax*num), curMin = min(num, curMin*num).",
     "tier": "advanced",
-    "canonicalTopic": "Dynamic Programming"
+    "canonicalTopic": "Dynamic Programming",
+    "inputFormat": "Parameters: nums (vector<int>).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "nums = [2,3,-2,4]",
+        "output": "6"
+      },
+      {
+        "input": "nums = [-2,0,-1]",
+        "output": "0"
+      }
+    ]
   },
   {
     "id": 144,
@@ -3391,7 +4989,6 @@
     "topic": "Graphs",
     "pattern": "BFS",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://www.geeksforgeeks.org/shortest-path-unweighted-graph/",
     "timeComplexity": "O(V + E)",
     "spaceComplexity": "O(V + E)",
@@ -3406,7 +5003,19 @@
     "hint": "BFS from src naturally finds shortest paths in an unweighted graph, since it explores nodes in increasing order of distance.",
     "solution": "Build an adjacency list from the edges. Run BFS starting at src, tracking distance for each visited node. Return dist[dest] once dequeued, or -1 if BFS finishes without reaching dest.",
     "tier": "core",
-    "canonicalTopic": "Graphs"
+    "canonicalTopic": "Graphs",
+    "inputFormat": "Parameters: n (int), edges (vector<vector<int>>), src (int), dest (int).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "n = 4, edges = [[0,1],[1,2],[2,3]], src = 0, dest = 3",
+        "output": "3"
+      },
+      {
+        "input": "n = 3, edges = [[0,1]], src = 0, dest = 2",
+        "output": "-1"
+      }
+    ]
   },
   {
     "id": 145,
@@ -3414,7 +5023,6 @@
     "topic": "Graphs",
     "pattern": "BFS/DFS",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/pacific-atlantic-water-flow/",
     "timeComplexity": "O(m * n)",
     "spaceComplexity": "O(m * n)",
@@ -3431,7 +5039,19 @@
     "hint": "Work backwards. Start from the oceans and traverse UP the heights to see which cells can reach each ocean.",
     "solution": "Run DFS/BFS from Pacific border cells and Atlantic border cells. Track reachable cells in two boolean grids. Intersection is the answer.",
     "tier": "advanced",
-    "canonicalTopic": "Graphs"
+    "canonicalTopic": "Graphs",
+    "inputFormat": "Parameters: heights (vector<vector<int>>).",
+    "outputFormat": "Returns count:vector<vector<int>>.",
+    "examples": [
+      {
+        "input": "heights=[[1,2,2,3,5],[3,2,3,4,4],[2,4,5,3,1],[6,7,1,4,5],[5,1,1,2,4]]",
+        "output": "[[0,4],[1,3],[1,4],[2,2],[3,0],[3,1],[4,0]]"
+      },
+      {
+        "input": "heights = [[1]]",
+        "output": "[[0,0]]"
+      }
+    ]
   },
   {
     "id": 146,
@@ -3439,7 +5059,6 @@
     "topic": "Graphs",
     "pattern": "Multi-Source BFS",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/walls-and-gates/",
     "timeComplexity": "O(m * n)",
     "spaceComplexity": "O(m * n)",
@@ -3455,7 +5074,19 @@
     "hint": "Start BFS simultaneously from ALL gates at once (multi-source BFS) instead of running BFS from every empty room.",
     "solution": "Push all gate cells (value 0) into a queue. Run BFS from all of them simultaneously; whenever we reach an INF cell, set its distance as current distance + 1 and push it. Because BFS explores in order of distance, the first time a cell is reached gives its shortest distance to any gate.",
     "tier": "core",
-    "canonicalTopic": "Graphs"
+    "canonicalTopic": "Graphs",
+    "inputFormat": "Parameters: rooms (vector<vector<int>>).",
+    "outputFormat": "Returns void.",
+    "examples": [
+      {
+        "input": "rooms = [[2147483647,-1,0,2147483647],[2147483647,2147483647,2147483647,-1],[2147483647,-1,2147483647,-1],[0,-1,2147483647,2147483647]]",
+        "output": "[[3,-1,0,1],[2,2,1,-1],[1,-1,2,-1],[0,-1,3,4]]"
+      },
+      {
+        "input": "rooms = [[-1]]",
+        "output": "[[-1]]"
+      }
+    ]
   },
   {
     "id": 147,
@@ -3463,7 +5094,6 @@
     "topic": "Graphs",
     "pattern": "Multi-Source BFS",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/rotting-oranges/",
     "timeComplexity": "O(m * n)",
     "spaceComplexity": "O(m * n)",
@@ -3479,7 +5109,19 @@
     "hint": "Queue all initially rotten oranges. Track count of fresh oranges. Perform layer-by-level BFS.",
     "solution": "Push all '2's into Queue. Count '1's. Loop Queue layer by layer (minutes). Rots neighbors, decrement fresh count. Return time if fresh == 0 else -1.",
     "tier": "core",
-    "canonicalTopic": "Graphs"
+    "canonicalTopic": "Graphs",
+    "inputFormat": "Parameters: grid (vector<vector<int>>).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "grid = [[2,1,1],[1,1,0],[0,1,1]]",
+        "output": "4"
+      },
+      {
+        "input": "grid = [[2,1,1],[0,1,1],[1,0,1]]",
+        "output": "-1"
+      }
+    ]
   },
   {
     "id": 148,
@@ -3487,7 +5129,6 @@
     "topic": "Graphs",
     "pattern": "BFS",
     "difficulty": "Hard",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/word-ladder/",
     "timeComplexity": "O(M^2 * N)",
     "spaceComplexity": "O(M^2 * N)",
@@ -3503,7 +5144,19 @@
     "hint": "Shortest path in an unweighted graph -> BFS. Generate neighbors by changing characters a-z.",
     "solution": "Convert wordList to Set. BFS queue stores (word, steps). Try changing each character from 'a'-'z'. If in Set, remove from Set and queue.",
     "tier": "advanced",
-    "canonicalTopic": "Graphs"
+    "canonicalTopic": "Graphs",
+    "inputFormat": "Parameters: beginWord (string), endWord (string), wordList (vector<string>).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "beginWord=\"hit\", endWord=\"cog\", wordList=[\"hot\",\"dot\",\"dog\",\"lot\",\"log\",\"cog\"]",
+        "output": "5"
+      },
+      {
+        "input": "beginWord=\"hit\", endWord=\"cog\", wordList=[\"hot\",\"dot\",\"dog\",\"lot\",\"log\"]",
+        "output": "0"
+      }
+    ]
   },
   {
     "id": 149,
@@ -3511,7 +5164,6 @@
     "topic": "Graphs",
     "pattern": "Shortest Path",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/network-delay-time/",
     "timeComplexity": "O(E log V)",
     "spaceComplexity": "O(V + E)",
@@ -3529,7 +5181,19 @@
     "hint": "Standard Dijkstra's using a Min-Priority Queue.",
     "solution": "Min-Heap storing (distance, node). Start with (0, src). Pop, if unvisited, mark and relax all neighbors. Max value in distances array is answer.",
     "tier": "advanced",
-    "canonicalTopic": "Graphs"
+    "canonicalTopic": "Graphs",
+    "inputFormat": "Parameters: n (int), edges (vector<vector<int>>), src (int).",
+    "outputFormat": "Returns vector<int>.",
+    "examples": [
+      {
+        "input": "n=5, edges=[[0,1,10],[0,4,3],[1,2,2],[4,1,4],[4,3,8],[3,2,2]], src=0",
+        "output": "0 7 9 11 3"
+      },
+      {
+        "input": "n=3, edges=[[0,1,1],[1,2,1]], src=0",
+        "output": "0 1 2"
+      }
+    ]
   },
   {
     "id": 150,
@@ -3537,7 +5201,6 @@
     "topic": "Graphs",
     "pattern": "BFS/DFS",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/number-of-islands/",
     "timeComplexity": "O(m * n)",
     "spaceComplexity": "O(m * n)",
@@ -3555,7 +5218,19 @@
     "hint": "Iterate through the grid. When a '1' is found, run BFS/DFS to mark the entire island as visited.",
     "solution": "Scan cells. On '1', increment island count and trigger DFS/BFS to zero out all connected '1's recursively.",
     "tier": "core",
-    "canonicalTopic": "Graphs"
+    "canonicalTopic": "Graphs",
+    "inputFormat": "Parameters: grid (vector<vector<char>>).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "grid=[[\"1\",\"1\",\"1\",\"1\",\"0\"],[\"1\",\"1\",\"0\",\"1\",\"0\"],[\"1\",\"1\",\"0\",\"0\",\"0\"],[\"0\",\"0\",\"0\",\"0\",\"0\"]]",
+        "output": "1"
+      },
+      {
+        "input": "grid=[[\"1\",\"1\",\"0\",\"0\",\"0\"],[\"1\",\"1\",\"0\",\"0\",\"0\"],[\"0\",\"0\",\"1\",\"0\",\"0\"],[\"0\",\"0\",\"0\",\"1\",\"1\"]]",
+        "output": "3"
+      }
+    ]
   },
   {
     "id": 151,
@@ -3563,7 +5238,6 @@
     "topic": "Graphs",
     "pattern": "DFS/BFS",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/clone-graph/",
     "timeComplexity": "O(V + E)",
     "spaceComplexity": "O(V)",
@@ -3580,7 +5254,19 @@
     "hint": "Use a HashMap to store the mapping from original nodes to cloned nodes to avoid infinite cycles.",
     "solution": "DFS traversal. If node is in map, return clone. Else, create clone, put in map, then recursively clone neighbors and append.",
     "tier": "core",
-    "canonicalTopic": "Graphs"
+    "canonicalTopic": "Graphs",
+    "inputFormat": "Parameters: node (Node*).",
+    "outputFormat": "Returns int:cloneGraph.",
+    "examples": [
+      {
+        "input": "adjList = [[2,4],[1,3],[2,4],[1,3]]",
+        "output": "4 nodes"
+      },
+      {
+        "input": "adjList = [[]]",
+        "output": "1 node"
+      }
+    ]
   },
   {
     "id": 152,
@@ -3588,7 +5274,6 @@
     "topic": "Graphs",
     "pattern": "Topological Sort",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/course-schedule/",
     "timeComplexity": "O(V + E)",
     "spaceComplexity": "O(V + E)",
@@ -3605,7 +5290,19 @@
     "hint": "This is a cycle detection problem in a directed graph. Use Kahn's algorithm or DFS with states.",
     "solution": "Calculate indegrees. Push nodes with indegree 0 to a queue. For each popped node, decrement neighbors' indegrees and queue if 0. Valid if processed count == numCourses.",
     "tier": "advanced",
-    "canonicalTopic": "Graphs"
+    "canonicalTopic": "Graphs",
+    "inputFormat": "Parameters: numCourses (int), prerequisites (vector<vector<int>>).",
+    "outputFormat": "Returns bool.",
+    "examples": [
+      {
+        "input": "numCourses = 2, prerequisites = [[1,0]]",
+        "output": "true"
+      },
+      {
+        "input": "numCourses = 2, prerequisites = [[1,0],[0,1]]",
+        "output": "false"
+      }
+    ]
   },
   {
     "id": 153,
@@ -3613,7 +5310,6 @@
     "topic": "Graphs",
     "pattern": "DFS (3-Color)",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://www.geeksforgeeks.org/detect-cycle-in-a-graph/",
     "timeComplexity": "O(V + E)",
     "spaceComplexity": "O(V)",
@@ -3629,7 +5325,19 @@
     "hint": "Track 3 states per node: unvisited, in the current DFS recursion stack, and fully processed. A back-edge to a node in the current stack means a cycle.",
     "solution": "DFS with a state array (0=unvisited, 1=visiting/in-stack, 2=done). For a node u, mark state[u]=1, recurse into neighbors; if a neighbor is state 1, a cycle is found. After processing all neighbors, mark state[u]=2. Try DFS from every unvisited node.",
     "tier": "advanced",
-    "canonicalTopic": "Graphs"
+    "canonicalTopic": "Graphs",
+    "inputFormat": "Parameters: V (int), adj (vector<vector<int>>).",
+    "outputFormat": "Returns bool.",
+    "examples": [
+      {
+        "input": "V = 4, adj = [[0,1],[1,2],[2,3],[3,3]]",
+        "output": "true"
+      },
+      {
+        "input": "V = 3, adj = [[0,1],[1,2]]",
+        "output": "false"
+      }
+    ]
   },
   {
     "id": 154,
@@ -3637,7 +5345,6 @@
     "topic": "Graphs",
     "pattern": "DFS/BFS",
     "difficulty": "Easy",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/flood-fill/",
     "timeComplexity": "O(m * n)",
     "spaceComplexity": "O(m * n)",
@@ -3654,7 +5361,19 @@
     "hint": "Standard DFS/BFS flood fill; remember to check the new color equals the old color to avoid infinite recursion.",
     "solution": "If the starting pixel's color already equals the new color, return the image unchanged (prevents infinite loop). Otherwise DFS/BFS from (sr,sc), recoloring every 4-directionally connected pixel that matches the original color.",
     "tier": "core",
-    "canonicalTopic": "Graphs"
+    "canonicalTopic": "Graphs",
+    "inputFormat": "Parameters: image (vector<vector<int>>), sr (int), sc (int), color (int).",
+    "outputFormat": "Returns vector<vector<int>>.",
+    "examples": [
+      {
+        "input": "image = [[1,1,1],[1,1,0],[1,0,1]], sr = 1, sc = 1, color = 2",
+        "output": "[[2,2,2],[2,2,0],[2,0,1]]"
+      },
+      {
+        "input": "image = [[0,0,0],[0,0,0]], sr = 0, sc = 0, color = 0",
+        "output": "[[0,0,0],[0,0,0]]"
+      }
+    ]
   },
   {
     "id": 155,
@@ -3662,7 +5381,6 @@
     "topic": "Graphs",
     "pattern": "Backtracking + DFS",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/word-search/",
     "timeComplexity": "O(m * n * 4^L)",
     "spaceComplexity": "O(L)",
@@ -3679,7 +5397,19 @@
     "hint": "DFS from every cell matching word[0]; temporarily mark visited cells so they aren't reused, then restore them on backtrack.",
     "solution": "For each cell matching word[0], run DFS: mark the cell visited (e.g. overwrite with a sentinel), recurse into the 4 neighbors looking for the next character, and restore the cell after exploring. Return true as soon as any starting cell completes the full word.",
     "tier": "core",
-    "canonicalTopic": "Graphs"
+    "canonicalTopic": "Graphs",
+    "inputFormat": "Parameters: board (vector<vector<char>>), word (string).",
+    "outputFormat": "Returns bool.",
+    "examples": [
+      {
+        "input": "board = [[\"A\",\"B\",\"C\",\"E\"],[\"S\",\"F\",\"C\",\"S\"],[\"A\",\"D\",\"E\",\"E\"]], word = \"ABCCED\"",
+        "output": "true"
+      },
+      {
+        "input": "board = [[\"A\",\"B\",\"C\",\"E\"],[\"S\",\"F\",\"C\",\"S\"],[\"A\",\"D\",\"E\",\"E\"]], word = \"SEE\"",
+        "output": "true"
+      }
+    ]
   },
   {
     "id": 156,
@@ -3687,7 +5417,6 @@
     "topic": "Graphs",
     "pattern": "Topological Sort",
     "difficulty": "Hard",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/alien-dictionary/",
     "timeComplexity": "O(C)",
     "spaceComplexity": "O(1) (bounded alphabet)",
@@ -3704,7 +5433,19 @@
     "hint": "Compare each pair of adjacent words to find the first differing character; that gives a 'comes before' edge. Then topologically sort the resulting graph.",
     "solution": "Build a graph over the distinct letters. For every pair of consecutive words, find the first index where they differ and add an edge from that char in word1 to the char in word2 (invalid if word1 is longer than word2 but a prefix of it). Run Kahn's BFS topological sort; if all letters are ordered, return the order, otherwise return empty string (cycle detected).",
     "tier": "advanced",
-    "canonicalTopic": "Graphs"
+    "canonicalTopic": "Graphs",
+    "inputFormat": "Parameters: words (vector<string>).",
+    "outputFormat": "Returns string.",
+    "examples": [
+      {
+        "input": "words = [\"wrt\",\"wrf\",\"er\",\"ett\",\"rftt\"]",
+        "output": "\"wertf\""
+      },
+      {
+        "input": "words = [\"z\",\"x\"]",
+        "output": "\"zx\""
+      }
+    ]
   },
   {
     "id": 157,
@@ -3712,7 +5453,6 @@
     "topic": "Graphs",
     "pattern": "Topological Sort",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/course-schedule-ii/",
     "timeComplexity": "O(V + E)",
     "spaceComplexity": "O(V + E)",
@@ -3729,7 +5469,19 @@
     "hint": "Use Kahn's algorithm. Store nodes popped from the 0-indegree queue.",
     "solution": "Build adjacency list and indegree array. Queue 0-indegree nodes. Append popped nodes to result. If result size != numCourses, return [].",
     "tier": "advanced",
-    "canonicalTopic": "Graphs"
+    "canonicalTopic": "Graphs",
+    "inputFormat": "Parameters: numCourses (int), prerequisites (vector<vector<int>>).",
+    "outputFormat": "Returns vector<int>.",
+    "examples": [
+      {
+        "input": "numCourses = 2, prerequisites = [[1,0]]",
+        "output": "[0,1]"
+      },
+      {
+        "input": "numCourses = 4, prerequisites = [[1,0],[2,0],[3,1],[3,2]]",
+        "output": "[0,2,1,3]"
+      }
+    ]
   },
   {
     "id": 158,
@@ -3737,7 +5489,6 @@
     "topic": "Graphs",
     "pattern": "Union Find",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/number-of-connected-components-in-an-undirected-graph/",
     "timeComplexity": "O(V + E)",
     "spaceComplexity": "O(V)",
@@ -3754,7 +5505,19 @@
     "hint": "Use Union Find. Start with n components and decrement on each successful union.",
     "solution": "Initialize parent array. Start count = n. Iterate edges, perform union. If nodes were not already connected, decrement count.",
     "tier": "core",
-    "canonicalTopic": "Graphs"
+    "canonicalTopic": "Graphs",
+    "inputFormat": "Parameters: n (int), edges (vector<vector<int>>).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "n = 5, edges = [[0,1],[1,2],[3,4]]",
+        "output": "2"
+      },
+      {
+        "input": "n = 5, edges = [[0,1],[1,2],[2,3],[3,4]]",
+        "output": "1"
+      }
+    ]
   },
   {
     "id": 159,
@@ -3762,7 +5525,6 @@
     "topic": "Graphs",
     "pattern": "Union Find",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/redundant-connection/",
     "timeComplexity": "O(n * α(n))",
     "spaceComplexity": "O(n)",
@@ -3778,7 +5540,19 @@
     "hint": "Process edges in order, using Union-Find; the first edge that connects two nodes already in the same component is the redundant one.",
     "solution": "Use Union-Find with path compression. For each edge (u,v) in order, if find(u)==find(v), u and v are already connected, so this edge creates the cycle — return it immediately. Otherwise union them.",
     "tier": "core",
-    "canonicalTopic": "Graphs"
+    "canonicalTopic": "Graphs",
+    "inputFormat": "Parameters: edges (vector<vector<int>>).",
+    "outputFormat": "Returns vector<int>.",
+    "examples": [
+      {
+        "input": "edges = [[1,2],[1,3],[2,3]]",
+        "output": "[2,3]"
+      },
+      {
+        "input": "edges = [[1,2],[2,3],[3,4],[1,4],[1,5]]",
+        "output": "[1,4]"
+      }
+    ]
   },
   {
     "id": 160,
@@ -3786,7 +5560,6 @@
     "topic": "Dynamic Programming",
     "pattern": "1D DP",
     "difficulty": "Easy",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/fibonacci-number/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(n)",
@@ -3803,7 +5576,19 @@
     "hint": "F(n) = F(n-1) + F(n-2), base cases F(0)=0, F(1)=1.",
     "solution": "Use memoization with recursion. Or iterative: keep track of previous two values.",
     "tier": "core",
-    "canonicalTopic": "Dynamic Programming"
+    "canonicalTopic": "Dynamic Programming",
+    "inputFormat": "Parameters: n (int).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "n = 2",
+        "output": "1"
+      },
+      {
+        "input": "n = 3",
+        "output": "2"
+      }
+    ]
   },
   {
     "id": 161,
@@ -3811,7 +5596,6 @@
     "topic": "Recursion & Backtracking",
     "pattern": "Basic Recursion",
     "difficulty": "Easy",
-    "tcs": true,
     "leetcode": "https://www.geeksforgeeks.org/program-for-factorial-of-a-number/",
     "timeComplexity": "O(n)",
     "spaceComplexity": "O(n) (call stack)",
@@ -3826,7 +5610,19 @@
     "hint": "Base case: factorial(0) = 1. Recursive case: factorial(n) = n * factorial(n-1).",
     "solution": "If n <= 1, return 1. Otherwise return n * factorial(n-1). Each call reduces n by 1 until the base case is hit.",
     "tier": "core",
-    "canonicalTopic": "Recursion & Backtracking"
+    "canonicalTopic": "Recursion & Backtracking",
+    "inputFormat": "Parameters: n (int).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "n = 5",
+        "output": "120"
+      },
+      {
+        "input": "n = 3",
+        "output": "6"
+      }
+    ]
   },
   {
     "id": 162,
@@ -3834,7 +5630,6 @@
     "topic": "Recursion & Backtracking",
     "pattern": "Basic Recursion",
     "difficulty": "Easy",
-    "tcs": true,
     "leetcode": "https://www.geeksforgeeks.org/sum-of-digits-of-a-number/",
     "timeComplexity": "O(log n)",
     "spaceComplexity": "O(log n) (call stack)",
@@ -3849,7 +5644,19 @@
     "hint": "Base case: sumOfDigits(0) = 0. Recursive case: sumOfDigits(n) = n%10 + sumOfDigits(n/10).",
     "solution": "If n == 0, return 0. Otherwise return (n % 10) + sumOfDigits(n / 10), peeling off the last digit each call.",
     "tier": "core",
-    "canonicalTopic": "Recursion & Backtracking"
+    "canonicalTopic": "Recursion & Backtracking",
+    "inputFormat": "Parameters: n (int).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "n = 123",
+        "output": "6"
+      },
+      {
+        "input": "n = 4567",
+        "output": "22"
+      }
+    ]
   },
   {
     "id": 163,
@@ -3857,7 +5664,6 @@
     "topic": "Math",
     "pattern": "Fast Exponentiation",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/powx-n/",
     "timeComplexity": "O(log n)",
     "spaceComplexity": "O(1)",
@@ -3872,7 +5678,19 @@
     "hint": "If n is even, x^n = (x^2)^(n/2). Handle negative n carefully to avoid integer overflow.",
     "solution": "Long absN = abs(n). ans = 1.0. While absN > 0: if absN is odd, ans *= x. x *= x, absN >>= 1. If n < 0 return 1/ans.",
     "tier": "core",
-    "canonicalTopic": "Math"
+    "canonicalTopic": "Math",
+    "inputFormat": "Parameters: x (double), n (int).",
+    "outputFormat": "Returns double.",
+    "examples": [
+      {
+        "input": "x = 2.00000, n = 10",
+        "output": "1024.00000"
+      },
+      {
+        "input": "x = 2.10000, n = 3",
+        "output": "9.26100"
+      }
+    ]
   },
   {
     "id": 164,
@@ -3880,7 +5698,6 @@
     "topic": "Recursion & Backtracking",
     "pattern": "Classic Recursion",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://www.geeksforgeeks.org/c-program-for-tower-of-hanoi/",
     "timeComplexity": "O(2^n)",
     "spaceComplexity": "O(n) (call stack)",
@@ -3895,7 +5712,19 @@
     "hint": "To move n disks: move the top n-1 disks to the auxiliary peg, move the largest disk to the destination, then move the n-1 disks from auxiliary to destination.",
     "solution": "The minimum number of moves follows the recurrence T(n) = 2*T(n-1) + 1 with T(0)=0, which solves to T(n) = 2^n - 1. This can be computed directly or via the same recursive move-count logic.",
     "tier": "core",
-    "canonicalTopic": "Recursion & Backtracking"
+    "canonicalTopic": "Recursion & Backtracking",
+    "inputFormat": "Parameters: n (int).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "n = 3",
+        "output": "7"
+      },
+      {
+        "input": "n = 4",
+        "output": "15"
+      }
+    ]
   },
   {
     "id": 165,
@@ -3903,7 +5732,6 @@
     "topic": "Recursion & Backtracking",
     "pattern": "Backtracking",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/subsets/",
     "timeComplexity": "O(n * 2^n)",
     "spaceComplexity": "O(n)",
@@ -3919,7 +5747,19 @@
     "hint": "At each index, branch into two choices: include the current element or skip it (standard backtracking template).",
     "solution": "Backtrack starting at index 0 with an empty running subset: add the current subset to the result at every recursive call, then for each index i from start to n-1, include nums[i], recurse with start=i+1, then remove nums[i] (backtrack).",
     "tier": "core",
-    "canonicalTopic": "Recursion & Backtracking"
+    "canonicalTopic": "Recursion & Backtracking",
+    "inputFormat": "Parameters: nums (vector<int>).",
+    "outputFormat": "Returns count:vector<vector<int>>.",
+    "examples": [
+      {
+        "input": "nums = [1,2,3]",
+        "output": "8 subsets"
+      },
+      {
+        "input": "nums = [0]",
+        "output": "2 subsets"
+      }
+    ]
   },
   {
     "id": 166,
@@ -3927,7 +5767,6 @@
     "topic": "Recursion & Backtracking",
     "pattern": "Backtracking",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/permutations/",
     "timeComplexity": "O(n * n!)",
     "spaceComplexity": "O(n)",
@@ -3942,7 +5781,19 @@
     "hint": "Swap-based backtracking: at each recursion depth, try placing each unused remaining element in the current position.",
     "solution": "Use std::next_permutation on a sorted copy of nums, or classic backtracking: track a boolean 'used' array, build the current permutation, and at each step try every unused number, recurse, then mark unused again on backtrack.",
     "tier": "core",
-    "canonicalTopic": "Recursion & Backtracking"
+    "canonicalTopic": "Recursion & Backtracking",
+    "inputFormat": "Parameters: nums (vector<int>).",
+    "outputFormat": "Returns count:vector<vector<int>>.",
+    "examples": [
+      {
+        "input": "nums = [1,2,3]",
+        "output": "6 permutations"
+      },
+      {
+        "input": "nums = [0,1]",
+        "output": "2 permutations"
+      }
+    ]
   },
   {
     "id": 167,
@@ -3950,7 +5801,6 @@
     "topic": "Recursion & Backtracking",
     "pattern": "Backtracking",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/combination-sum/",
     "timeComplexity": "O(2^target)",
     "spaceComplexity": "O(target)",
@@ -3965,7 +5815,19 @@
     "hint": "Sort candidates first so you can prune early once the remaining target goes negative. Reuse the same index (not index+1) to allow repeats.",
     "solution": "Backtrack with (start index, remaining target). At each step, try every candidate from start to end; if candidates[i] > remaining, break (sorted order allows pruning). Otherwise include candidates[i], recurse with the SAME start=i (allows reuse) and remaining -= candidates[i]; then backtrack.",
     "tier": "core",
-    "canonicalTopic": "Recursion & Backtracking"
+    "canonicalTopic": "Recursion & Backtracking",
+    "inputFormat": "Parameters: candidates (vector<int>), target (int).",
+    "outputFormat": "Returns count:vector<vector<int>>.",
+    "examples": [
+      {
+        "input": "candidates = [2,3,6,7], target = 7",
+        "output": "2 combinations"
+      },
+      {
+        "input": "candidates = [2,3,5], target = 8",
+        "output": "3 combinations"
+      }
+    ]
   },
   {
     "id": 168,
@@ -3973,7 +5835,6 @@
     "topic": "Recursion & Backtracking",
     "pattern": "Backtracking",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/letter-combinations-of-a-phone-number/",
     "timeComplexity": "O(4^n)",
     "spaceComplexity": "O(n)",
@@ -3989,7 +5850,19 @@
     "hint": "Map each digit to its letters, then backtrack building the combination one digit at a time.",
     "solution": "If digits is empty, return an empty list. Use a digit-to-letters lookup table. Backtrack: at recursion depth idx, try every letter mapped to digits[idx], append it to the current combination, recurse to idx+1, then remove it. Base case: idx == digits.length adds the combination to the result.",
     "tier": "core",
-    "canonicalTopic": "Recursion & Backtracking"
+    "canonicalTopic": "Recursion & Backtracking",
+    "inputFormat": "Parameters: digits (string).",
+    "outputFormat": "Returns count:vector<string>.",
+    "examples": [
+      {
+        "input": "digits = \"23\"",
+        "output": "9 combinations"
+      },
+      {
+        "input": "digits = \"2\"",
+        "output": "3 combinations"
+      }
+    ]
   },
   {
     "id": 169,
@@ -3997,7 +5870,6 @@
     "topic": "Recursion & Backtracking",
     "pattern": "Backtracking",
     "difficulty": "Hard",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/n-queens/",
     "timeComplexity": "O(n!)",
     "spaceComplexity": "O(n^2)",
@@ -4012,7 +5884,19 @@
     "hint": "Place one queen per row. Track used columns and both diagonals (row+col and row-col) to check attacks in O(1).",
     "solution": "Backtrack row by row. For each row, try every column; check if the column, and both diagonals, are free using boolean arrays. If free, place the queen, mark the column/diagonals used, recurse to the next row, then unmark on backtrack. When row == n, record the board configuration.",
     "tier": "advanced",
-    "canonicalTopic": "Recursion & Backtracking"
+    "canonicalTopic": "Recursion & Backtracking",
+    "inputFormat": "Parameters: n (int).",
+    "outputFormat": "Returns count:vector<vector<string>>.",
+    "examples": [
+      {
+        "input": "n = 4",
+        "output": "2 solutions"
+      },
+      {
+        "input": "n = 1",
+        "output": "1 solution"
+      }
+    ]
   },
   {
     "id": 170,
@@ -4020,7 +5904,6 @@
     "topic": "Recursion & Backtracking",
     "pattern": "Backtracking + DFS",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/word-search/",
     "timeComplexity": "O(m * n * 4^L)",
     "spaceComplexity": "O(L)",
@@ -4037,7 +5920,19 @@
     "hint": "DFS from every cell matching word[0]; temporarily mark visited cells so they aren't reused, then restore them on backtrack.",
     "solution": "For each cell matching word[0], run DFS: mark the cell visited (e.g. overwrite with a sentinel), recurse into the 4 neighbors looking for the next character, and restore the cell after exploring. Return true as soon as any starting cell completes the full word.",
     "tier": "core",
-    "canonicalTopic": "Recursion & Backtracking"
+    "canonicalTopic": "Recursion & Backtracking",
+    "inputFormat": "Parameters: board (vector<vector<char>>), word (string).",
+    "outputFormat": "Returns bool.",
+    "examples": [
+      {
+        "input": "board = [[\"A\",\"B\",\"C\",\"E\"],[\"S\",\"F\",\"C\",\"S\"],[\"A\",\"D\",\"E\",\"E\"]], word = \"ABCCED\"",
+        "output": "true"
+      },
+      {
+        "input": "board = [[\"A\",\"B\",\"C\",\"E\"],[\"S\",\"F\",\"C\",\"S\"],[\"A\",\"D\",\"E\",\"E\"]], word = \"SEE\"",
+        "output": "true"
+      }
+    ]
   },
   {
     "id": 171,
@@ -4045,7 +5940,6 @@
     "topic": "Sorting",
     "pattern": "Application",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/kth-largest-element-in-an-array/",
     "timeComplexity": "O(n log k)",
     "spaceComplexity": "O(k)",
@@ -4063,7 +5957,19 @@
     "hint": "Use a min-heap of size k. Maintain k largest elements.",
     "solution": "Use a min-heap of size k. For each element, push to heap. If heap size > k, pop minimum. At end, top of heap is kth largest.",
     "tier": "core",
-    "canonicalTopic": "Sorting"
+    "canonicalTopic": "Sorting",
+    "inputFormat": "Parameters: nums (vector<int>), k (int).",
+    "outputFormat": "Returns int.",
+    "examples": [
+      {
+        "input": "nums = [3,2,1,5,6,4], k = 2",
+        "output": "5"
+      },
+      {
+        "input": "nums = [3,2,3,1,2,4,5,5,6], k = 4",
+        "output": "4"
+      }
+    ]
   },
   {
     "id": 172,
@@ -4071,7 +5977,6 @@
     "topic": "Heap",
     "pattern": "Two Heaps",
     "difficulty": "Hard",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/find-median-from-data-stream/",
     "timeComplexity": "O(log n) add",
     "spaceComplexity": "O(n)",
@@ -4089,7 +5994,19 @@
     "hint": "Maintain the lower half of numbers in a max-heap and the upper half in a min-heap.",
     "solution": "Max-heap (lo) and Min-heap (hi). Push to lo, pop max from lo to hi. Balance: if hi size > lo size, pop min from hi to lo. Median is top of lo, or avg(lo, hi).",
     "tier": "optional",
-    "canonicalTopic": "Heap"
+    "canonicalTopic": "Heap",
+    "inputFormat": "Parameters: nums (vector<int>).",
+    "outputFormat": "Returns design:MedianFinder.",
+    "examples": [
+      {
+        "input": "addNum(1),addNum(2),findMedian()",
+        "output": "2.0"
+      },
+      {
+        "input": "addNum(5),findMedian()",
+        "output": "5.0"
+      }
+    ]
   },
   {
     "id": 173,
@@ -4097,7 +6014,6 @@
     "topic": "Heap",
     "pattern": "K-Way Merge (Heap)",
     "difficulty": "Hard",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/merge-k-sorted-lists/",
     "timeComplexity": "O(N log k)",
     "spaceComplexity": "O(k)",
@@ -4114,7 +6030,19 @@
     "hint": "Use a min-heap holding the current head of each list; repeatedly pop the smallest and push its successor.",
     "solution": "Push the head of every non-null list into a min-priority-queue keyed by node value. Repeatedly pop the smallest node, append it to the result list, and if that node has a next, push the next node. Continue until the heap is empty.",
     "tier": "advanced",
-    "canonicalTopic": "Heap"
+    "canonicalTopic": "Heap",
+    "inputFormat": "Parameters: lists (vector<ListNode*>).",
+    "outputFormat": "Returns ListNode*.",
+    "examples": [
+      {
+        "input": "lists = [[1,4,5],[1,3,4],[2,6]]",
+        "output": "1 1 2 3 4 4 5 6"
+      },
+      {
+        "input": "lists = []",
+        "output": "[]"
+      }
+    ]
   },
   {
     "id": 174,
@@ -4122,7 +6050,6 @@
     "topic": "Heap",
     "pattern": "Heap / Bucket Sort",
     "difficulty": "Medium",
-    "tcs": true,
     "leetcode": "https://leetcode.com/problems/top-k-frequent-elements/",
     "timeComplexity": "O(n log k)",
     "spaceComplexity": "O(n)",
@@ -4140,6 +6067,18 @@
     "hint": "Count frequencies using a map. Maintain a min-heap of size k based on frequencies.",
     "solution": "Map frequencies. Push pairs into Min-Heap. If heap size exceeds k, pop. Elements remaining in heap are the answer. (Bucket sort is O(n)).",
     "tier": "core",
-    "canonicalTopic": "Heap"
+    "canonicalTopic": "Heap",
+    "inputFormat": "Parameters: nums (vector<int>), k (int).",
+    "outputFormat": "Returns vector<int>.",
+    "examples": [
+      {
+        "input": "nums = [1,1,1,2,2,3], k = 2",
+        "output": "[1,2]"
+      },
+      {
+        "input": "nums = [1], k = 1",
+        "output": "[1]"
+      }
+    ]
   }
 ]

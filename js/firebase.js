@@ -201,6 +201,8 @@ function setupAuthEventListeners() {
 
         const credential = await auth.signInWithEmailAndPassword(email, password);
         const user = credential.user;
+        // Mark sign-in time so ApiClient doesn't force-signout on initial 401s
+        if (typeof window._apiClientOnSignIn === 'function') window._apiClientOnSignIn();
 
         const displayName = user.displayName
           || document.getElementById('user-profile-name')?.textContent
@@ -260,33 +262,98 @@ function setupAuthEventListeners() {
       showLoadingOverlay('Creating your account...');
       hideAuthError(errorDiv);
 
+      // ── STAGE 1: Firebase Authentication ─────────────────────────────────
+      // If this fails, the account was NOT created. Show the auth error and stop.
+      let user;
       try {
         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-        const user = userCredential.user;
+        user = userCredential.user;
+        // Mark sign-in time so ApiClient doesn't force-signout on initial 401s
+        if (typeof window._apiClientOnSignIn === 'function') window._apiClientOnSignIn();
+      } catch (authErr) {
+        // Firebase Auth failed — account was never created.
+        console.error('[SIGNUP] Stage 1 (Firebase Auth) failed:', authErr.code, authErr.message);
+        showAuthError(errorDiv, translateAuthError(authErr.code));
+        hideLoadingOverlay();
+        return;
+      }
 
-        // Set display name
+      // ── STAGE 2: Profile update + backend Firestore init ──────────────────
+      // Firebase account now EXISTS. Any failure here is non-fatal — the user
+      // CAN sign in. We show a specific, honest message rather than hiding the
+      // partial success behind a generic "Something went wrong."
+      let profileOk = true;
+      let backendOk = false;
+
+      // 2a. Set display name on the Firebase Auth profile
+      try {
         await user.updateProfile({ displayName: name });
+      } catch (profileErr) {
+        console.warn('[SIGNUP] Stage 2a (updateProfile) failed:', profileErr.message);
+        profileOk = false;
+      }
 
-        // Create Firestore user profile
+      // 2b. Initialize backend user document via Admin SDK (authoritative path —
+      //     bypasses Firestore security rules entirely).
+      if (window.ApiClient) {
+        try {
+          await window.ApiClient.initUser({
+            name:  name  || null,
+            email: email || null,
+          });
+          backendOk = true;
+        } catch (backendErr) {
+          console.error(
+            '[SIGNUP] Stage 2b (backend /api/user/init) failed:',
+            backendErr.status,
+            backendErr.message
+          );
+        }
+      } else {
+        console.warn('[SIGNUP] Stage 2b skipped — ApiClient not available.');
+      }
+
+      // 2c. Belt-and-suspenders: also write via client Firestore SDK
+      //     (works now that firestore.rules covers /users/{uid}, and
+      //      merge:true ensures it's idempotent with step 2b).
+      try {
         await db.collection('users').doc(user.uid).set({
           uid:       user.uid,
           name:      name,
           email:     email,
           createdAt: firebase.firestore.FieldValue.serverTimestamp(),
           lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-          migrated:  true, // Guest mode removed, so always marked migrated
-        });
-
-        const displayName = name || user.email?.split('@')[0] || 'there';
-        showToast(`Welcome to AlgoQuest, ${displayName}! 🚀`, 'success');
-
-      } catch (err) {
-        showAuthError(errorDiv, translateAuthError(err.code));
-      } finally {
-        hideLoadingOverlay();
+          migrated:  true,
+        }, { merge: true });
+      } catch (firestoreErr) {
+        console.warn(
+          '[SIGNUP] Stage 2c (client Firestore set) failed:',
+          firestoreErr.code,
+          firestoreErr.message
+        );
       }
+
+      hideLoadingOverlay();
+
+      const displayName = name || user.email?.split('@')[0] || 'there';
+
+      if (!profileOk || !backendOk) {
+        // Account created but some post-auth setup had non-fatal errors.
+        // The Firebase account IS valid and the user is signed in.
+        console.warn(
+          '[SIGNUP] Post-auth setup had non-fatal errors — profileOk=%s backendOk=%s',
+          profileOk, backendOk
+        );
+        showToast(`Welcome to AlgoQuest, ${displayName}! 🚀`, 'success');
+      } else {
+        showToast(`Welcome to AlgoQuest, ${displayName}! 🚀`, 'success');
+      }
+      // onAuthStateChanged fired automatically from Stage 1 and will call
+      // loadUserData → fetchUserDataFromCloud to complete the session setup.
     });
   }
+
+
 
   // ── Forgot Password Form ──────────────────────────────────
   const forgotForm = document.getElementById('forgot-form');
@@ -376,25 +443,88 @@ function setupAuthEventListeners() {
 }
 
 // ─────────────────────────────────────────────────────────────
+// AUTH STATE & SESSION MANAGEMENT
+// ─────────────────────────────────────────────────────────────
+let authState = 'loading'; // 'loading' | 'authenticated' | 'unauthenticated'
+let authSessionId = 0;
+let currentAuthUid = null;
+
+window.getAuthState = function () {
+  return authState;
+};
+
+// ─────────────────────────────────────────────────────────────
 // INITIAL AUTH STATE CHECK
 // ─────────────────────────────────────────────────────────────
 function checkInitialAuthState() {
   if (!isFirebaseConfigured) {
     setupGuestUI();
     hideAuthModal();
+    hideLoadingOverlay();
+    const appEl = document.getElementById('app');
+    if (appEl) appEl.style.display = 'flex';
     return;
   }
 
   auth.onAuthStateChanged(async (user) => {
     if (user) {
+      const isNewUser = (currentAuthUid !== user.uid);
+      authSessionId++;
+      const sessionId = authSessionId;
+      currentAuthUid = user.uid;
+      authState = 'authenticated';
+
       window.isGuestMode = false;
       sessionStorage.removeItem('dsa_guest_mode');
+
+      if (isNewUser) {
+        if (window.HistoryModule?.clearUserCache) window.HistoryModule.clearUserCache();
+        if (window.Compiler?.resetState) window.Compiler.resetState();
+      }
+
+      // Fast synchronous profile setup from auth object
       setupUserUI(user);
-      await loadUserData(user);
+
+      // Reveal authenticated application immediately
+      const appEl = document.getElementById('app');
+      if (appEl) appEl.style.display = 'flex';
       hideAuthModal();
+      hideLoadingOverlay();
+
+      // Trigger App authenticated initialization
+      if (window.App && typeof window.App.onUserAuthenticated === 'function') {
+        window.App.onUserAuthenticated(user, isNewUser);
+      }
+
+      // Load user data in background with session guard (non-blocking)
+      loadUserData(user, sessionId);
+
     } else {
+      authSessionId++;
+      currentAuthUid = null;
+      authState = 'unauthenticated';
+
+      // Clear all protected state and active operations
+      if (window.Compiler) {
+        if (typeof window.Compiler.stopExecution === 'function') window.Compiler.stopExecution('Logged out.');
+        if (typeof window.Compiler.resetState === 'function') window.Compiler.resetState();
+      }
+      if (window.HistoryModule && typeof window.HistoryModule.clearUserCache === 'function') {
+        window.HistoryModule.clearUserCache();
+      }
+      if (window.App && typeof window.App.clearUserState === 'function') {
+        window.App.clearUserState();
+      }
+
       setupGuestUI();
-      showAuthModal(); // Always display the modal if not authenticated
+
+      // Ensure protected app container is hidden
+      const appEl = document.getElementById('app');
+      if (appEl) appEl.style.display = 'none';
+
+      hideLoadingOverlay();
+      switchAuthView('login');
+      showAuthModal();
     }
   });
 }
@@ -428,6 +558,8 @@ async function handleGoogleSignIn(formContext) {
     let userCredential;
     try {
       userCredential = await auth.signInWithPopup(provider);
+      // Mark sign-in time so ApiClient doesn't force-signout on initial 401s
+      if (typeof window._apiClientOnSignIn === 'function') window._apiClientOnSignIn();
     } catch (popupErr) {
       if (
         popupErr.code === 'auth/popup-closed-by-user' ||
@@ -446,15 +578,43 @@ async function handleGoogleSignIn(formContext) {
     const isNewUser = userCredential.additionalUserInfo?.isNewUser;
 
     if (isNewUser) {
-      await db.collection('users').doc(user.uid).set({
-        uid:       user.uid,
-        name:      user.displayName || 'User',
-        email:     user.email || '',
-        photoURL:  user.photoURL || '',
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-        migrated:  true, // Always marked migrated as Guest Mode is removed
-      });
+      // Authoritative user doc init via backend (Admin SDK, bypasses rules)
+      if (window.ApiClient) {
+        try {
+          await window.ApiClient.initUser({
+            name:      user.displayName || null,
+            email:     user.email       || null,
+            photo_url: user.photoURL    || null,
+          });
+        } catch (initErr) {
+          console.error('[GOOGLE SIGNUP] Backend initUser failed:', initErr.status, initErr.message);
+        }
+      }
+      // Belt-and-suspenders: also write via client SDK (merge:true = idempotent)
+      try {
+        await db.collection('users').doc(user.uid).set({
+          uid:       user.uid,
+          name:      user.displayName || 'User',
+          email:     user.email || '',
+          photoURL:  user.photoURL || '',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+          migrated:  true,
+        }, { merge: true });
+      } catch (firestoreErr) {
+        console.warn('[GOOGLE SIGNUP] Client Firestore set failed:', firestoreErr.code, firestoreErr.message);
+      }
+    } else {
+      // Existing user — reconcile user document if it ever got out of sync
+      if (window.ApiClient) {
+        try {
+          await window.ApiClient.initUser({
+            name:      user.displayName || null,
+            email:     user.email       || null,
+            photo_url: user.photoURL    || null,
+          });
+        } catch (_) { /* non-fatal */ }
+      }
     }
 
     const displayName = user.displayName || user.email?.split('@')[0] || 'there';
@@ -471,20 +631,22 @@ async function handleGoogleSignIn(formContext) {
 }
 
 // ─────────────────────────────────────────────────────────────
-// USER UI SETUP
+// USER UI SETUP (Fast synchronous setup without network latency)
 // ─────────────────────────────────────────────────────────────
 function setupUserUI(user) {
   const profileContainer = document.getElementById('profile-container');
   const guestSignInBtn   = document.getElementById('guest-signin-btn');
   const initialsEl       = document.getElementById('user-avatar-initials');
   const photoEl          = document.getElementById('user-avatar-photo');
+  const nameEl           = document.getElementById('user-profile-name');
+  const emailEl          = document.getElementById('user-profile-email');
 
   if (profileContainer) profileContainer.style.display = 'block';
   if (guestSignInBtn)   guestSignInBtn.style.display   = 'none';
 
   const photoURL = user.photoURL || '';
   if (photoEl && photoURL) {
-    photoEl.src          = photoURL;
+    photoEl.src           = photoURL;
     photoEl.style.display = 'block';
     if (initialsEl) initialsEl.style.display = 'none';
   } else {
@@ -492,29 +654,15 @@ function setupUserUI(user) {
     if (initialsEl) initialsEl.style.display = 'flex';
   }
 
-  db.collection('users').doc(user.uid).get().then(doc => {
-    if (doc.exists) {
-      const data        = doc.data();
-      const displayName = data.name || user.displayName || 'User';
-      const displayEmail = data.email || user.email || '';
-      document.getElementById('user-profile-name').textContent  = displayName;
-      document.getElementById('user-profile-email').textContent = displayEmail;
-      if (!photoURL && initialsEl) {
-        initialsEl.textContent = displayName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
-      }
-    } else {
-      const displayName = user.displayName || 'User';
-      document.getElementById('user-profile-name').textContent  = displayName;
-      document.getElementById('user-profile-email').textContent = user.email || '';
-      if (!photoURL && initialsEl) {
-        initialsEl.textContent = (user.email || 'U').slice(0, 2).toUpperCase();
-      }
-    }
-  }).catch(e => {
-    console.error('Error reading profile:', e);
-    document.getElementById('user-profile-name').textContent  = user.displayName || 'User';
-    document.getElementById('user-profile-email').textContent = user.email || '';
-  });
+  const displayName = user.displayName || user.email?.split('@')[0] || 'User';
+  const displayEmail = user.email || '';
+
+  if (nameEl)  nameEl.textContent  = displayName;
+  if (emailEl) emailEl.textContent = displayEmail;
+
+  if (!photoURL && initialsEl) {
+    initialsEl.textContent = displayName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'U';
+  }
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -528,140 +676,144 @@ function setupGuestUI() {
 }
 
 // ─────────────────────────────────────────────────────────────
-// LOAD USER DATA FROM FIRESTORE
+// LOAD USER DATA FROM FIRESTORE (Session-guarded)
 // ─────────────────────────────────────────────────────────────
-async function loadUserData(user) {
+async function loadUserData(user, sessionId) {
   try {
-    const userDocRef = db.collection('users').doc(user.uid);
-    await fetchUserDataFromCloud(user.uid);
-    await userDocRef.update({ lastLogin: firebase.firestore.FieldValue.serverTimestamp() });
+    await fetchUserDataFromCloud(user.uid, sessionId);
 
-    if (typeof refreshAllUI === 'function') refreshAllUI();
+    // Update lastLogin in background (metadata-only)
+    if (db && db.collection) {
+      db.collection('users').doc(user.uid)
+        .update({ lastLogin: firebase.firestore.FieldValue.serverTimestamp() })
+        .catch(e => console.warn('[FIREBASE] lastLogin update failed:', e));
+    }
   } catch (error) {
     console.error('Failed to load user data from cloud:', error);
-    showToast('Failed to load cloud progress.', 'error');
   }
 }
 
 // ─────────────────────────────────────────────────────────────
-// FETCH USER DATA FROM CLOUD
+// FETCH USER DATA FROM CLOUD (via FastAPI backend with session guard)
 // ─────────────────────────────────────────────────────────────
-async function fetchUserDataFromCloud(uid) {
-  // 1. Solved progress
-  const progressSnap = await db.collection('users').doc(uid).collection('progress').get();
-  const solvedList = [];
-  progressSnap.forEach(doc => { if (doc.data().solved) solvedList.push(parseInt(doc.id)); });
+async function fetchUserDataFromCloud(uid, sessionId) {
+  if (!window.ApiClient) {
+    console.warn('[FIREBASE] ApiClient not available, skipping cloud data fetch.');
+    return;
+  }
+
+  let data;
+  try {
+    data = await window.ApiClient.getAllUserData();
+  } catch (err) {
+    console.error('[FIREBASE] Failed to fetch user data from backend:', err);
+    return;
+  }
+
+  // Session guard: if user logged out or switched while fetch was in-flight, discard!
+  if (sessionId !== authSessionId || currentAuthUid !== uid) {
+    console.warn('[FIREBASE] Stale user data fetch discarded (session changed).');
+    return;
+  }
+
+  // Update profile display name from backend if available
+  if (data.user?.name) {
+    const nameEl = document.getElementById('user-profile-name');
+    if (nameEl) nameEl.textContent = data.user.name;
+    const initialsEl = document.getElementById('user-avatar-initials');
+    if (initialsEl && initialsEl.style.display !== 'none') {
+      initialsEl.textContent = data.user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+    }
+  }
+
+  // 1. Progress (solved)
+  const solvedList = data.progress?.solved || [];
   localStorage.setItem(`dsa_solved_${uid}`, JSON.stringify(solvedList));
 
   // 2. Revisions
-  const revisionsSnap = await db.collection('users').doc(uid).collection('revisions').get();
-  const rev1List = [], rev2List = [];
-  revisionsSnap.forEach(doc => {
-    const data = doc.data();
-    if (data.rev1) rev1List.push(parseInt(doc.id));
-    if (data.rev2) rev2List.push(parseInt(doc.id));
-  });
+  const rev1List = data.progress?.rev1 || [];
+  const rev2List = data.progress?.rev2 || [];
   localStorage.setItem(`dsa_rev1_${uid}`, JSON.stringify(rev1List));
   localStorage.setItem(`dsa_rev2_${uid}`, JSON.stringify(rev2List));
 
   // 3. Bookmarks
-  const bookmarksSnap = await db.collection('users').doc(uid).collection('bookmarks').get();
-  const bookmarksList = [];
-  bookmarksSnap.forEach(doc => bookmarksList.push(parseInt(doc.id)));
+  const bookmarksList = data.bookmarks?.bookmarks || [];
   localStorage.setItem(`dsa_bookmarks_${uid}`, JSON.stringify(bookmarksList));
 
   // 4. Notes
-  const notesSnap = await db.collection('users').doc(uid).collection('notes').get();
-  const notesObj = {};
-  notesSnap.forEach(doc => { notesObj[doc.id] = doc.data().content || ''; });
+  const notesObj = data.notes || {};
   localStorage.setItem(`dsa_notes_${uid}`, JSON.stringify(notesObj));
 
   // 5. Editor code
-  const editorSnap = await db.collection('users').doc(uid).collection('editor').get();
-  editorSnap.forEach(doc => {
-    const data = doc.data();
-    if (data && data.code !== undefined && data.language) {
+  const editorMap = data.editor || {};
+  Object.entries(editorMap).forEach(([qId, editorData]) => {
+    if (editorData && editorData.code !== undefined && editorData.language) {
       const localData = {
-        questionId: String(doc.id),
-        language:   data.language,
-        code:       data.code,
-        updatedAt:  data.updatedAt ? (data.updatedAt.toMillis ? data.updatedAt.toMillis() : Date.now()) : Date.now(),
+        questionId: String(qId),
+        language:   editorData.language,
+        code:       editorData.code,
+        updatedAt:  Date.now(),
       };
-      localStorage.setItem(`dsa_workspace_code_${uid}_${doc.id}_${data.language}`, JSON.stringify(localData));
-      localStorage.setItem(`dsa_workspace_code_${uid}_${doc.id}`, JSON.stringify(localData));
-      localStorage.setItem(`dsa_workspace_last_lang_${uid}_${doc.id}`, data.language);
+      localStorage.setItem(`dsa_workspace_code_${uid}_${qId}_${editorData.language}`, JSON.stringify(localData));
+      localStorage.setItem(`dsa_workspace_code_${uid}_${qId}`, JSON.stringify(localData));
+      localStorage.setItem(`dsa_workspace_last_lang_${uid}_${qId}`, editorData.language);
     }
   });
 
   // 6. General compiler code
-  const generalCompilerSnap = await db.collection('users').doc(uid).collection('general_compiler').get();
-  generalCompilerSnap.forEach(doc => {
-    const data = doc.data();
-    if (data && data.code !== undefined && data.language) {
-      localStorage.setItem(`general_compiler_code_${uid}_${data.language}`, data.code);
+  const compilerMap = data.general_compiler || {};
+  Object.entries(compilerMap).forEach(([lang, code]) => {
+    if (code !== undefined) {
+      localStorage.setItem(`general_compiler_code_${uid}_${lang}`, code);
     }
   });
+
+  if (typeof refreshAllUI === 'function') refreshAllUI();
 }
 
 // ─────────────────────────────────────────────────────────────
-// CLOUD SYNC ACTIONS
+// CLOUD SYNC ACTIONS (via FastAPI backend)
 // ─────────────────────────────────────────────────────────────
 
 window.syncProgressToCloud = async function (questionId, solved) {
-  if (!isFirebaseConfigured || !auth.currentUser) {
-    console.log('[FIREBASE DIAG] syncProgressToCloud skipped (Firebase not configured or no current user)');
-    return;
-  }
+  if (!isFirebaseConfigured || !auth.currentUser || !window.ApiClient) return;
   try {
-    const uid         = auth.currentUser.uid;
-    const progressRef = db.collection('users').doc(uid).collection('progress').doc(String(questionId));
-    const rev1 = lsGet('dsa_rev1').includes(questionId);
-    const rev2 = lsGet('dsa_rev2').includes(questionId);
-    const syncData = { solved, rev1, rev2, lastSolved: firebase.firestore.FieldValue.serverTimestamp() };
-    console.log('[FIREBASE DIAG] syncProgressToCloud — writing data for qId:', questionId, syncData);
-    await progressRef.set(syncData, { merge: true });
-    console.log('[FIREBASE DIAG] syncProgressToCloud — write SUCCESS for qId:', questionId);
+    await window.ApiClient.updateProgress(questionId, { solved });
   } catch (error) {
-    console.error('[FIREBASE DIAG] ❌ Failed to sync progress to cloud:', error);
+    console.error('[BACKEND] Failed to sync progress:', error);
   }
 };
 
 window.syncRevisionToCloud = async function (questionId, revNum, active) {
-  if (!isFirebaseConfigured || !auth.currentUser) return;
+  if (!isFirebaseConfigured || !auth.currentUser || !window.ApiClient) return;
   try {
-    const uid     = auth.currentUser.uid;
-    const revRef  = db.collection('users').doc(uid).collection('revisions').doc(String(questionId));
-    await revRef.set({ [`rev${revNum}`]: active }, { merge: true });
-    const progressRef = db.collection('users').doc(uid).collection('progress').doc(String(questionId));
-    await progressRef.set({ [`rev${revNum}`]: active }, { merge: true });
+    const update = {};
+    update[`rev${revNum}`] = active;
+    await window.ApiClient.updateProgress(questionId, update);
   } catch (error) {
-    console.error('Failed to sync revision:', error);
+    console.error('[BACKEND] Failed to sync revision:', error);
   }
 };
 
 window.syncBookmarkToCloud = async function (questionId, bookmarked) {
-  if (!isFirebaseConfigured || !auth.currentUser) return;
+  if (!isFirebaseConfigured || !auth.currentUser || !window.ApiClient) return;
   try {
-    const uid         = auth.currentUser.uid;
-    const bookmarkRef = db.collection('users').doc(uid).collection('bookmarks').doc(String(questionId));
     if (bookmarked) {
-      await bookmarkRef.set({ bookmarked: true, bookmarkedAt: firebase.firestore.FieldValue.serverTimestamp() });
+      await window.ApiClient.addBookmark(questionId);
     } else {
-      await bookmarkRef.delete();
+      await window.ApiClient.removeBookmark(questionId);
     }
   } catch (error) {
-    console.error('Failed to sync bookmark:', error);
+    console.error('[BACKEND] Failed to sync bookmark:', error);
   }
 };
 
 window.syncNoteToCloud = async function (questionId, content) {
-  if (!isFirebaseConfigured || !auth.currentUser) return;
+  if (!isFirebaseConfigured || !auth.currentUser || !window.ApiClient) return;
   try {
-    const uid     = auth.currentUser.uid;
-    const noteRef = db.collection('users').doc(uid).collection('notes').doc(String(questionId));
-    await noteRef.set({ content, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+    await window.ApiClient.saveNote(questionId, content);
   } catch (error) {
-    console.error('Failed to sync note:', error);
+    console.error('[BACKEND] Failed to sync note:', error);
   }
 };
 
@@ -674,50 +826,60 @@ async function handleLogout() {
   const profileDropdown = document.getElementById('profile-dropdown');
   if (profileDropdown) profileDropdown.classList.remove('show');
 
-  // Capture display name before sign-out
   const displayName =
     auth.currentUser?.displayName ||
     document.getElementById('user-profile-name')?.textContent ||
     'there';
 
   try {
-    // Stop active compiler
+    authSessionId++;
+    currentAuthUid = null;
+    authState = 'unauthenticated';
+
+    // 1. Stop active compiler & polling
     if (window.Compiler) {
       if (typeof window.Compiler.stopExecution === 'function') window.Compiler.stopExecution('User logged out.');
       if (typeof window.Compiler.resetState   === 'function') window.Compiler.resetState();
     }
 
-    await auth.signOut();
-
-    // Reset App state
-    if (window.App) {
-      window.App.currentQuestion = null;
-      window.App.currentPage     = 'dashboard';
-      window.App.currentTopic    = 'all';
-      window.App.currentPattern  = 'all';
-      window.App.filters         = { search: '', difficulty: 'all', tier: 'all', tcs: 'all', status: 'all' };
-      window.App.sort            = { col: 'id', dir: 'asc' };
+    // 2. Clear history & analytics caches
+    if (window.HistoryModule && typeof window.HistoryModule.clearUserCache === 'function') {
+      window.HistoryModule.clearUserCache();
     }
 
-    // Reset editors
-    if (window.App?.editor    && window.STARTER_CODE) window.App.editor.setValue(window.STARTER_CODE[window.App.editorLanguage] || '');
-    if (window.App?.dsaEditor && window.STARTER_CODE) window.App.dsaEditor.setValue(window.STARTER_CODE[window.App.dsaEditorLanguage] || '');
+    // 3. Clear App state
+    if (window.App && typeof window.App.clearUserState === 'function') {
+      window.App.clearUserState();
+    }
 
-    sessionStorage.removeItem('dsa_guest_mode');
-    window.isGuestMode = false;
+    // 4. Reset editors
+    if (window.App?.editor    && window.STARTER_CODE) window.App.editor.setValue(window.STARTER_CODE[window.App.editorLanguage || 'cpp'] || '');
+    if (window.App?.dsaEditor && window.STARTER_CODE) window.App.dsaEditor.setValue(window.STARTER_CODE[window.App.dsaEditorLanguage || 'cpp'] || '');
 
-    // Reset avatar
+    // 5. Reset avatar & profile display
     const photoEl    = document.getElementById('user-avatar-photo');
     const initialsEl = document.getElementById('user-avatar-initials');
     if (photoEl)    { photoEl.src = ''; photoEl.style.display = 'none'; }
     if (initialsEl) { initialsEl.style.display = 'flex'; initialsEl.textContent = 'U'; }
+    const nameEl = document.getElementById('user-profile-name');
+    const emailEl = document.getElementById('user-profile-email');
+    if (nameEl)  nameEl.textContent  = 'User Name';
+    if (emailEl) emailEl.textContent = 'user@example.com';
 
-    if (typeof refreshAllUI === 'function') refreshAllUI();
+    // 6. Reset SPA routing URL & history state
+    try {
+      history.replaceState({ page: 'all', topic: 'all', pattern: 'all' }, '', '#dashboard');
+    } catch (_) {}
+
+    // 7. Hide app container
+    const appEl = document.getElementById('app');
+    if (appEl) appEl.style.display = 'none';
 
     setupGuestUI();
     switchAuthView('login');
     showAuthModal();
 
+    await auth.signOut();
     showToast(`Goodbye, ${displayName}! See you soon. 👋`, 'info');
 
   } catch (err) {
@@ -811,10 +973,11 @@ window.togglePasswordVisibility = function (inputId, btn) {
 };
 
 // ─────────────────────────────────────────────────────────────
-// TRANSLATE FIREBASE ERROR CODES
+// TRANSLATE FIREBASE / FIRESTORE ERROR CODES
 // ─────────────────────────────────────────────────────────────
 function translateAuthError(code) {
   const map = {
+    // ── Firebase Auth ──────────────────────────────────────
     'auth/invalid-email':           'Please enter a valid email address.',
     'auth/user-not-found':          'No account exists with this email.',
     'auth/wrong-password':          'Incorrect password. Please try again.',
@@ -829,36 +992,43 @@ function translateAuthError(code) {
     'auth/popup-blocked':           'Popup blocked — please allow popups for this site.',
     'auth/requires-recent-login':   'Please sign in again to continue.',
     'auth/account-exists-with-different-credential': 'An account already exists with this email using a different sign-in method.',
+    // ── Firestore client SDK ───────────────────────────────
+    'firestore/permission-denied':  'Permission denied — your account does not have access to this data.',
+    'firestore/unavailable':        'Firestore is temporarily unavailable — please try again.',
+    'firestore/deadline-exceeded':  'Request timed out — check your connection and try again.',
+    'firestore/not-found':          'The requested data was not found.',
+    'firestore/already-exists':     'This record already exists.',
+    'firestore/resource-exhausted': 'Too many requests — please wait and try again.',
+    'firestore/unauthenticated':    'Please sign in before accessing your data.',
   };
-  return map[code] || 'Something went wrong. Please try again.';
+  if (!code) {
+    return 'An unexpected error occurred. Please try again.';
+  }
+  return map[code] || `Something went wrong (${code}). Please try again.`;
 }
 
+
+
 // ─────────────────────────────────────────────────────────────
-// SYNC EDITOR CODE TO CLOUD
+// SYNC EDITOR CODE TO CLOUD (via FastAPI backend)
 // ─────────────────────────────────────────────────────────────
 window.syncEditorCodeToCloud = async function (questionId, language, code) {
-  if (!isFirebaseConfigured || !auth.currentUser) return;
+  if (!isFirebaseConfigured || !auth.currentUser || !window.ApiClient) return;
   try {
-    const uid    = auth.currentUser.uid;
-    const docRef = db.collection('users').doc(uid).collection('editor').doc(String(questionId));
-    await docRef.set({ questionId: String(questionId), language, code, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
-    console.log('Editor code synced to Firestore for question:', questionId, 'language:', language);
+    await window.ApiClient.saveEditorCode(questionId, language, code);
   } catch (error) {
-    console.error('Failed to sync editor code:', error);
+    console.error('[BACKEND] Failed to sync editor code:', error);
   }
 };
 
 // ─────────────────────────────────────────────────────────────
-// SYNC GENERAL COMPILER CODE TO CLOUD
+// SYNC GENERAL COMPILER CODE TO CLOUD (via FastAPI backend)
 // ─────────────────────────────────────────────────────────────
 window.syncGeneralCompilerCodeToCloud = async function (language, code) {
-  if (!isFirebaseConfigured || !auth.currentUser) return;
+  if (!isFirebaseConfigured || !auth.currentUser || !window.ApiClient) return;
   try {
-    const uid    = auth.currentUser.uid;
-    const docRef = db.collection('users').doc(uid).collection('general_compiler').doc(String(language));
-    await docRef.set({ language, code, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
-    console.log('General compiler code synced to Firestore for language:', language);
+    await window.ApiClient.saveGeneralCompilerCode(language, code);
   } catch (error) {
-    console.error('Failed to sync general compiler code:', error);
+    console.error('[BACKEND] Failed to sync general compiler code:', error);
   }
 };

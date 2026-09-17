@@ -7,7 +7,13 @@
       ".git/**",
       "README.md",
       "firestore.rules",
-      "node_modules/**"
+      "node_modules/**",
+      "backend/**",
+      "*.json.key",
+      "*firebase-adminsdk*.json",
+      "*service-account*.json",
+      ".env",
+      "algoforge_resume_interview.md"
     ],
     "rewrites": [
       {
@@ -15,5 +21,8 @@
         "destination": "/index.html"
       }
     ]
+  },
+  "firestore": {
+    "rules": "firestore.rules"
   }
 }

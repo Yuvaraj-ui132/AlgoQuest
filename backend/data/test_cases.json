@@ -1,0 +1,5740 @@
+{
+  "1": {
+    "id": 1,
+    "name": "Two Sum",
+    "compareMode": "unordered",
+    "sampleTests": [
+      {
+        "input": "nums = [2,7,11,15], target = 9",
+        "expected": "[0,1]",
+        "stdin": "4\n2 7 11 15\n9\n",
+        "expectedRaw": "0 1"
+      },
+      {
+        "input": "nums = [3,2,4], target = 6",
+        "expected": "[1,2]",
+        "stdin": "3\n3 2 4\n6\n",
+        "expectedRaw": "1 2"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "2\n3 3\n6\n",
+        "expectedRaw": "0 1"
+      },
+      {
+        "stdin": "4\n1 5 3 2\n8\n",
+        "expectedRaw": "1 2"
+      },
+      {
+        "stdin": "5\n-1 -2 -3 -4 -5\n-8\n",
+        "expectedRaw": "2 4"
+      }
+    ]
+  },
+  "2": {
+    "id": 2,
+    "name": "Contains Duplicate",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [1,2,3,1]",
+        "expected": "true",
+        "stdin": "4\n1 2 3 1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "nums = [1,2,3,4]",
+        "expected": "false",
+        "stdin": "4\n1 2 3 4\n",
+        "expectedRaw": "0"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "10\n1 1 1 3 3 4 3 2 4 2\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "1\n1\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "4\n-1 -2 -3 -1\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  "3": {
+    "id": 3,
+    "name": "Majority Element",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [3,2,3]",
+        "expected": "3",
+        "stdin": "3\n3 2 3\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "nums = [2,2,1,1,1,2,2]",
+        "expected": "2",
+        "stdin": "7\n2 2 1 1 1 2 2\n",
+        "expectedRaw": "2"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "3\n6 5 5\n",
+        "expectedRaw": "5"
+      },
+      {
+        "stdin": "5\n3 3 4 2 3\n",
+        "expectedRaw": "3"
+      }
+    ]
+  },
+  "4": {
+    "id": 4,
+    "name": "Find Missing Number",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [3,0,1]",
+        "expected": "2",
+        "stdin": "3\n3 0 1\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "nums = [0,1]",
+        "expected": "2",
+        "stdin": "2\n0 1\n",
+        "expectedRaw": "2"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "9\n9 6 4 2 3 5 7 0 1\n",
+        "expectedRaw": "8"
+      },
+      {
+        "stdin": "1\n0\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "5\n1 2 3 4 5\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  "5": {
+    "id": 5,
+    "name": "Find Duplicate Number",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [1,3,4,2,2]",
+        "expected": "2",
+        "stdin": "5\n1 3 4 2 2\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "nums = [3,1,3,4,2]",
+        "expected": "3",
+        "stdin": "5\n3 1 3 4 2\n",
+        "expectedRaw": "3"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "2\n1 1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "5\n2 2 2 2 2\n",
+        "expectedRaw": "2"
+      },
+      {
+        "stdin": "7\n3 3 1 2 4 5 6\n",
+        "expectedRaw": "3"
+      }
+    ]
+  },
+  "6": {
+    "id": 6,
+    "name": "Count Frequency of Elements",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [1,2,2,3,3,3], target = 3",
+        "expected": "3",
+        "stdin": "6\n1 2 2 3 3 3\n3\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "nums = [1,2,2,3,3,3], target = 2",
+        "expected": "2",
+        "stdin": "6\n1 2 2 3 3 3\n2\n",
+        "expectedRaw": "2"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "4\n5 5 5 5\n5\n",
+        "expectedRaw": "4"
+      },
+      {
+        "stdin": "4\n1 2 3 4\n5\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "1\n7\n7\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  "7": {
+    "id": 7,
+    "name": "Find First Non-Repeating Element",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [1,2,3,2,1,4]",
+        "expected": "3",
+        "stdin": "6\n1 2 3 2 1 4\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "nums = [9,4,9,6,7,4]",
+        "expected": "6",
+        "stdin": "6\n9 4 9 6 7 4\n",
+        "expectedRaw": "6"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "5\n2 2 3 3 4\n",
+        "expectedRaw": "4"
+      },
+      {
+        "stdin": "6\n1 1 2 2 3 3\n",
+        "expectedRaw": "-1"
+      }
+    ]
+  },
+  "8": {
+    "id": 8,
+    "name": "Find First Repeating Element",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [1,2,3,2,1]",
+        "expected": "2",
+        "stdin": "5\n1 2 3 2 1\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "nums = [3,1,2,1,3]",
+        "expected": "1",
+        "stdin": "5\n3 1 2 1 3\n",
+        "expectedRaw": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "4\n1 2 3 4\n",
+        "expectedRaw": "-1"
+      },
+      {
+        "stdin": "2\n5 5\n",
+        "expectedRaw": "5"
+      },
+      {
+        "stdin": "5\n7 4 7 3 4\n",
+        "expectedRaw": "7"
+      }
+    ]
+  },
+  "9": {
+    "id": 9,
+    "name": "Longest Consecutive Sequence",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [100,4,200,1,3,2]",
+        "expected": "4",
+        "stdin": "6\n100 4 200 1 3 2\n",
+        "expectedRaw": "4"
+      },
+      {
+        "input": "nums = [0,3,7,2,5,8,4,6,0,1]",
+        "expected": "9",
+        "stdin": "10\n0 3 7 2 5 8 4 6 0 1\n",
+        "expectedRaw": "9"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "0\n\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "4\n1 2 3 10\n",
+        "expectedRaw": "3"
+      }
+    ]
+  },
+  "10": {
+    "id": 10,
+    "name": "Count Distinct Elements",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [1,2,3,2,1]",
+        "expected": "3",
+        "stdin": "5\n1 2 3 2 1\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "nums = [1,1,1,1]",
+        "expected": "1",
+        "stdin": "4\n1 1 1 1\n",
+        "expectedRaw": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "5\n1 2 3 4 5\n",
+        "expectedRaw": "5"
+      },
+      {
+        "stdin": "4\n-1 -2 -1 0\n",
+        "expectedRaw": "3"
+      },
+      {
+        "stdin": "1\n7\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  "11": {
+    "id": 11,
+    "name": "Intersection of Two Arrays",
+    "compareMode": "unordered",
+    "sampleTests": [
+      {
+        "input": "nums1 = [1,2,2,1], nums2 = [2,2]",
+        "expected": "[2]",
+        "stdin": "4\n1 2 2 1\n2\n2 2\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "nums1 = [4,9,5], nums2 = [9,4,9,8,4]",
+        "expected": "[9,4]",
+        "stdin": "3\n4 9 5\n5\n9 4 9 8 4\n",
+        "expectedRaw": "4 9"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "3\n1 2 3\n3\n4 5 6\n",
+        "expectedRaw": ""
+      },
+      {
+        "stdin": "1\n1\n1\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "3\n1 2 3\n3\n1 2 3\n",
+        "expectedRaw": "1 2 3"
+      }
+    ]
+  },
+  "12": {
+    "id": 12,
+    "name": "Union of Two Arrays",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums1 = [1,2,3], nums2 = [2,3,4]",
+        "expected": "4",
+        "stdin": "3\n1 2 3\n3\n2 3 4\n",
+        "expectedRaw": "4"
+      },
+      {
+        "input": "nums1 = [1,2,1,3], nums2 = [2,2]",
+        "expected": "3",
+        "stdin": "4\n1 2 1 3\n2\n2 2\n",
+        "expectedRaw": "3"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "3\n1 2 3\n3\n4 5 6\n",
+        "expectedRaw": "6"
+      },
+      {
+        "stdin": "3\n1 1 1\n2\n1 1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "3\n5 6 7\n4\n5 6 7 8\n",
+        "expectedRaw": "4"
+      }
+    ]
+  },
+  "13": {
+    "id": 13,
+    "name": "Majority Element II",
+    "compareMode": "unordered",
+    "sampleTests": [
+      {
+        "input": "nums = [3,2,3]",
+        "expected": "[3]",
+        "stdin": "3\n3 2 3\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "nums = [1,2]",
+        "expected": "[1,2]",
+        "stdin": "2\n1 2\n",
+        "expectedRaw": "1 2"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "8\n1 1 1 3 3 2 2 2\n",
+        "expectedRaw": "1 2"
+      },
+      {
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "4\n1 2 3 4\n",
+        "expectedRaw": ""
+      }
+    ]
+  },
+  "14": {
+    "id": 14,
+    "name": "Move Zeroes",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [0,1,0,3,12]",
+        "expected": "[1,3,12,0,0]",
+        "stdin": "5\n0 1 0 3 12\n",
+        "expectedRaw": "1 3 12 0 0"
+      },
+      {
+        "input": "nums = [0]",
+        "expected": "[0]",
+        "stdin": "1\n0\n",
+        "expectedRaw": "0"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "3\n1 0 1\n",
+        "expectedRaw": "1 1 0"
+      },
+      {
+        "stdin": "4\n0 0 0 1\n",
+        "expectedRaw": "1 0 0 0"
+      },
+      {
+        "stdin": "3\n1 2 3\n",
+        "expectedRaw": "1 2 3"
+      }
+    ]
+  },
+  "15": {
+    "id": 15,
+    "name": "Remove Duplicates from Sorted Array",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [1,1,2]",
+        "expected": "2",
+        "stdin": "3\n1 1 2\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "nums = [0,0,1,1,1,2,2,3,3,4]",
+        "expected": "5",
+        "stdin": "10\n0 0 1 1 1 2 2 3 3 4\n",
+        "expectedRaw": "5"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "4\n1 1 1 1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "3\n1 2 3\n",
+        "expectedRaw": "3"
+      }
+    ]
+  },
+  "16": {
+    "id": 16,
+    "name": "Trapping Rain Water",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "height = [0,1,0,2,1,0,1,3,2,1,2,1]",
+        "expected": "6",
+        "stdin": "12\n0 1 0 2 1 0 1 3 2 1 2 1\n",
+        "expectedRaw": "6"
+      },
+      {
+        "input": "height = [4,2,0,3,2,5]",
+        "expected": "9",
+        "stdin": "6\n4 2 0 3 2 5\n",
+        "expectedRaw": "9"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "3\n1 0 1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "6\n3 0 0 2 0 4\n",
+        "expectedRaw": "10"
+      },
+      {
+        "stdin": "5\n1 2 3 4 5\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  "17": {
+    "id": 17,
+    "name": "Container With Most Water",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "height = [1,8,6,2,5,4,8,3,7]",
+        "expected": "49",
+        "stdin": "9\n1 8 6 2 5 4 8 3 7\n",
+        "expectedRaw": "49"
+      },
+      {
+        "input": "height = [1,1]",
+        "expected": "1",
+        "stdin": "2\n1 1\n",
+        "expectedRaw": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "5\n4 3 2 1 4\n",
+        "expectedRaw": "16"
+      },
+      {
+        "stdin": "3\n1 2 1\n",
+        "expectedRaw": "2"
+      },
+      {
+        "stdin": "7\n2 3 4 5 18 17 6\n",
+        "expectedRaw": "17"
+      }
+    ]
+  },
+  "18": {
+    "id": 18,
+    "name": "Merge Two Sorted Arrays",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums1=[1,2,3,0,0,0], m=3, nums2=[2,5,6], n=3",
+        "expected": "[1,2,2,3,5,6]",
+        "stdin": "6\n1 2 3 0 0 0\n3\n3\n2 5 6\n3\n",
+        "expectedRaw": "1 2 2 3 5 6"
+      },
+      {
+        "input": "nums1=[1], m=1, nums2=[], n=0",
+        "expected": "[1]",
+        "stdin": "1\n1\n1\n0\n\n0\n",
+        "expectedRaw": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n0\n0\n1\n1\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "6\n4 5 6 0 0 0\n3\n3\n1 2 3\n3\n",
+        "expectedRaw": "1 2 3 4 5 6"
+      },
+      {
+        "stdin": "6\n1 2 4 0 0 0\n3\n3\n3 5 6\n3\n",
+        "expectedRaw": "1 2 3 4 5 6"
+      }
+    ]
+  },
+  "19": {
+    "id": 19,
+    "name": "Sort Colors",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [2,0,2,1,1,0]",
+        "expected": "[0,0,1,1,2,2]",
+        "stdin": "6\n2 0 2 1 1 0\n",
+        "expectedRaw": "0 0 1 1 2 2"
+      },
+      {
+        "input": "nums = [2,0,1]",
+        "expected": "[0,1,2]",
+        "stdin": "3\n2 0 1\n",
+        "expectedRaw": "0 1 2"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n0\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "6\n1 1 1 0 0 2\n",
+        "expectedRaw": "0 0 1 1 1 2"
+      },
+      {
+        "stdin": "4\n2 2 2 2\n",
+        "expectedRaw": "2 2 2 2"
+      }
+    ]
+  },
+  "20": {
+    "id": 20,
+    "name": "Pair With Given Sum",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [2,7,11,15], target = 9",
+        "expected": "true",
+        "stdin": "4\n2 7 11 15\n9\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "nums = [1,3,5], target = 10",
+        "expected": "false",
+        "stdin": "3\n1 3 5\n10\n",
+        "expectedRaw": "0"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "5\n1 2 3 4 5\n9\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "3\n0 0 0\n0\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "4\n-1 -2 3 4\n2\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  "21": {
+    "id": 21,
+    "name": "Three Sum",
+    "compareMode": "unordered",
+    "sampleTests": [
+      {
+        "input": "nums = [-1,0,1,2,-1,-4]",
+        "expected": "[[-1,-1,2],[-1,0,1]]",
+        "stdin": "6\n-1 0 1 2 -1 -4\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "nums = [0,1,1]",
+        "expected": "[]",
+        "stdin": "3\n0 1 1\n",
+        "expectedRaw": "0"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "3\n0 0 0\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "5\n-2 0 1 1 2\n",
+        "expectedRaw": "2"
+      },
+      {
+        "stdin": "15\n-4 -2 -2 -2 0 1 2 2 2 3 3 4 4 6 6\n",
+        "expectedRaw": "6"
+      }
+    ]
+  },
+  "22": {
+    "id": 22,
+    "name": "Four Sum",
+    "compareMode": "unordered",
+    "sampleTests": [
+      {
+        "input": "nums = [1,0,-1,0,-2,2], target = 0",
+        "expected": "[[-2,-1,1,2],[-2,0,0,2],[-1,0,0,1]]",
+        "stdin": "6\n1 0 -1 0 -2 2\n0\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "nums = [2,2,2,2,2], target = 8",
+        "expected": "[[2,2,2,2]]",
+        "stdin": "5\n2 2 2 2 2\n8\n",
+        "expectedRaw": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "4\n0 0 0 0\n0\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "4\n-3 -2 -1 0\n-6\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "5\n1 2 3 4 5\n100\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  "23": {
+    "id": 23,
+    "name": "Maximum Subarray Sum",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [-2,1,-3,4,-1,2,1,-5,4]",
+        "expected": "6",
+        "stdin": "9\n-2 1 -3 4 -1 2 1 -5 4\n",
+        "expectedRaw": "6"
+      },
+      {
+        "input": "nums = [1]",
+        "expected": "1",
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "5\n5 4 -1 7 8\n",
+        "expectedRaw": "23"
+      },
+      {
+        "stdin": "4\n-1 -2 -3 -4\n",
+        "expectedRaw": "-1"
+      },
+      {
+        "stdin": "1\n0\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  "24": {
+    "id": 24,
+    "name": "Sliding Window Maximum",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [1,3,-1,-3,5,3,6,7], k = 3",
+        "expected": "[3,3,5,5,6,7]",
+        "stdin": "8\n1 3 -1 -3 5 3 6 7\n3\n",
+        "expectedRaw": "3 3 5 5 6 7"
+      },
+      {
+        "input": "nums = [1], k = 1",
+        "expected": "[1]",
+        "stdin": "1\n1\n1\n",
+        "expectedRaw": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "6\n1 3 1 2 0 5\n3\n",
+        "expectedRaw": "3 3 2 5"
+      },
+      {
+        "stdin": "2\n9 11\n2\n",
+        "expectedRaw": "11"
+      },
+      {
+        "stdin": "2\n4 -2\n2\n",
+        "expectedRaw": "4"
+      }
+    ]
+  },
+  "25": {
+    "id": 25,
+    "name": "Longest Substring Without Repeating Characters",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "s = \"abcabcbb\"",
+        "expected": "3",
+        "stdin": "abcabcbb\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "s = \"bbbbb\"",
+        "expected": "1",
+        "stdin": "bbbbb\n",
+        "expectedRaw": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "pwwkew\n",
+        "expectedRaw": "3"
+      },
+      {
+        "stdin": "@@EMPTY@@\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "abcdef\n",
+        "expectedRaw": "6"
+      }
+    ]
+  },
+  "26": {
+    "id": 26,
+    "name": "Maximum Sum Subarray of Size K",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "arr = [2,3,4,1,5], k = 3",
+        "expected": "10",
+        "stdin": "5\n2 3 4 1 5\n3\n",
+        "expectedRaw": "10"
+      },
+      {
+        "input": "arr = [1,4,2,10,2,3,1,0,20], k = 4",
+        "expected": "24",
+        "stdin": "9\n1 4 2 10 2 3 1 0 20\n4\n",
+        "expectedRaw": "24"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "4\n5 5 5 5\n2\n",
+        "expectedRaw": "10"
+      },
+      {
+        "stdin": "4\n-1 -2 -3 -4\n2\n",
+        "expectedRaw": "-3"
+      },
+      {
+        "stdin": "1\n1\n1\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  "27": {
+    "id": 27,
+    "name": "First Negative Number in Every Window",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [-8,2,-6,5,-4], k = 2",
+        "expected": "[-8,-6,-6,-4]",
+        "stdin": "5\n-8 2 -6 5 -4\n2\n",
+        "expectedRaw": "-8 -6 -6 -4"
+      },
+      {
+        "input": "nums = [1,2,3,4,5], k = 2",
+        "expected": "[0,0,0,0]",
+        "stdin": "5\n1 2 3 4 5\n2\n",
+        "expectedRaw": "0 0 0 0"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "3\n-1 -2 -3\n1\n",
+        "expectedRaw": "-1 -2 -3"
+      },
+      {
+        "stdin": "4\n1 -2 3 -4\n3\n",
+        "expectedRaw": "-2 -2"
+      },
+      {
+        "stdin": "3\n0 0 0\n2\n",
+        "expectedRaw": "0 0"
+      }
+    ]
+  },
+  "28": {
+    "id": 28,
+    "name": "Count Anagrams",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "s = \"cbaebabacd\", p = \"abc\"",
+        "expected": "2",
+        "stdin": "cbaebabacd\nabc\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "s = \"abab\", p = \"ab\"",
+        "expected": "3",
+        "stdin": "abab\nab\n",
+        "expectedRaw": "3"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "a\na\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "abcabc\nabc\n",
+        "expectedRaw": "4"
+      },
+      {
+        "stdin": "abcdefg\nxyz\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  "29": {
+    "id": 29,
+    "name": "Minimum Window Substring",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "s = \"ADOBECODEBANC\", t = \"ABC\"",
+        "expected": "\"BANC\"",
+        "stdin": "ADOBECODEBANC\nABC\n",
+        "expectedRaw": "BANC"
+      },
+      {
+        "input": "s = \"a\", t = \"a\"",
+        "expected": "\"a\"",
+        "stdin": "a\na\n",
+        "expectedRaw": "a"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "a\naa\n",
+        "expectedRaw": ""
+      },
+      {
+        "stdin": "ab\nb\n",
+        "expectedRaw": "b"
+      },
+      {
+        "stdin": "ADOBECODEBANC\nAABC\n",
+        "expectedRaw": "ADOBECODEBA"
+      }
+    ]
+  },
+  "30": {
+    "id": 30,
+    "name": "Product of Array Except Self",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [1,2,3,4]",
+        "expected": "[24,12,8,6]",
+        "stdin": "4\n1 2 3 4\n",
+        "expectedRaw": "24 12 8 6"
+      },
+      {
+        "input": "nums = [-1,1,0,-3,3]",
+        "expected": "[0,0,9,0,0]",
+        "stdin": "5\n-1 1 0 -3 3\n",
+        "expectedRaw": "0 0 9 0 0"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "4\n1 1 1 1\n",
+        "expectedRaw": "1 1 1 1"
+      },
+      {
+        "stdin": "3\n2 3 4\n",
+        "expectedRaw": "12 8 6"
+      },
+      {
+        "stdin": "2\n0 0\n",
+        "expectedRaw": "0 0"
+      }
+    ]
+  },
+  "31": {
+    "id": 31,
+    "name": "Subarray Sum Equals K",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [1,1,1], k = 2",
+        "expected": "2",
+        "stdin": "3\n1 1 1\n2\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "nums = [1,2,3], k = 3",
+        "expected": "2",
+        "stdin": "3\n1 2 3\n3\n",
+        "expectedRaw": "2"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n1\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "3\n-1 2 3\n5\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "4\n0 0 0 0\n0\n",
+        "expectedRaw": "10"
+      }
+    ]
+  },
+  "32": {
+    "id": 32,
+    "name": "Running Sum of 1D Array",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [1,2,3,4]",
+        "expected": "[1,3,6,10]",
+        "stdin": "4\n1 2 3 4\n",
+        "expectedRaw": "1 3 6 10"
+      },
+      {
+        "input": "nums = [1,1,1,1,1]",
+        "expected": "[1,2,3,4,5]",
+        "stdin": "5\n1 1 1 1 1\n",
+        "expectedRaw": "1 2 3 4 5"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "5\n3 1 2 10 1\n",
+        "expectedRaw": "3 4 6 16 17"
+      },
+      {
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "3\n0 0 0\n",
+        "expectedRaw": "0 0 0"
+      }
+    ]
+  },
+  "33": {
+    "id": 33,
+    "name": "Longest Subarray with Sum K",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [10,5,2,7,1,9], k = 15",
+        "expected": "4",
+        "stdin": "6\n10 5 2 7 1 9\n15\n",
+        "expectedRaw": "4"
+      },
+      {
+        "input": "nums = [1,2,3], k = 3",
+        "expected": "2",
+        "stdin": "3\n1 2 3\n3\n",
+        "expectedRaw": "2"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "3\n1 2 3\n6\n",
+        "expectedRaw": "3"
+      },
+      {
+        "stdin": "1\n1\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "3\n1 0 1\n1\n",
+        "expectedRaw": "2"
+      }
+    ]
+  },
+  "34": {
+    "id": 34,
+    "name": "Equilibrium Index",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [-7,1,5,2,-4,3,0]",
+        "expected": "3",
+        "stdin": "7\n-7 1 5 2 -4 3 0\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "nums = [1,2,3]",
+        "expected": "-1",
+        "stdin": "3\n1 2 3\n",
+        "expectedRaw": "-1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n1\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "4\n0 0 0 0\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "5\n2 3 4 1 4\n",
+        "expectedRaw": "2"
+      }
+    ]
+  },
+  "35": {
+    "id": 35,
+    "name": "Range Sum Query",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [-2,0,3,-5,2,-1], left = 0, right = 2",
+        "expected": "1",
+        "stdin": "6\n-2 0 3 -5 2 -1\n0\n2\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "nums = [-2,0,3,-5,2,-1], left = 2, right = 5",
+        "expected": "-1",
+        "stdin": "6\n-2 0 3 -5 2 -1\n2\n5\n",
+        "expectedRaw": "-1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "5\n1 2 3 4 5\n0\n4\n",
+        "expectedRaw": "15"
+      },
+      {
+        "stdin": "1\n1\n0\n0\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "3\n-1 -2 -3\n0\n2\n",
+        "expectedRaw": "-6"
+      }
+    ]
+  },
+  "36": {
+    "id": 36,
+    "name": "Rotate Array",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [1,2,3,4,5,6,7], k = 3",
+        "expected": "[5,6,7,1,2,3,4]",
+        "stdin": "7\n1 2 3 4 5 6 7\n3\n",
+        "expectedRaw": "5 6 7 1 2 3 4"
+      },
+      {
+        "input": "nums = [-1,-100,3,99], k = 2",
+        "expected": "[3,99,-1,-100]",
+        "stdin": "4\n-1 -100 3 99\n2\n",
+        "expectedRaw": "3 99 -1 -100"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "3\n1 2 3\n0\n",
+        "expectedRaw": "1 2 3"
+      },
+      {
+        "stdin": "1\n1\n5\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "2\n1 2\n2\n",
+        "expectedRaw": "1 2"
+      }
+    ]
+  },
+  "37": {
+    "id": 37,
+    "name": "Leaders in an Array",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [16,17,4,3,5,2]",
+        "expected": "[17,5,2]",
+        "stdin": "6\n16 17 4 3 5 2\n",
+        "expectedRaw": "17 5 2"
+      },
+      {
+        "input": "nums = [1,2,3,4]",
+        "expected": "[4]",
+        "stdin": "4\n1 2 3 4\n",
+        "expectedRaw": "4"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "4\n4 3 2 1\n",
+        "expectedRaw": "4 3 2 1"
+      },
+      {
+        "stdin": "1\n7\n",
+        "expectedRaw": "7"
+      },
+      {
+        "stdin": "4\n1 1 1 1\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  "38": {
+    "id": 38,
+    "name": "Maximum Subarray",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [-2,1,-3,4,-1,2,1,-5,4]",
+        "expected": "6",
+        "stdin": "9\n-2 1 -3 4 -1 2 1 -5 4\n",
+        "expectedRaw": "6"
+      },
+      {
+        "input": "nums = [1]",
+        "expected": "1",
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "5\n5 4 -1 7 8\n",
+        "expectedRaw": "23"
+      },
+      {
+        "stdin": "4\n-1 -2 -3 -4\n",
+        "expectedRaw": "-1"
+      },
+      {
+        "stdin": "4\n0 -3 1 1\n",
+        "expectedRaw": "2"
+      }
+    ]
+  },
+  "39": {
+    "id": 39,
+    "name": "Maximum Product Subarray",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [2,3,-2,4]",
+        "expected": "6",
+        "stdin": "4\n2 3 -2 4\n",
+        "expectedRaw": "6"
+      },
+      {
+        "input": "nums = [-2,0,-1]",
+        "expected": "0",
+        "stdin": "3\n-2 0 -1\n",
+        "expectedRaw": "0"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "3\n-2 3 -4\n",
+        "expectedRaw": "24"
+      },
+      {
+        "stdin": "2\n0 -2\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "1\n-2\n",
+        "expectedRaw": "-2"
+      }
+    ]
+  },
+  "40": {
+    "id": 40,
+    "name": "Merge Intervals",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "intervals = [[1,3],[2,6],[8,10],[15,18]]",
+        "expected": "[[1,6],[8,10],[15,18]]",
+        "stdin": "4 2\n1 3 2 6 8 10 15 18\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "intervals = [[1,4],[4,5]]",
+        "expected": "[[1,5]]",
+        "stdin": "2 2\n1 4 4 5\n",
+        "expectedRaw": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "2 2\n1 4 2 3\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "3 2\n1 2 3 4 5 6\n",
+        "expectedRaw": "3"
+      },
+      {
+        "stdin": "3 2\n1 10 2 3 4 8\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  "41": {
+    "id": 41,
+    "name": "Find Minimum in Rotated Sorted Array",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [3,4,5,1,2]",
+        "expected": "1",
+        "stdin": "5\n3 4 5 1 2\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "nums = [4,5,6,7,0,1,2]",
+        "expected": "0",
+        "stdin": "7\n4 5 6 7 0 1 2\n",
+        "expectedRaw": "0"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "4\n11 13 15 17\n",
+        "expectedRaw": "11"
+      },
+      {
+        "stdin": "2\n2 1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  "42": {
+    "id": 42,
+    "name": "Valid Anagram",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "s = \"anagram\", t = \"nagaram\"",
+        "expected": "true",
+        "stdin": "anagram\nnagaram\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "s = \"rat\", t = \"car\"",
+        "expected": "false",
+        "stdin": "rat\ncar\n",
+        "expectedRaw": "0"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "a\na\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "ab\na\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "aacc\nccac\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  "43": {
+    "id": 43,
+    "name": "Group Anagrams",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "strs = [\"eat\",\"tea\",\"tan\",\"ate\",\"nat\",\"bat\"]",
+        "expected": "3 groups",
+        "stdin": "6\neat\ntea\ntan\nate\nnat\nbat\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "strs = [\"\"]",
+        "expected": "1 group",
+        "stdin": "1\n@@EMPTY@@\n",
+        "expectedRaw": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\na\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "3\nab\nba\nc\n",
+        "expectedRaw": "2"
+      },
+      {
+        "stdin": "3\nz\ny\nx\n",
+        "expectedRaw": "3"
+      }
+    ]
+  },
+  "44": {
+    "id": 44,
+    "name": "First Unique Character in a String",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "s = \"leetcode\"",
+        "expected": "0",
+        "stdin": "leetcode\n",
+        "expectedRaw": "0"
+      },
+      {
+        "input": "s = \"loveleetcode\"",
+        "expected": "2",
+        "stdin": "loveleetcode\n",
+        "expectedRaw": "2"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "aabb\n",
+        "expectedRaw": "-1"
+      },
+      {
+        "stdin": "z\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "aabbc\n",
+        "expectedRaw": "4"
+      }
+    ]
+  },
+  "45": {
+    "id": 45,
+    "name": "Roman to Integer",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "s = \"III\"",
+        "expected": "3",
+        "stdin": "III\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "s = \"LVIII\"",
+        "expected": "58",
+        "stdin": "LVIII\n",
+        "expectedRaw": "58"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "MCMXCIV\n",
+        "expectedRaw": "1994"
+      },
+      {
+        "stdin": "IV\n",
+        "expectedRaw": "4"
+      },
+      {
+        "stdin": "IX\n",
+        "expectedRaw": "9"
+      }
+    ]
+  },
+  "46": {
+    "id": 46,
+    "name": "Character Frequency Count",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "s = \"aababab\", c = \"a\"",
+        "expected": "4",
+        "stdin": "aababab\na\n",
+        "expectedRaw": "4"
+      },
+      {
+        "input": "s = \"hello\", c = \"l\"",
+        "expected": "2",
+        "stdin": "hello\nl\n",
+        "expectedRaw": "2"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "aaa\na\n",
+        "expectedRaw": "3"
+      },
+      {
+        "stdin": "abc\nd\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "z\nz\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  "47": {
+    "id": 47,
+    "name": "Count Vowels and Consonants",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "s = \"hello\"",
+        "expected": "2",
+        "stdin": "hello\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "s = \"aeiou\"",
+        "expected": "5",
+        "stdin": "aeiou\n",
+        "expectedRaw": "5"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "rhythm\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "a\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "bcdfgh\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  "48": {
+    "id": 48,
+    "name": "Valid Palindrome",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "s = \"A man a plan a canal Panama\"",
+        "expected": "true",
+        "stdin": "AmanaplanacanalPanama\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "s = \"race a car\"",
+        "expected": "false",
+        "stdin": "raceacar\n",
+        "expectedRaw": "0"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "@@EMPTY@@\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "abcba\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "abc\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  "49": {
+    "id": 49,
+    "name": "Reverse String",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "s = ['h','e','l','l','o']",
+        "expected": "['o','l','l','e','h']",
+        "stdin": "5\n104 101 108 108 111\n",
+        "expectedRaw": "111 108 108 101 104"
+      },
+      {
+        "input": "s = ['H','a','n','n','a','h']",
+        "expected": "['h','a','n','n','a','H']",
+        "stdin": "6\n72 97 110 110 97 104\n",
+        "expectedRaw": "104 97 110 110 97 72"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n97\n",
+        "expectedRaw": "97"
+      },
+      {
+        "stdin": "2\n97 98\n",
+        "expectedRaw": "98 97"
+      },
+      {
+        "stdin": "4\n97 98 99 100\n",
+        "expectedRaw": "100 99 98 97"
+      }
+    ]
+  },
+  "50": {
+    "id": 50,
+    "name": "Reverse Words in a String",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "s = \"the sky is blue\"",
+        "expected": "\"blue is sky the\"",
+        "stdin": "the_sky_is_blue\n",
+        "expectedRaw": "blue is sky the"
+      },
+      {
+        "input": "s = \"  hello world  \"",
+        "expected": "\"world hello\"",
+        "stdin": "hello_world\n",
+        "expectedRaw": "world hello"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "a_good_example\n",
+        "expectedRaw": "example good a"
+      },
+      {
+        "stdin": "Alice\n",
+        "expectedRaw": "Alice"
+      },
+      {
+        "stdin": "single\n",
+        "expectedRaw": "single"
+      }
+    ]
+  },
+  "51": {
+    "id": 51,
+    "name": "String Compression",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "chars = ['a','a','b','b','c','c','c']",
+        "expected": "6",
+        "stdin": "7\n97 97 98 98 99 99 99\n",
+        "expectedRaw": "6"
+      },
+      {
+        "input": "chars = ['a']",
+        "expected": "1",
+        "stdin": "1\n97\n",
+        "expectedRaw": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "13\n97 98 98 98 98 98 98 98 98 98 98 98 98\n",
+        "expectedRaw": "4"
+      },
+      {
+        "stdin": "4\n97 97 97 97\n",
+        "expectedRaw": "2"
+      },
+      {
+        "stdin": "3\n97 98 99\n",
+        "expectedRaw": "3"
+      }
+    ]
+  },
+  "52": {
+    "id": 52,
+    "name": "Longest Substring Without Repeating Characters",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "s = \"abcabcbb\"",
+        "expected": "3",
+        "stdin": "abcabcbb\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "s = \"bbbbb\"",
+        "expected": "1",
+        "stdin": "bbbbb\n",
+        "expectedRaw": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "pwwkew\n",
+        "expectedRaw": "3"
+      },
+      {
+        "stdin": "au\n",
+        "expectedRaw": "2"
+      },
+      {
+        "stdin": "dvdf\n",
+        "expectedRaw": "3"
+      }
+    ]
+  },
+  "53": {
+    "id": 53,
+    "name": "Longest Repeating Character Replacement",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "s = \"ABAB\", k = 2",
+        "expected": "4",
+        "stdin": "ABAB\n2\n",
+        "expectedRaw": "4"
+      },
+      {
+        "input": "s = \"AABABBA\", k = 1",
+        "expected": "4",
+        "stdin": "AABABBA\n1\n",
+        "expectedRaw": "4"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "A\n0\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "AAAA\n2\n",
+        "expectedRaw": "4"
+      },
+      {
+        "stdin": "ABCD\n1\n",
+        "expectedRaw": "2"
+      }
+    ]
+  },
+  "54": {
+    "id": 54,
+    "name": "Find All Anagrams in String",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "s = \"cbaebabacd\", p = \"abc\"",
+        "expected": "[0,6]",
+        "stdin": "cbaebabacd\nabc\n",
+        "expectedRaw": "0 6"
+      },
+      {
+        "input": "s = \"abab\", p = \"ab\"",
+        "expected": "[0,1,2]",
+        "stdin": "abab\nab\n",
+        "expectedRaw": "0 1 2"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "aa\nbb\n",
+        "expectedRaw": ""
+      },
+      {
+        "stdin": "baa\naa\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "abcd\nd\n",
+        "expectedRaw": "3"
+      }
+    ]
+  },
+  "55": {
+    "id": 55,
+    "name": "Minimum Window Substring",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "s = \"ADOBECODEBANC\", t = \"ABC\"",
+        "expected": "\"BANC\"",
+        "stdin": "ADOBECODEBANC\nABC\n",
+        "expectedRaw": "BANC"
+      },
+      {
+        "input": "s = \"a\", t = \"a\"",
+        "expected": "\"a\"",
+        "stdin": "a\na\n",
+        "expectedRaw": "a"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "a\naa\n",
+        "expectedRaw": ""
+      },
+      {
+        "stdin": "abc\nb\n",
+        "expectedRaw": "b"
+      },
+      {
+        "stdin": "cabwefgewcwaefgcf\ncae\n",
+        "expectedRaw": "cwae"
+      }
+    ]
+  },
+  "56": {
+    "id": 56,
+    "name": "Longest Common Prefix",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "strs = [\"flower\",\"flow\",\"flight\"]",
+        "expected": "\"fl\"",
+        "stdin": "3\nflower\nflow\nflight\n",
+        "expectedRaw": "fl"
+      },
+      {
+        "input": "strs = [\"dog\",\"racecar\",\"car\"]",
+        "expected": "\"\"",
+        "stdin": "3\ndog\nracecar\ncar\n",
+        "expectedRaw": ""
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\nabc\n",
+        "expectedRaw": "abc"
+      },
+      {
+        "stdin": "2\n-\nb\n",
+        "expectedRaw": ""
+      },
+      {
+        "stdin": "3\nab\nab\nabc\n",
+        "expectedRaw": "ab"
+      }
+    ]
+  },
+  "57": {
+    "id": 57,
+    "name": "Check String Rotation",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "s = \"abcde\", goal = \"cdeab\"",
+        "expected": "true",
+        "stdin": "abcde\ncdeab\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "s = \"abcde\", goal = \"abced\"",
+        "expected": "false",
+        "stdin": "abcde\nabced\n",
+        "expectedRaw": "0"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "@@EMPTY@@\n@@EMPTY@@\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "a\na\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "aa\na\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  "58": {
+    "id": 58,
+    "name": "Encode and Decode Strings",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "strs = [\"Hello\",\"World\"]",
+        "expected": "2",
+        "stdin": "2\nHello\nWorld\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "strs = [\"\"]",
+        "expected": "1",
+        "stdin": "1\n-\n",
+        "expectedRaw": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "0\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "3\na\nb\nc\n",
+        "expectedRaw": "3"
+      },
+      {
+        "stdin": "1\nHello-World\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  "59": {
+    "id": 59,
+    "name": "Longest Palindromic Substring",
+    "compareMode": "any_of",
+    "sampleTests": [
+      {
+        "input": "s = \"babad\"",
+        "expected": "\"bab\" or \"aba\"",
+        "stdin": "babad\n",
+        "expectedRaw": "bab | aba"
+      },
+      {
+        "input": "s = \"cbbd\"",
+        "expected": "\"bb\"",
+        "stdin": "cbbd\n",
+        "expectedRaw": "bb"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "a\n",
+        "expectedRaw": "a"
+      },
+      {
+        "stdin": "ac\n",
+        "expectedRaw": "a | c"
+      },
+      {
+        "stdin": "racecar\n",
+        "expectedRaw": "racecar"
+      }
+    ]
+  },
+  "60": {
+    "id": 60,
+    "name": "Palindromic Substrings",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "s = \"abc\"",
+        "expected": "3",
+        "stdin": "abc\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "s = \"aaa\"",
+        "expected": "6",
+        "stdin": "aaa\n",
+        "expectedRaw": "6"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "a\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "ab\n",
+        "expectedRaw": "2"
+      },
+      {
+        "stdin": "aaaa\n",
+        "expectedRaw": "10"
+      }
+    ]
+  },
+  "61": {
+    "id": 61,
+    "name": "Linked List Cycle",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "head = [3,2,0,-4], pos = 1",
+        "expected": "true",
+        "stdin": "4\n3 2 0 -4\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "head = [1,2], pos = 0",
+        "expected": "true",
+        "stdin": "2\n1 2\n0\n",
+        "expectedRaw": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n1\n-1\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "3\n1 2 3\n-1\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "4\n1 2 3 4\n2\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  "62": {
+    "id": 62,
+    "name": "Middle of Linked List",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "head = [1,2,3,4,5]",
+        "expected": "3",
+        "stdin": "5\n1 2 3 4 5\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "head = [1,2,3,4,5,6]",
+        "expected": "4",
+        "stdin": "6\n1 2 3 4 5 6\n",
+        "expectedRaw": "4"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "2\n1 2\n",
+        "expectedRaw": "2"
+      },
+      {
+        "stdin": "3\n1 2 3\n",
+        "expectedRaw": "2"
+      }
+    ]
+  },
+  "63": {
+    "id": 63,
+    "name": "Palindrome Linked List",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "head = [1,2,2,1]",
+        "expected": "true",
+        "stdin": "4\n1 2 2 1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "head = [1,2]",
+        "expected": "false",
+        "stdin": "2\n1 2\n",
+        "expectedRaw": "0"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "3\n1 2 1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "4\n1 2 3 1\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  "64": {
+    "id": 64,
+    "name": "Detect Cycle Start in Linked List",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "head = [3,2,0,-4], pos = 1",
+        "expected": "2",
+        "stdin": "4\n3 2 0 -4\n1\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "head = [1,2], pos = 0",
+        "expected": "1",
+        "stdin": "2\n1 2\n0\n",
+        "expectedRaw": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n1\n-1\n",
+        "expectedRaw": "-1"
+      },
+      {
+        "stdin": "3\n1 2 3\n-1\n",
+        "expectedRaw": "-1"
+      },
+      {
+        "stdin": "4\n1 2 3 4\n0\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  "65": {
+    "id": 65,
+    "name": "Reverse Linked List",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "head = [1,2,3,4,5]",
+        "expected": "[5,4,3,2,1]",
+        "stdin": "5\n1 2 3 4 5\n",
+        "expectedRaw": "5 4 3 2 1"
+      },
+      {
+        "input": "head = [1,2]",
+        "expected": "[2,1]",
+        "stdin": "2\n1 2\n",
+        "expectedRaw": "2 1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "0\n",
+        "expectedRaw": ""
+      },
+      {
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "3\n1 2 3\n",
+        "expectedRaw": "3 2 1"
+      }
+    ]
+  },
+  "66": {
+    "id": 66,
+    "name": "Reverse Linked List in Groups",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "head = [1,2,3,4,5], k = 2",
+        "expected": "[2,1,4,3,5]",
+        "stdin": "5\n1 2 3 4 5\n2\n",
+        "expectedRaw": "2 1 4 3 5"
+      },
+      {
+        "input": "head = [1,2,3,4,5], k = 3",
+        "expected": "[3,2,1,4,5]",
+        "stdin": "5\n1 2 3 4 5\n3\n",
+        "expectedRaw": "3 2 1 4 5"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "4\n1 2 3 4\n2\n",
+        "expectedRaw": "2 1 4 3"
+      },
+      {
+        "stdin": "1\n1\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "2\n1 2\n2\n",
+        "expectedRaw": "2 1"
+      }
+    ]
+  },
+  "67": {
+    "id": 67,
+    "name": "Merge Two Sorted Lists",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "list1 = [1,2,4], list2 = [1,3,4]",
+        "expected": "[1,1,2,3,4,4]",
+        "stdin": "3\n1 2 4\n3\n1 3 4\n",
+        "expectedRaw": "1 1 2 3 4 4"
+      },
+      {
+        "input": "list1 = [], list2 = []",
+        "expected": "[]",
+        "stdin": "0\n\n0\n\n",
+        "expectedRaw": ""
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "0\n\n1\n0\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "1\n1\n1\n2\n",
+        "expectedRaw": "1 2"
+      },
+      {
+        "stdin": "3\n1 3 5\n2\n2 4\n",
+        "expectedRaw": "1 2 3 4 5"
+      }
+    ]
+  },
+  "68": {
+    "id": 68,
+    "name": "Remove Nth Node From End of List",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "head = [1,2,3,4,5], n = 2",
+        "expected": "[1,2,3,5]",
+        "stdin": "5\n1 2 3 4 5\n2\n",
+        "expectedRaw": "1 2 3 5"
+      },
+      {
+        "input": "head = [1], n = 1",
+        "expected": "[]",
+        "stdin": "1\n1\n1\n",
+        "expectedRaw": ""
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "2\n1 2\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "2\n1 2\n2\n",
+        "expectedRaw": "2"
+      },
+      {
+        "stdin": "3\n1 2 3\n2\n",
+        "expectedRaw": "1 3"
+      }
+    ]
+  },
+  "69": {
+    "id": 69,
+    "name": "Add Two Numbers",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "l1 = [2,4,3], l2 = [5,6,4]",
+        "expected": "[7,0,8]",
+        "stdin": "3\n2 4 3\n3\n5 6 4\n",
+        "expectedRaw": "7 0 8"
+      },
+      {
+        "input": "l1 = [0], l2 = [0]",
+        "expected": "[0]",
+        "stdin": "1\n0\n1\n0\n",
+        "expectedRaw": "0"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "7\n9 9 9 9 9 9 9\n4\n9 9 9 9\n",
+        "expectedRaw": "8 9 9 9 0 0 0 1"
+      },
+      {
+        "stdin": "1\n1\n2\n9 9\n",
+        "expectedRaw": "0 0 1"
+      },
+      {
+        "stdin": "1\n5\n1\n5\n",
+        "expectedRaw": "0 1"
+      }
+    ]
+  },
+  "70": {
+    "id": 70,
+    "name": "Intersection of Two Linked Lists",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "listA=[4,1,8,4,5], listB=[5,6,1,8,4,5], skipA=2, skipB=3",
+        "expected": "8",
+        "stdin": "2\n4 1\n3\n5 6 1\n3\n8 4 5\n",
+        "expectedRaw": "8"
+      },
+      {
+        "input": "listA=[1,9,1,2,4], listB=[3,2,4], skipA=3, skipB=1",
+        "expected": "2",
+        "stdin": "3\n1 9 1\n1\n3\n2\n2 4\n",
+        "expectedRaw": "2"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "3\n2 6 4\n2\n1 5\n0\n\n",
+        "expectedRaw": "-1"
+      },
+      {
+        "stdin": "0\n\n0\n\n1\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "1\n5\n1\n9\n0\n\n",
+        "expectedRaw": "-1"
+      }
+    ]
+  },
+  "71": {
+    "id": 71,
+    "name": "Find The Duplicate Number",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [1,3,4,2,2]",
+        "expected": "2",
+        "stdin": "5\n1 3 4 2 2\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "nums = [3,1,3,4,2]",
+        "expected": "3",
+        "stdin": "5\n3 1 3 4 2\n",
+        "expectedRaw": "3"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "2\n1 1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "5\n3 3 3 3 3\n",
+        "expectedRaw": "3"
+      },
+      {
+        "stdin": "5\n1 2 4 4 3\n",
+        "expectedRaw": "4"
+      }
+    ]
+  },
+  "72": {
+    "id": 72,
+    "name": "Valid Parentheses",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "s = \"()\"",
+        "expected": "true",
+        "stdin": "()\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "s = \"()[]{\"",
+        "expected": "true",
+        "stdin": "()[]{}\n",
+        "expectedRaw": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "(]\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "([)]\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "{[]}\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  "73": {
+    "id": 73,
+    "name": "Min Stack",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "push(-2),push(0),push(-3),getMin()",
+        "expected": "-3",
+        "stdin": "3\n-2 0 -3\n",
+        "expectedRaw": "-3"
+      },
+      {
+        "input": "push(1),getMin()",
+        "expected": "1",
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "4\n2 0 3 0\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "3\n5 3 7\n",
+        "expectedRaw": "3"
+      },
+      {
+        "stdin": "1\n-1\n",
+        "expectedRaw": "-1"
+      }
+    ]
+  },
+  "74": {
+    "id": 74,
+    "name": "Implement Queue Using Stacks",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "push(1),push(2),peek()",
+        "expected": "1",
+        "stdin": "2\n1 2\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "push(1),peek()",
+        "expected": "1",
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "2\n1 2\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "1\n3\n",
+        "expectedRaw": "3"
+      },
+      {
+        "stdin": "2\n5 6\n",
+        "expectedRaw": "5"
+      }
+    ]
+  },
+  "75": {
+    "id": 75,
+    "name": "Daily Temperatures",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "temperatures = [73,74,75,71,69,72,76,73]",
+        "expected": "[1,1,4,2,1,1,0,0]",
+        "stdin": "8\n73 74 75 71 69 72 76 73\n",
+        "expectedRaw": "1 1 4 2 1 1 0 0"
+      },
+      {
+        "input": "temperatures = [30,40,50,60]",
+        "expected": "[1,1,1,0]",
+        "stdin": "4\n30 40 50 60\n",
+        "expectedRaw": "1 1 1 0"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "3\n30 60 90\n",
+        "expectedRaw": "1 1 0"
+      },
+      {
+        "stdin": "1\n50\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "4\n90 80 70 60\n",
+        "expectedRaw": "0 0 0 0"
+      }
+    ]
+  },
+  "76": {
+    "id": 76,
+    "name": "Largest Rectangle in Histogram",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "heights = [2,1,5,6,2,3]",
+        "expected": "10",
+        "stdin": "6\n2 1 5 6 2 3\n",
+        "expectedRaw": "10"
+      },
+      {
+        "input": "heights = [2,4]",
+        "expected": "4",
+        "stdin": "2\n2 4\n",
+        "expectedRaw": "4"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "4\n1 1 1 1\n",
+        "expectedRaw": "4"
+      },
+      {
+        "stdin": "5\n5 4 3 2 1\n",
+        "expectedRaw": "9"
+      }
+    ]
+  },
+  "77": {
+    "id": 77,
+    "name": "Next Greater Element",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums1 = [4,1,2], nums2 = [1,3,4,2]",
+        "expected": "[-1,3,-1]",
+        "stdin": "3\n4 1 2\n4\n1 3 4 2\n",
+        "expectedRaw": "-1 3 -1"
+      },
+      {
+        "input": "nums1 = [2,4], nums2 = [1,2,3,4]",
+        "expected": "[3,-1]",
+        "stdin": "2\n2 4\n4\n1 2 3 4\n",
+        "expectedRaw": "3 -1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n1\n2\n1 3\n",
+        "expectedRaw": "3"
+      },
+      {
+        "stdin": "1\n2\n2\n3 2\n",
+        "expectedRaw": "-1"
+      },
+      {
+        "stdin": "5\n1 3 5 2 4\n7\n6 5 4 3 2 1 7\n",
+        "expectedRaw": "7 7 7 7 7"
+      }
+    ]
+  },
+  "78": {
+    "id": 78,
+    "name": "Stock Span Problem",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "prices = [100,80,60,70,60,75,85]",
+        "expected": "[1,1,1,2,1,4,6]",
+        "stdin": "7\n100 80 60 70 60 75 85\n",
+        "expectedRaw": "1 1 1 2 1 4 6"
+      },
+      {
+        "input": "prices = [10,4,5,90,120,80]",
+        "expected": "[1,1,2,4,5,1]",
+        "stdin": "6\n10 4 5 90 120 80\n",
+        "expectedRaw": "1 1 2 4 5 1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "5\n1 2 3 4 5\n",
+        "expectedRaw": "1 2 3 4 5"
+      },
+      {
+        "stdin": "5\n5 4 3 2 1\n",
+        "expectedRaw": "1 1 1 1 1"
+      }
+    ]
+  },
+  "79": {
+    "id": 79,
+    "name": "Sliding Window Maximum",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [1,3,-1,-3,5,3,6,7], k = 3",
+        "expected": "[3,3,5,5,6,7]",
+        "stdin": "8\n1 3 -1 -3 5 3 6 7\n3\n",
+        "expectedRaw": "3 3 5 5 6 7"
+      },
+      {
+        "input": "nums = [1], k = 1",
+        "expected": "[1]",
+        "stdin": "1\n1\n1\n",
+        "expectedRaw": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "6\n1 3 1 2 0 5\n3\n",
+        "expectedRaw": "3 3 2 5"
+      },
+      {
+        "stdin": "2\n9 11\n2\n",
+        "expectedRaw": "11"
+      },
+      {
+        "stdin": "5\n1 2 3 4 5\n1\n",
+        "expectedRaw": "1 2 3 4 5"
+      }
+    ]
+  },
+  "80": {
+    "id": 80,
+    "name": "Design Circular Queue",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "k=3, enQueue(1),enQueue(2),enQueue(3),Rear()",
+        "expected": "3",
+        "stdin": "3\n1 2 3\n3\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "k=6, enQueue(6),Rear()",
+        "expected": "6",
+        "stdin": "1\n6\n6\n",
+        "expectedRaw": "6"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "2\n9 9\n2\n",
+        "expectedRaw": "9"
+      },
+      {
+        "stdin": "3\n1 2 3\n2\n",
+        "expectedRaw": "2"
+      },
+      {
+        "stdin": "1\n4\n1\n",
+        "expectedRaw": "4"
+      }
+    ]
+  },
+  "81": {
+    "id": 81,
+    "name": "First Non-Repeating Character in Stream",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "stream = \"aabc\"",
+        "expected": "\"a#bb\"",
+        "stdin": "aabc\n",
+        "expectedRaw": "a#bb"
+      },
+      {
+        "input": "stream = \"abcabc\"",
+        "expected": "\"aaabc#\"",
+        "stdin": "abcabc\n",
+        "expectedRaw": "aaabc#"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "a\n",
+        "expectedRaw": "a"
+      },
+      {
+        "stdin": "aa\n",
+        "expectedRaw": "a#"
+      },
+      {
+        "stdin": "abab\n",
+        "expectedRaw": "aab#"
+      }
+    ]
+  },
+  "82": {
+    "id": 82,
+    "name": "Maximum Depth of Binary Tree",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "root = [3,9,20,null,null,15,7]",
+        "expected": "3",
+        "stdin": "7\n3 9 20 -1 -1 15 7\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "root = [1,null,2]",
+        "expected": "2",
+        "stdin": "2\n1 2\n",
+        "expectedRaw": "2"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "0\n\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "4\n1 2 3 4\n",
+        "expectedRaw": "3"
+      }
+    ]
+  },
+  "83": {
+    "id": 83,
+    "name": "Invert Binary Tree",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "root = [4,2,7,1,3,6,9]",
+        "expected": "[4,7,2,9,6,3,1]",
+        "stdin": "7\n4 2 7 1 3 6 9\n",
+        "expectedRaw": "4 7 2 9 6 3 1"
+      },
+      {
+        "input": "root = [2,1,3]",
+        "expected": "[2,3,1]",
+        "stdin": "3\n2 1 3\n",
+        "expectedRaw": "2 3 1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "0\n\n",
+        "expectedRaw": ""
+      },
+      {
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "2\n1 2\n",
+        "expectedRaw": "1 2"
+      }
+    ]
+  },
+  "84": {
+    "id": 84,
+    "name": "Diameter of Binary Tree",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "root = [1,2,3,4,5]",
+        "expected": "3",
+        "stdin": "5\n1 2 3 4 5\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "root = [1,2]",
+        "expected": "1",
+        "stdin": "2\n1 2\n",
+        "expectedRaw": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n1\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "3\n1 2 3\n",
+        "expectedRaw": "2"
+      },
+      {
+        "stdin": "7\n1 2 3 4 5 6 7\n",
+        "expectedRaw": "4"
+      }
+    ]
+  },
+  "85": {
+    "id": 85,
+    "name": "Balanced Binary Tree",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "root = [3,9,20,null,null,15,7]",
+        "expected": "true",
+        "stdin": "7\n3 9 20 -1 -1 15 7\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "root = [1,2,2,3,3,null,null,4,4]",
+        "expected": "false",
+        "stdin": "9\n1 2 2 3 3 -1 -1 4 4\n",
+        "expectedRaw": "0"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "0\n\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "8\n1 2 3 4 5 6 -1 8\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  "86": {
+    "id": 86,
+    "name": "Path Sum",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "root = [5,4,8,11,null,13,4,7,2,null,null,null,1], targetSum = 22",
+        "expected": "true",
+        "stdin": "13\n5 4 8 11 -1 13 4 7 2 -1 -1 -1 1\n22\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "root = [1,2,3], targetSum = 5",
+        "expected": "false",
+        "stdin": "3\n1 2 3\n5\n",
+        "expectedRaw": "0"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "0\n\n0\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "2\n1 2\n1\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "2\n1 2\n3\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  "87": {
+    "id": 87,
+    "name": "Construct Binary Tree from Preorder and Inorder",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "preorder = [3,9,20,15,7], inorder = [9,3,15,20,7]",
+        "expected": "[3,9,20,null,null,15,7]",
+        "stdin": "5\n3 9 20 15 7\n5\n9 3 15 20 7\n",
+        "expectedRaw": "3 9 20 15 7"
+      },
+      {
+        "input": "preorder = [-1], inorder = [-1]",
+        "expected": "[-1]",
+        "stdin": "1\n-1\n1\n-1\n",
+        "expectedRaw": "-1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "2\n1 2\n2\n2 1\n",
+        "expectedRaw": "1 2"
+      },
+      {
+        "stdin": "3\n1 2 3\n3\n1 2 3\n",
+        "expectedRaw": "1 2 3"
+      },
+      {
+        "stdin": "3\n1 2 3\n3\n2 3 1\n",
+        "expectedRaw": "1 2 3"
+      }
+    ]
+  },
+  "88": {
+    "id": 88,
+    "name": "LCA of Binary Tree",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "root=[3,5,1,6,2,0,8,null,null,7,4], p=5, q=1",
+        "expected": "3",
+        "stdin": "11\n3 5 1 6 2 0 8 -1 -1 7 4\n5\n1\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "root=[3,5,1,6,2,0,8,null,null,7,4], p=5, q=4",
+        "expected": "5",
+        "stdin": "11\n3 5 1 6 2 0 8 -1 -1 7 4\n5\n4\n",
+        "expectedRaw": "5"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "2\n1 2\n1\n2\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "3\n1 2 3\n2\n3\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "4\n1 2 3 4\n3\n4\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  "89": {
+    "id": 89,
+    "name": "Validate Binary Search Tree",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "root = [2,1,3]",
+        "expected": "true",
+        "stdin": "3\n2 1 3\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "root = [5,1,4,null,null,3,6]",
+        "expected": "false",
+        "stdin": "4\n5 1 4 6\n",
+        "expectedRaw": "0"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "4\n5 4 6 3\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "7\n3 1 5 0 2 4 6\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  "90": {
+    "id": 90,
+    "name": "Lowest Common Ancestor of BST",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "root=[6,2,8,0,4,7,9,null,null,3,5], p=2, q=8",
+        "expected": "6",
+        "stdin": "11\n6 2 8 0 4 7 9 -1 -1 3 5\n2\n8\n",
+        "expectedRaw": "6"
+      },
+      {
+        "input": "root=[6,2,8,0,4,7,9,null,null,3,5], p=2, q=4",
+        "expected": "2",
+        "stdin": "11\n6 2 8 0 4 7 9 -1 -1 3 5\n2\n4\n",
+        "expectedRaw": "2"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "2\n2 1\n2\n1\n",
+        "expectedRaw": "2"
+      },
+      {
+        "stdin": "3\n3 1 5\n1\n5\n",
+        "expectedRaw": "3"
+      },
+      {
+        "stdin": "5\n5 3 6 2 4\n3\n4\n",
+        "expectedRaw": "3"
+      }
+    ]
+  },
+  "91": {
+    "id": 91,
+    "name": "Kth Smallest in BST",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "root = [3,1,4,null,2], k = 1",
+        "expected": "1",
+        "stdin": "5\n3 1 4 -1 2\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "root = [5,3,6,2,4,null,null,1], k = 3",
+        "expected": "3",
+        "stdin": "8\n5 3 6 2 4 -1 -1 1\n3\n",
+        "expectedRaw": "3"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n1\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "5\n3 1 4 -1 2\n3\n",
+        "expectedRaw": "3"
+      },
+      {
+        "stdin": "5\n5 3 6 2 4\n5\n",
+        "expectedRaw": "6"
+      }
+    ]
+  },
+  "92": {
+    "id": 92,
+    "name": "Search in a BST",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "root = [4,2,7,1,3], val = 2",
+        "expected": "[2,1,3]",
+        "stdin": "5\n4 2 7 1 3\n2\n",
+        "expectedRaw": "2 1 3"
+      },
+      {
+        "input": "root = [4,2,7,1,3], val = 5",
+        "expected": "[]",
+        "stdin": "5\n4 2 7 1 3\n5\n",
+        "expectedRaw": ""
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n1\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "3\n4 2 7\n7\n",
+        "expectedRaw": "7"
+      },
+      {
+        "stdin": "3\n4 2 7\n6\n",
+        "expectedRaw": ""
+      }
+    ]
+  },
+  "93": {
+    "id": 93,
+    "name": "Insert into a BST",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "root = [4,2,7,1,3], val = 5",
+        "expected": "6 nodes",
+        "stdin": "5\n4 2 7 1 3\n5\n",
+        "expectedRaw": "6"
+      },
+      {
+        "input": "root = [40,20,60,10,30,50,70], val = 25",
+        "expected": "8 nodes",
+        "stdin": "7\n40 20 60 10 30 50 70\n25\n",
+        "expectedRaw": "8"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "0\n\n5\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "3\n2 1 3\n4\n",
+        "expectedRaw": "4"
+      },
+      {
+        "stdin": "1\n1\n2\n",
+        "expectedRaw": "2"
+      }
+    ]
+  },
+  "94": {
+    "id": 94,
+    "name": "Level Order Traversal",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "root = [3,9,20,null,null,15,7]",
+        "expected": "[[3],[9,20],[15,7]]",
+        "stdin": "7\n3 9 20 -1 -1 15 7\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "root = [1]",
+        "expected": "[[1]]",
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "0\n\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "3\n1 2 3\n",
+        "expectedRaw": "2"
+      },
+      {
+        "stdin": "7\n1 2 3 4 5 -1 -1\n",
+        "expectedRaw": "3"
+      }
+    ]
+  },
+  "95": {
+    "id": 95,
+    "name": "Right Side View of Binary Tree",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "root = [1,2,3,null,5,null,4]",
+        "expected": "[1,3,4]",
+        "stdin": "7\n1 2 3 -1 5 -1 4\n",
+        "expectedRaw": "1 3 4"
+      },
+      {
+        "input": "root = [1,null,3]",
+        "expected": "[1,3]",
+        "stdin": "3\n1 -1 3\n",
+        "expectedRaw": "1 3"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "0\n\n",
+        "expectedRaw": ""
+      },
+      {
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "2\n1 2\n",
+        "expectedRaw": "1 2"
+      }
+    ]
+  },
+  "96": {
+    "id": 96,
+    "name": "Binary Tree Zigzag Level Order Traversal",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "root = [3,9,20,null,null,15,7]",
+        "expected": "[[3],[20,9],[15,7]]",
+        "stdin": "7\n3 9 20 -1 -1 15 7\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "root = [1]",
+        "expected": "[[1]]",
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "0\n\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "7\n1 2 3 4 5 -1 -1\n",
+        "expectedRaw": "3"
+      },
+      {
+        "stdin": "2\n1 2\n",
+        "expectedRaw": "2"
+      }
+    ]
+  },
+  "97": {
+    "id": 97,
+    "name": "Serialize and Deserialize Binary Tree",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "root = [1,2,3,null,null,4,5]",
+        "expected": "5 nodes",
+        "stdin": "7\n1 2 3 -1 -1 4 5\n",
+        "expectedRaw": "5"
+      },
+      {
+        "input": "root = []",
+        "expected": "0 nodes",
+        "stdin": "0\n\n",
+        "expectedRaw": "0"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "2\n1 2\n",
+        "expectedRaw": "2"
+      },
+      {
+        "stdin": "7\n1 2 3 4 -1 -1 -1\n",
+        "expectedRaw": "4"
+      }
+    ]
+  },
+  "98": {
+    "id": 98,
+    "name": "Bubble Sort",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [64,34,25,12,22,11,90]",
+        "expected": "[11,12,22,25,34,64,90]",
+        "stdin": "7\n64 34 25 12 22 11 90\n",
+        "expectedRaw": "11 12 22 25 34 64 90"
+      },
+      {
+        "input": "nums = [5,1,4,2,8]",
+        "expected": "[1,2,4,5,8]",
+        "stdin": "5\n5 1 4 2 8\n",
+        "expectedRaw": "1 2 4 5 8"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "2\n2 1\n",
+        "expectedRaw": "1 2"
+      },
+      {
+        "stdin": "4\n1 2 3 4\n",
+        "expectedRaw": "1 2 3 4"
+      }
+    ]
+  },
+  "99": {
+    "id": 99,
+    "name": "Selection Sort",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [64,25,12,22,11]",
+        "expected": "[11,12,22,25,64]",
+        "stdin": "5\n64 25 12 22 11\n",
+        "expectedRaw": "11 12 22 25 64"
+      },
+      {
+        "input": "nums = [3,2,1]",
+        "expected": "[1,2,3]",
+        "stdin": "3\n3 2 1\n",
+        "expectedRaw": "1 2 3"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "5\n5 4 3 2 1\n",
+        "expectedRaw": "1 2 3 4 5"
+      },
+      {
+        "stdin": "3\n-3 -1 -2\n",
+        "expectedRaw": "-3 -2 -1"
+      }
+    ]
+  },
+  "100": {
+    "id": 100,
+    "name": "Insertion Sort",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [12,11,13,5,6]",
+        "expected": "[5,6,11,12,13]",
+        "stdin": "5\n12 11 13 5 6\n",
+        "expectedRaw": "5 6 11 12 13"
+      },
+      {
+        "input": "nums = [5,2,4,6,1,3]",
+        "expected": "[1,2,3,4,5,6]",
+        "stdin": "6\n5 2 4 6 1 3\n",
+        "expectedRaw": "1 2 3 4 5 6"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "2\n2 1\n",
+        "expectedRaw": "1 2"
+      },
+      {
+        "stdin": "3\n3 3 3\n",
+        "expectedRaw": "3 3 3"
+      }
+    ]
+  },
+  "101": {
+    "id": 101,
+    "name": "Merge Sort",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [38,27,43,3,9,82,10]",
+        "expected": "[3,9,10,27,38,43,82]",
+        "stdin": "7\n38 27 43 3 9 82 10\n",
+        "expectedRaw": "3 9 10 27 38 43 82"
+      },
+      {
+        "input": "nums = [5,2,4,6,1,3]",
+        "expected": "[1,2,3,4,5,6]",
+        "stdin": "6\n5 2 4 6 1 3\n",
+        "expectedRaw": "1 2 3 4 5 6"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "2\n2 1\n",
+        "expectedRaw": "1 2"
+      },
+      {
+        "stdin": "5\n-5 -1 3 0 2\n",
+        "expectedRaw": "-5 -1 0 2 3"
+      }
+    ]
+  },
+  "102": {
+    "id": 102,
+    "name": "Quick Sort",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [3,6,8,10,1,2,1]",
+        "expected": "[1,1,2,3,6,8,10]",
+        "stdin": "7\n3 6 8 10 1 2 1\n",
+        "expectedRaw": "1 1 2 3 6 8 10"
+      },
+      {
+        "input": "nums = [5,2,4,6,1,3]",
+        "expected": "[1,2,3,4,5,6]",
+        "stdin": "6\n5 2 4 6 1 3\n",
+        "expectedRaw": "1 2 3 4 5 6"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "4\n1 1 1 1\n",
+        "expectedRaw": "1 1 1 1"
+      },
+      {
+        "stdin": "5\n5 4 3 2 1\n",
+        "expectedRaw": "1 2 3 4 5"
+      }
+    ]
+  },
+  "103": {
+    "id": 103,
+    "name": "Counting Sort",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [4,2,2,8,3,3,1]",
+        "expected": "[1,2,2,3,3,4,8]",
+        "stdin": "7\n4 2 2 8 3 3 1\n",
+        "expectedRaw": "1 2 2 3 3 4 8"
+      },
+      {
+        "input": "nums = [2,0,2,1,1,0]",
+        "expected": "[0,0,1,1,2,2]",
+        "stdin": "6\n2 0 2 1 1 0\n",
+        "expectedRaw": "0 0 1 1 2 2"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "4\n0 0 0 0\n",
+        "expectedRaw": "0 0 0 0"
+      },
+      {
+        "stdin": "5\n5 3 1 4 2\n",
+        "expectedRaw": "1 2 3 4 5"
+      }
+    ]
+  },
+  "104": {
+    "id": 104,
+    "name": "Radix Sort",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [170,45,75,90,802,24,2,66]",
+        "expected": "[2,24,45,66,75,90,170,802]",
+        "stdin": "8\n170 45 75 90 802 24 2 66\n",
+        "expectedRaw": "2 24 45 66 75 90 170 802"
+      },
+      {
+        "input": "nums = [3,6,8,10,1,2]",
+        "expected": "[1,2,3,6,8,10]",
+        "stdin": "6\n3 6 8 10 1 2\n",
+        "expectedRaw": "1 2 3 6 8 10"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "3\n100 10 1\n",
+        "expectedRaw": "1 10 100"
+      },
+      {
+        "stdin": "3\n1 1 1\n",
+        "expectedRaw": "1 1 1"
+      }
+    ]
+  },
+  "105": {
+    "id": 105,
+    "name": "Merge Intervals",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "intervals = [[1,3],[2,6],[8,10],[15,18]]",
+        "expected": "[[1,6],[8,10],[15,18]]",
+        "stdin": "4 2\n1 3 2 6 8 10 15 18\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "intervals = [[1,4],[4,5]]",
+        "expected": "[[1,5]]",
+        "stdin": "2 2\n1 4 4 5\n",
+        "expectedRaw": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "2 2\n1 4 2 3\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "2 2\n1 2 3 4\n",
+        "expectedRaw": "2"
+      },
+      {
+        "stdin": "2 2\n1 4 0 4\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  "106": {
+    "id": 106,
+    "name": "Sort Colors",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [2,0,2,1,1,0]",
+        "expected": "[0,0,1,1,2,2]",
+        "stdin": "6\n2 0 2 1 1 0\n",
+        "expectedRaw": "0 0 1 1 2 2"
+      },
+      {
+        "input": "nums = [2,0,1]",
+        "expected": "[0,1,2]",
+        "stdin": "3\n2 0 1\n",
+        "expectedRaw": "0 1 2"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n0\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "3\n1 2 0\n",
+        "expectedRaw": "0 1 2"
+      },
+      {
+        "stdin": "3\n2 2 2\n",
+        "expectedRaw": "2 2 2"
+      }
+    ]
+  },
+  "107": {
+    "id": 107,
+    "name": "Kth Largest Element in Array",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [3,2,1,5,6,4], k = 2",
+        "expected": "5",
+        "stdin": "6\n3 2 1 5 6 4\n2\n",
+        "expectedRaw": "5"
+      },
+      {
+        "input": "nums = [3,2,3,1,2,4,5,5,6], k = 4",
+        "expected": "4",
+        "stdin": "9\n3 2 3 1 2 4 5 5 6\n4\n",
+        "expectedRaw": "4"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n1\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "2\n2 1\n1\n",
+        "expectedRaw": "2"
+      },
+      {
+        "stdin": "6\n3 2 1 5 6 4\n6\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  "108": {
+    "id": 108,
+    "name": "Binary Search",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [-1,0,3,5,9,12], target = 9",
+        "expected": "4",
+        "stdin": "6\n-1 0 3 5 9 12\n9\n",
+        "expectedRaw": "4"
+      },
+      {
+        "input": "nums = [-1,0,3,5,9,12], target = 2",
+        "expected": "-1",
+        "stdin": "6\n-1 0 3 5 9 12\n2\n",
+        "expectedRaw": "-1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n5\n5\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "5\n1 2 3 4 5\n6\n",
+        "expectedRaw": "-1"
+      },
+      {
+        "stdin": "5\n1 3 5 7 9\n7\n",
+        "expectedRaw": "3"
+      }
+    ]
+  },
+  "109": {
+    "id": 109,
+    "name": "Search in Rotated Sorted Array",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [4,5,6,7,0,1,2], target = 0",
+        "expected": "4",
+        "stdin": "7\n4 5 6 7 0 1 2\n0\n",
+        "expectedRaw": "4"
+      },
+      {
+        "input": "nums = [4,5,6,7,0,1,2], target = 3",
+        "expected": "-1",
+        "stdin": "7\n4 5 6 7 0 1 2\n3\n",
+        "expectedRaw": "-1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n1\n0\n",
+        "expectedRaw": "-1"
+      },
+      {
+        "stdin": "2\n1 3\n3\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "3\n5 1 3\n5\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  "110": {
+    "id": 110,
+    "name": "Find Peak Element",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [1,2,3,1]",
+        "expected": "2",
+        "stdin": "4\n1 2 3 1\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "nums = [1,2,1,3,5,6,4]",
+        "expected": "5",
+        "stdin": "7\n1 2 1 3 5 6 4\n",
+        "expectedRaw": "5"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n1\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "2\n1 2\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "2\n2 1\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  "111": {
+    "id": 111,
+    "name": "Search Insert Position",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [1,3,5,6], target = 5",
+        "expected": "2",
+        "stdin": "4\n1 3 5 6\n5\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "nums = [1,3,5,6], target = 2",
+        "expected": "1",
+        "stdin": "4\n1 3 5 6\n2\n",
+        "expectedRaw": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "4\n1 3 5 6\n7\n",
+        "expectedRaw": "4"
+      },
+      {
+        "stdin": "4\n1 3 5 6\n0\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "1\n1\n1\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  "112": {
+    "id": 112,
+    "name": "First and Last Position of Element",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [5,7,7,8,8,10], target = 8",
+        "expected": "[3,4]",
+        "stdin": "6\n5 7 7 8 8 10\n8\n",
+        "expectedRaw": "3 4"
+      },
+      {
+        "input": "nums = [5,7,7,8,8,10], target = 6",
+        "expected": "[-1,-1]",
+        "stdin": "6\n5 7 7 8 8 10\n6\n",
+        "expectedRaw": "-1 -1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "0\n\n0\n",
+        "expectedRaw": "-1 -1"
+      },
+      {
+        "stdin": "1\n1\n1\n",
+        "expectedRaw": "0 0"
+      },
+      {
+        "stdin": "5\n1 2 3 4 5\n3\n",
+        "expectedRaw": "2 2"
+      }
+    ]
+  },
+  "113": {
+    "id": 113,
+    "name": "Square Root using Binary Search",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "x = 4",
+        "expected": "2",
+        "stdin": "4\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "x = 8",
+        "expected": "2",
+        "stdin": "8\n",
+        "expectedRaw": "2"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "0\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "16\n",
+        "expectedRaw": "4"
+      }
+    ]
+  },
+  "114": {
+    "id": 114,
+    "name": "Koko Eating Bananas",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "piles = [3,6,7,11], h = 8",
+        "expected": "4",
+        "stdin": "4\n3 6 7 11\n8\n",
+        "expectedRaw": "4"
+      },
+      {
+        "input": "piles = [30,11,23,4,20], h = 5",
+        "expected": "30",
+        "stdin": "5\n30 11 23 4 20\n5\n",
+        "expectedRaw": "30"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "5\n30 11 23 4 20\n6\n",
+        "expectedRaw": "23"
+      },
+      {
+        "stdin": "4\n1 1 1 1\n4\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "1\n1000000000\n2\n",
+        "expectedRaw": "500000000"
+      }
+    ]
+  },
+  "115": {
+    "id": 115,
+    "name": "Find Minimum in Rotated Sorted Array",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [3,4,5,1,2]",
+        "expected": "1",
+        "stdin": "5\n3 4 5 1 2\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "nums = [4,5,6,7,0,1,2]",
+        "expected": "0",
+        "stdin": "7\n4 5 6 7 0 1 2\n",
+        "expectedRaw": "0"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "4\n11 13 15 17\n",
+        "expectedRaw": "11"
+      },
+      {
+        "stdin": "2\n2 1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  "116": {
+    "id": 116,
+    "name": "Search a 2D Matrix",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "matrix = [[1,3,5,7],[10,11,16,20],[23,30,34,60]], target = 3",
+        "expected": "true",
+        "stdin": "3 4\n1 3 5 7 10 11 16 20 23 30 34 60\n3\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "matrix = [[1,3,5,7],[10,11,16,20],[23,30,34,60]], target = 13",
+        "expected": "false",
+        "stdin": "3 4\n1 3 5 7 10 11 16 20 23 30 34 60\n13\n",
+        "expectedRaw": "0"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1 1\n1\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "2 2\n1 3 6 7\n6\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "2 2\n1 3 6 7\n5\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  "117": {
+    "id": 117,
+    "name": "Jump Game",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [2,3,1,1,4]",
+        "expected": "true",
+        "stdin": "5\n2 3 1 1 4\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "nums = [3,2,1,0,4]",
+        "expected": "false",
+        "stdin": "5\n3 2 1 0 4\n",
+        "expectedRaw": "0"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n0\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "2\n1 0\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "2\n0 1\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  "118": {
+    "id": 118,
+    "name": "Jump Game II",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [2,3,1,1,4]",
+        "expected": "2",
+        "stdin": "5\n2 3 1 1 4\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "nums = [2,3,0,1,4]",
+        "expected": "2",
+        "stdin": "5\n2 3 0 1 4\n",
+        "expectedRaw": "2"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n0\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "4\n1 1 1 1\n",
+        "expectedRaw": "3"
+      },
+      {
+        "stdin": "7\n3 2 1 0 4 1 2\n",
+        "expectedRaw": "2"
+      }
+    ]
+  },
+  "119": {
+    "id": 119,
+    "name": "Gas Station",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "gas=[1,2,3,4,5], cost=[3,4,5,1,2]",
+        "expected": "3",
+        "stdin": "5\n1 2 3 4 5\n5\n3 4 5 1 2\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "gas=[2,3,4], cost=[3,4,3]",
+        "expected": "-1",
+        "stdin": "3\n2 3 4\n3\n3 4 3\n",
+        "expectedRaw": "-1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n5\n1\n4\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "1\n1\n1\n2\n",
+        "expectedRaw": "-1"
+      },
+      {
+        "stdin": "3\n3 1 1\n3\n1 2 2\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  "120": {
+    "id": 120,
+    "name": "Max Profit II (Multiple Transactions)",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "prices = [7,1,5,3,6,4]",
+        "expected": "7",
+        "stdin": "6\n7 1 5 3 6 4\n",
+        "expectedRaw": "7"
+      },
+      {
+        "input": "prices = [1,2,3,4,5]",
+        "expected": "4",
+        "stdin": "5\n1 2 3 4 5\n",
+        "expectedRaw": "4"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "5\n7 6 4 3 1\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "1\n1\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "8\n3 3 5 0 0 3 1 4\n",
+        "expectedRaw": "8"
+      }
+    ]
+  },
+  "121": {
+    "id": 121,
+    "name": "Assign Cookies",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "g = [1,2,3], s = [1,1]",
+        "expected": "1",
+        "stdin": "3\n1 2 3\n2\n1 1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "g = [1,2], s = [1,2,3]",
+        "expected": "2",
+        "stdin": "2\n1 2\n3\n1 2 3\n",
+        "expectedRaw": "2"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "2\n2 3\n3\n1 2 3\n",
+        "expectedRaw": "2"
+      },
+      {
+        "stdin": "1\n1\n0\n\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "3\n10 9 8\n3\n5 6 7\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  "122": {
+    "id": 122,
+    "name": "Non-Overlapping Intervals",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "intervals = [[1,2],[2,3],[3,4],[1,3]]",
+        "expected": "1",
+        "stdin": "4 2\n1 2 2 3 3 4 1 3\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "intervals = [[1,2],[1,2],[1,2]]",
+        "expected": "2",
+        "stdin": "3 2\n1 2 1 2 1 2\n",
+        "expectedRaw": "2"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "2 2\n1 2 2 3\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "5 2\n0 2 1 3 2 4 3 5 4 6\n",
+        "expectedRaw": "2"
+      },
+      {
+        "stdin": "4 2\n1 100 11 22 1 11 2 12\n",
+        "expectedRaw": "2"
+      }
+    ]
+  },
+  "123": {
+    "id": 123,
+    "name": "Activity Selection Problem",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "start=[1,3,0,5,8,5], end=[2,4,6,7,9,9]",
+        "expected": "4",
+        "stdin": "6\n1 3 0 5 8 5\n6\n2 4 6 7 9 9\n",
+        "expectedRaw": "4"
+      },
+      {
+        "input": "start=[1,2,3], end=[3,4,5]",
+        "expected": "2",
+        "stdin": "3\n1 2 3\n3\n3 4 5\n",
+        "expectedRaw": "2"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n1\n1\n2\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "3\n0 1 2\n3\n1 2 3\n",
+        "expectedRaw": "3"
+      },
+      {
+        "stdin": "4\n0 3 1 5\n4\n6 5 4 7\n",
+        "expectedRaw": "2"
+      }
+    ]
+  },
+  "124": {
+    "id": 124,
+    "name": "Job Sequencing Problem",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "deadlines=[2,1,2,1,3], profits=[100,19,27,25,15]",
+        "expected": "142",
+        "stdin": "5\n2 1 2 1 3\n5\n100 19 27 25 15\n",
+        "expectedRaw": "142"
+      },
+      {
+        "input": "deadlines=[2,1,2,1,3], profits=[100,19,27,25,15] (variant)",
+        "expected": "142",
+        "stdin": "5\n2 1 2 1 3\n5\n100 19 27 25 15\n",
+        "expectedRaw": "142"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n1\n1\n5\n",
+        "expectedRaw": "5"
+      },
+      {
+        "stdin": "5\n1 2 3 4 5\n5\n10 20 30 40 50\n",
+        "expectedRaw": "150"
+      },
+      {
+        "stdin": "3\n3 1 2\n3\n50 10 20\n",
+        "expectedRaw": "80"
+      }
+    ]
+  },
+  "125": {
+    "id": 125,
+    "name": "Best Time to Buy and Sell Stock",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "prices = [7,1,5,3,6,4]",
+        "expected": "5",
+        "stdin": "6\n7 1 5 3 6 4\n",
+        "expectedRaw": "5"
+      },
+      {
+        "input": "prices = [7,6,4,3,1]",
+        "expected": "0",
+        "stdin": "5\n7 6 4 3 1\n",
+        "expectedRaw": "0"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n1\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "3\n2 4 1\n",
+        "expectedRaw": "2"
+      },
+      {
+        "stdin": "6\n3 2 6 5 0 3\n",
+        "expectedRaw": "4"
+      }
+    ]
+  },
+  "126": {
+    "id": 126,
+    "name": "Minimum Number of Coins",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "coins = [1,5,6,9], amount = 11",
+        "expected": "2",
+        "stdin": "4\n1 5 6 9\n11\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "coins = [2], amount = 3",
+        "expected": "-1",
+        "stdin": "1\n2\n3\n",
+        "expectedRaw": "-1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n1\n0\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "1\n2\n0\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "3\n1 2 5\n11\n",
+        "expectedRaw": "3"
+      }
+    ]
+  },
+  "127": {
+    "id": 127,
+    "name": "Climbing Stairs",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "n = 2",
+        "expected": "2",
+        "stdin": "2\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "n = 3",
+        "expected": "3",
+        "stdin": "3\n",
+        "expectedRaw": "3"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "5\n",
+        "expectedRaw": "8"
+      },
+      {
+        "stdin": "10\n",
+        "expectedRaw": "89"
+      }
+    ]
+  },
+  "128": {
+    "id": 128,
+    "name": "House Robber",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [1,2,3,1]",
+        "expected": "4",
+        "stdin": "4\n1 2 3 1\n",
+        "expectedRaw": "4"
+      },
+      {
+        "input": "nums = [2,7,9,3,1]",
+        "expected": "12",
+        "stdin": "5\n2 7 9 3 1\n",
+        "expectedRaw": "12"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "2\n1 2\n",
+        "expectedRaw": "2"
+      },
+      {
+        "stdin": "4\n2 1 1 2\n",
+        "expectedRaw": "4"
+      }
+    ]
+  },
+  "129": {
+    "id": 129,
+    "name": "Fibonacci Number",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "n = 2",
+        "expected": "1",
+        "stdin": "2\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "n = 3",
+        "expected": "2",
+        "stdin": "3\n",
+        "expectedRaw": "2"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "0\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "10\n",
+        "expectedRaw": "55"
+      }
+    ]
+  },
+  "130": {
+    "id": 130,
+    "name": "N-th Tribonacci Number",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "n = 4",
+        "expected": "4",
+        "stdin": "4\n",
+        "expectedRaw": "4"
+      },
+      {
+        "input": "n = 25",
+        "expected": "1389537",
+        "stdin": "25\n",
+        "expectedRaw": "1389537"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "0\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "10\n",
+        "expectedRaw": "149"
+      }
+    ]
+  },
+  "131": {
+    "id": 131,
+    "name": "Decode Ways",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "s = \"12\"",
+        "expected": "2",
+        "stdin": "12\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "s = \"226\"",
+        "expected": "3",
+        "stdin": "226\n",
+        "expectedRaw": "3"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "0\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "10\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "1234\n",
+        "expectedRaw": "3"
+      }
+    ]
+  },
+  "132": {
+    "id": 132,
+    "name": "Word Break",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "s = \"leetcode\", wordDict = [\"leet\",\"code\"]",
+        "expected": "true",
+        "stdin": "leetcode\n2\nleet\ncode\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "s = \"applepenapple\", wordDict = [\"apple\",\"pen\"]",
+        "expected": "true",
+        "stdin": "applepenapple\n2\napple\npen\n",
+        "expectedRaw": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "catsandog\n5\ncats\ndog\nsand\nand\ncat\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "a\n1\na\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "ab\n2\na\nb\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  "133": {
+    "id": 133,
+    "name": "Longest Increasing Subsequence",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [10,9,2,5,3,7,101,18]",
+        "expected": "4",
+        "stdin": "8\n10 9 2 5 3 7 101 18\n",
+        "expectedRaw": "4"
+      },
+      {
+        "input": "nums = [0,1,0,3,2,3]",
+        "expected": "4",
+        "stdin": "6\n0 1 0 3 2 3\n",
+        "expectedRaw": "4"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "5\n7 7 7 7 7\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "5\n1 2 3 4 5\n",
+        "expectedRaw": "5"
+      }
+    ]
+  },
+  "134": {
+    "id": 134,
+    "name": "Coin Change",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "coins = [1,5,6,9], amount = 11",
+        "expected": "2",
+        "stdin": "4\n1 5 6 9\n11\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "coins = [2], amount = 3",
+        "expected": "-1",
+        "stdin": "1\n2\n3\n",
+        "expectedRaw": "-1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n1\n0\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "1\n2\n0\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "3\n1 2 5\n11\n",
+        "expectedRaw": "3"
+      }
+    ]
+  },
+  "135": {
+    "id": 135,
+    "name": "Longest Common Subsequence",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "text1 = \"abcde\", text2 = \"ace\"",
+        "expected": "3",
+        "stdin": "abcde\nace\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "text1 = \"abc\", text2 = \"abc\"",
+        "expected": "3",
+        "stdin": "abc\nabc\n",
+        "expectedRaw": "3"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "abc\ndef\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "a\na\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "abcba\nabcbcba\n",
+        "expectedRaw": "5"
+      }
+    ]
+  },
+  "136": {
+    "id": 136,
+    "name": "0-1 Knapsack",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "weights=[1,3,4,5], values=[1,4,5,7], W=7",
+        "expected": "9",
+        "stdin": "4\n1 3 4 5\n4\n1 4 5 7\n7\n",
+        "expectedRaw": "9"
+      },
+      {
+        "input": "weights=[2,3], values=[3,4], W=2",
+        "expected": "3",
+        "stdin": "2\n2 3\n2\n3 4\n2\n",
+        "expectedRaw": "3"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n1\n1\n5\n1\n",
+        "expectedRaw": "5"
+      },
+      {
+        "stdin": "3\n1 2 3\n3\n6 10 12\n5\n",
+        "expectedRaw": "22"
+      },
+      {
+        "stdin": "2\n4 5\n2\n1 2\n3\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  "137": {
+    "id": 137,
+    "name": "Minimum Path Sum",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "grid = [[1,3,1],[1,5,1],[4,2,1]]",
+        "expected": "7",
+        "stdin": "3 3\n1 3 1\n1 5 1\n4 2 1\n",
+        "expectedRaw": "7"
+      },
+      {
+        "input": "grid = [[1,2,3],[4,5,6]]",
+        "expected": "12",
+        "stdin": "2 3\n1 2 3\n4 5 6\n",
+        "expectedRaw": "12"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1 1\n9\n",
+        "expectedRaw": "9"
+      },
+      {
+        "stdin": "2 2\n1 2\n1 1\n",
+        "expectedRaw": "3"
+      },
+      {
+        "stdin": "2 3\n1 2 5\n3 2 1\n",
+        "expectedRaw": "6"
+      }
+    ]
+  },
+  "138": {
+    "id": 138,
+    "name": "Unique Paths",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "m = 3, n = 7",
+        "expected": "28",
+        "stdin": "3\n7\n",
+        "expectedRaw": "28"
+      },
+      {
+        "input": "m = 3, n = 2",
+        "expected": "3",
+        "stdin": "3\n2\n",
+        "expectedRaw": "3"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "7\n3\n",
+        "expectedRaw": "28"
+      },
+      {
+        "stdin": "3\n3\n",
+        "expectedRaw": "6"
+      },
+      {
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  "139": {
+    "id": 139,
+    "name": "Edit Distance",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "word1 = \"horse\", word2 = \"ros\"",
+        "expected": "3",
+        "stdin": "horse\nros\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "word1 = \"intention\", word2 = \"execution\"",
+        "expected": "5",
+        "stdin": "intention\nexecution\n",
+        "expectedRaw": "5"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "@@EMPTY@@\n@@EMPTY@@\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "a\nb\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "abc\n@@EMPTY@@\n",
+        "expectedRaw": "3"
+      }
+    ]
+  },
+  "140": {
+    "id": 140,
+    "name": "Partition Equal Subset Sum",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [1,5,11,5]",
+        "expected": "true",
+        "stdin": "4\n1 5 11 5\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "nums = [1,2,3,5]",
+        "expected": "false",
+        "stdin": "4\n1 2 3 5\n",
+        "expectedRaw": "0"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "2\n1 1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "2\n1 2\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "6\n3 1 1 2 2 1\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  "141": {
+    "id": 141,
+    "name": "Burst Balloons",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [3,1,5,8]",
+        "expected": "167",
+        "stdin": "4\n3 1 5 8\n",
+        "expectedRaw": "167"
+      },
+      {
+        "input": "nums = [1,5]",
+        "expected": "10",
+        "stdin": "2\n1 5\n",
+        "expectedRaw": "10"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "0\n\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "1\n3\n",
+        "expectedRaw": "3"
+      },
+      {
+        "stdin": "3\n7 9 8\n",
+        "expectedRaw": "568"
+      }
+    ]
+  },
+  "142": {
+    "id": 142,
+    "name": "Maximum Subarray",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [-2,1,-3,4,-1,2,1,-5,4]",
+        "expected": "6",
+        "stdin": "9\n-2 1 -3 4 -1 2 1 -5 4\n",
+        "expectedRaw": "6"
+      },
+      {
+        "input": "nums = [1]",
+        "expected": "1",
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "5\n5 4 -1 7 8\n",
+        "expectedRaw": "23"
+      },
+      {
+        "stdin": "4\n-1 -2 -3 -4\n",
+        "expectedRaw": "-1"
+      },
+      {
+        "stdin": "4\n0 -3 1 1\n",
+        "expectedRaw": "2"
+      }
+    ]
+  },
+  "143": {
+    "id": 143,
+    "name": "Maximum Product Subarray",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [2,3,-2,4]",
+        "expected": "6",
+        "stdin": "4\n2 3 -2 4\n",
+        "expectedRaw": "6"
+      },
+      {
+        "input": "nums = [-2,0,-1]",
+        "expected": "0",
+        "stdin": "3\n-2 0 -1\n",
+        "expectedRaw": "0"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "3\n-2 3 -4\n",
+        "expectedRaw": "24"
+      },
+      {
+        "stdin": "2\n0 -2\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "1\n-2\n",
+        "expectedRaw": "-2"
+      }
+    ]
+  },
+  "144": {
+    "id": 144,
+    "name": "BFS Shortest Path",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "n = 4, edges = [[0,1],[1,2],[2,3]], src = 0, dest = 3",
+        "expected": "3",
+        "stdin": "4\n3 2\n0 1 1 2 2 3\n0\n3\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "n = 3, edges = [[0,1]], src = 0, dest = 2",
+        "expected": "-1",
+        "stdin": "3\n1 2\n0 1\n0\n2\n",
+        "expectedRaw": "-1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n0 2\n\n0\n0\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "5\n5 2\n0 1 0 2 1 3 2 3 3 4\n0\n4\n",
+        "expectedRaw": "3"
+      },
+      {
+        "stdin": "3\n3 2\n0 1 1 2 0 2\n0\n2\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  "145": {
+    "id": 145,
+    "name": "Pacific Atlantic Water Flow",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "heights=[[1,2,2,3,5],[3,2,3,4,4],[2,4,5,3,1],[6,7,1,4,5],[5,1,1,2,4]]",
+        "expected": "[[0,4],[1,3],[1,4],[2,2],[3,0],[3,1],[4,0]]",
+        "stdin": "5 5\n1 2 2 3 5\n3 2 3 4 4\n2 4 5 3 1\n6 7 1 4 5\n5 1 1 2 4\n",
+        "expectedRaw": "7"
+      },
+      {
+        "input": "heights = [[1]]",
+        "expected": "[[0,0]]",
+        "stdin": "1 1\n1\n",
+        "expectedRaw": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "2 2\n1 2\n4 3\n",
+        "expectedRaw": "3"
+      },
+      {
+        "stdin": "3 3\n3 3 3\n3 1 3\n0 2 4\n",
+        "expectedRaw": "8"
+      },
+      {
+        "stdin": "2 2\n1 1\n1 1\n",
+        "expectedRaw": "4"
+      }
+    ]
+  },
+  "146": {
+    "id": 146,
+    "name": "Walls and Gates",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "rooms = [[2147483647,-1,0,2147483647],[2147483647,2147483647,2147483647,-1],[2147483647,-1,2147483647,-1],[0,-1,2147483647,2147483647]]",
+        "expected": "[[3,-1,0,1],[2,2,1,-1],[1,-1,2,-1],[0,-1,3,4]]",
+        "stdin": "4 4\n2147483647 -1 0 2147483647\n2147483647 2147483647 2147483647 -1\n2147483647 -1 2147483647 -1\n0 -1 2147483647 2147483647\n",
+        "expectedRaw": "3 -1 0 1\n2 2 1 -1\n1 -1 2 -1\n0 -1 3 4"
+      },
+      {
+        "input": "rooms = [[-1]]",
+        "expected": "[[-1]]",
+        "stdin": "1 1\n-1\n",
+        "expectedRaw": "-1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1 1\n0\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "1 1\n2147483647\n",
+        "expectedRaw": "2147483647"
+      },
+      {
+        "stdin": "2 2\n0 2147483647\n-1 2147483647\n",
+        "expectedRaw": "0 1\n-1 2"
+      }
+    ]
+  },
+  "147": {
+    "id": 147,
+    "name": "Rotting Oranges",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "grid = [[2,1,1],[1,1,0],[0,1,1]]",
+        "expected": "4",
+        "stdin": "3 3\n2 1 1\n1 1 0\n0 1 1\n",
+        "expectedRaw": "4"
+      },
+      {
+        "input": "grid = [[2,1,1],[0,1,1],[1,0,1]]",
+        "expected": "-1",
+        "stdin": "3 3\n2 1 1\n0 1 1\n1 0 1\n",
+        "expectedRaw": "-1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1 2\n0 2\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "1 1\n1\n",
+        "expectedRaw": "-1"
+      },
+      {
+        "stdin": "3 3\n2 1 1\n1 1 1\n0 1 2\n",
+        "expectedRaw": "2"
+      }
+    ]
+  },
+  "148": {
+    "id": 148,
+    "name": "Word Ladder",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "beginWord=\"hit\", endWord=\"cog\", wordList=[\"hot\",\"dot\",\"dog\",\"lot\",\"log\",\"cog\"]",
+        "expected": "5",
+        "stdin": "hit\ncog\n6\nhot\ndot\ndog\nlot\nlog\ncog\n",
+        "expectedRaw": "5"
+      },
+      {
+        "input": "beginWord=\"hit\", endWord=\"cog\", wordList=[\"hot\",\"dot\",\"dog\",\"lot\",\"log\"]",
+        "expected": "0",
+        "stdin": "hit\ncog\n5\nhot\ndot\ndog\nlot\nlog\n",
+        "expectedRaw": "0"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "a\nb\n1\nb\n",
+        "expectedRaw": "2"
+      },
+      {
+        "stdin": "hot\ndog\n3\nhot\ndog\ndot\n",
+        "expectedRaw": "3"
+      },
+      {
+        "stdin": "abc\nxyz\n3\nabd\nabz\nxyz\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  "149": {
+    "id": 149,
+    "name": "Dijkstra's Algorithm",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "n=5, edges=[[0,1,10],[0,4,3],[1,2,2],[4,1,4],[4,3,8],[3,2,2]], src=0",
+        "expected": "0 7 9 11 3",
+        "stdin": "5\n6 3\n0 1 10 0 4 3 1 2 2 4 1 4 4 3 8 3 2 2\n0\n",
+        "expectedRaw": "0 7 9 11 3"
+      },
+      {
+        "input": "n=3, edges=[[0,1,1],[1,2,1]], src=0",
+        "expected": "0 1 2",
+        "stdin": "3\n2 3\n0 1 1 1 2 1\n0\n",
+        "expectedRaw": "0 1 2"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n0 3\n\n0\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "2\n1 3\n0 1 5\n0\n",
+        "expectedRaw": "0 5"
+      },
+      {
+        "stdin": "3\n3 3\n0 1 3 0 2 7 1 2 2\n0\n",
+        "expectedRaw": "0 3 5"
+      }
+    ]
+  },
+  "150": {
+    "id": 150,
+    "name": "Number of Islands",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "grid=[[\"1\",\"1\",\"1\",\"1\",\"0\"],[\"1\",\"1\",\"0\",\"1\",\"0\"],[\"1\",\"1\",\"0\",\"0\",\"0\"],[\"0\",\"0\",\"0\",\"0\",\"0\"]]",
+        "expected": "1",
+        "stdin": "4 5\n49 49 49 49 48\n49 49 48 49 48\n49 49 48 48 48\n48 48 48 48 48\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "grid=[[\"1\",\"1\",\"0\",\"0\",\"0\"],[\"1\",\"1\",\"0\",\"0\",\"0\"],[\"0\",\"0\",\"1\",\"0\",\"0\"],[\"0\",\"0\",\"0\",\"1\",\"1\"]]",
+        "expected": "3",
+        "stdin": "4 5\n49 49 48 48 48\n49 49 48 48 48\n48 48 49 48 48\n48 48 48 49 49\n",
+        "expectedRaw": "3"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1 1\n49\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "1 1\n48\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "2 2\n49 48\n48 49\n",
+        "expectedRaw": "2"
+      }
+    ]
+  },
+  "151": {
+    "id": 151,
+    "name": "Clone Graph",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "adjList = [[2,4],[1,3],[2,4],[1,3]]",
+        "expected": "4 nodes",
+        "stdin": "4\n2 2 4\n2 1 3\n2 2 4\n2 1 3\n",
+        "expectedRaw": "4"
+      },
+      {
+        "input": "adjList = [[]]",
+        "expected": "1 node",
+        "stdin": "1\n0\n",
+        "expectedRaw": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "0\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "2\n1 2\n1 1\n",
+        "expectedRaw": "2"
+      },
+      {
+        "stdin": "3\n2 2 3\n2 1 3\n2 1 2\n",
+        "expectedRaw": "3"
+      }
+    ]
+  },
+  "152": {
+    "id": 152,
+    "name": "Course Schedule",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "numCourses = 2, prerequisites = [[1,0]]",
+        "expected": "true",
+        "stdin": "2\n1 2\n1 0\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "numCourses = 2, prerequisites = [[1,0],[0,1]]",
+        "expected": "false",
+        "stdin": "2\n2 2\n1 0 0 1\n",
+        "expectedRaw": "0"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n0 2\n\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "3\n2 2\n1 0 2 1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "4\n4 2\n1 0 2 0 3 1 3 2\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  "153": {
+    "id": 153,
+    "name": "Detect Cycle in Directed Graph",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "V = 4, adj = [[0,1],[1,2],[2,3],[3,3]]",
+        "expected": "true",
+        "stdin": "4\n4 2\n0 1 1 2 2 3 3 3\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "V = 3, adj = [[0,1],[1,2]]",
+        "expected": "false",
+        "stdin": "3\n2 2\n0 1 1 2\n",
+        "expectedRaw": "0"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n0 2\n\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "2\n2 2\n0 1 1 0\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "3\n2 2\n0 1 0 2\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  "154": {
+    "id": 154,
+    "name": "Flood Fill",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "image = [[1,1,1],[1,1,0],[1,0,1]], sr = 1, sc = 1, color = 2",
+        "expected": "[[2,2,2],[2,2,0],[2,0,1]]",
+        "stdin": "3 3\n1 1 1\n1 1 0\n1 0 1\n1\n1\n2\n",
+        "expectedRaw": "2 2 2\n2 2 0\n2 0 1"
+      },
+      {
+        "input": "image = [[0,0,0],[0,0,0]], sr = 0, sc = 0, color = 0",
+        "expected": "[[0,0,0],[0,0,0]]",
+        "stdin": "2 3\n0 0 0\n0 0 0\n0\n0\n0\n",
+        "expectedRaw": "0 0 0\n0 0 0"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1 1\n0\n0\n0\n2\n",
+        "expectedRaw": "2"
+      },
+      {
+        "stdin": "2 2\n0 1\n1 1\n1\n1\n3\n",
+        "expectedRaw": "0 3\n3 3"
+      },
+      {
+        "stdin": "2 2\n1 0\n0 1\n0\n1\n4\n",
+        "expectedRaw": "1 4\n0 1"
+      }
+    ]
+  },
+  "155": {
+    "id": 155,
+    "name": "Word Search",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "board = [[\"A\",\"B\",\"C\",\"E\"],[\"S\",\"F\",\"C\",\"S\"],[\"A\",\"D\",\"E\",\"E\"]], word = \"ABCCED\"",
+        "expected": "true",
+        "stdin": "3 4\n65 66 67 69\n83 70 67 83\n65 68 69 69\nABCCED\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "board = [[\"A\",\"B\",\"C\",\"E\"],[\"S\",\"F\",\"C\",\"S\"],[\"A\",\"D\",\"E\",\"E\"]], word = \"SEE\"",
+        "expected": "true",
+        "stdin": "3 4\n65 66 67 69\n83 70 67 83\n65 68 69 69\nSEE\n",
+        "expectedRaw": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "3 4\n65 66 67 69\n83 70 67 83\n65 68 69 69\nABCB\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "1 1\n65\nA\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "1 1\n65\nB\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  "156": {
+    "id": 156,
+    "name": "Alien Dictionary",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "words = [\"wrt\",\"wrf\",\"er\",\"ett\",\"rftt\"]",
+        "expected": "\"wertf\"",
+        "stdin": "5\nwrt\nwrf\ner\nett\nrftt\n",
+        "expectedRaw": "wertf"
+      },
+      {
+        "input": "words = [\"z\",\"x\"]",
+        "expected": "\"zx\"",
+        "stdin": "2\nz\nx\n",
+        "expectedRaw": "zx"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "3\nz\nx\nz\n",
+        "expectedRaw": ""
+      },
+      {
+        "stdin": "2\na\nab\n",
+        "expectedRaw": "ab"
+      },
+      {
+        "stdin": "2\nwrt\nwrf\n",
+        "expectedRaw": "wrtf"
+      }
+    ]
+  },
+  "157": {
+    "id": 157,
+    "name": "Course Schedule II",
+    "compareMode": "unordered",
+    "sampleTests": [
+      {
+        "input": "numCourses = 2, prerequisites = [[1,0]]",
+        "expected": "[0,1]",
+        "stdin": "2\n1 2\n1 0\n",
+        "expectedRaw": "0 1"
+      },
+      {
+        "input": "numCourses = 4, prerequisites = [[1,0],[2,0],[3,1],[3,2]]",
+        "expected": "[0,2,1,3]",
+        "stdin": "4\n4 2\n1 0 2 0 3 1 3 2\n",
+        "expectedRaw": "0 2 1 3"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "2\n2 2\n0 1 1 0\n",
+        "expectedRaw": ""
+      },
+      {
+        "stdin": "1\n0 2\n\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "3\n2 2\n1 0 2 1\n",
+        "expectedRaw": "0 1 2"
+      }
+    ]
+  },
+  "158": {
+    "id": 158,
+    "name": "Number of Connected Components",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "n = 5, edges = [[0,1],[1,2],[3,4]]",
+        "expected": "2",
+        "stdin": "5\n3 2\n0 1 1 2 3 4\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "n = 5, edges = [[0,1],[1,2],[2,3],[3,4]]",
+        "expected": "1",
+        "stdin": "5\n4 2\n0 1 1 2 2 3 3 4\n",
+        "expectedRaw": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "5\n0 2\n\n",
+        "expectedRaw": "5"
+      },
+      {
+        "stdin": "1\n0 2\n\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "4\n3 2\n2 3 1 2 0 3\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  "159": {
+    "id": 159,
+    "name": "Redundant Connection",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "edges = [[1,2],[1,3],[2,3]]",
+        "expected": "[2,3]",
+        "stdin": "3 2\n1 2 1 3 2 3\n",
+        "expectedRaw": "2 3"
+      },
+      {
+        "input": "edges = [[1,2],[2,3],[3,4],[1,4],[1,5]]",
+        "expected": "[1,4]",
+        "stdin": "5 2\n1 2 2 3 3 4 1 4 1 5\n",
+        "expectedRaw": "1 4"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "3 2\n1 2 2 3 1 3\n",
+        "expectedRaw": "1 3"
+      },
+      {
+        "stdin": "4 2\n1 3 3 4 1 4 1 2\n",
+        "expectedRaw": "1 4"
+      },
+      {
+        "stdin": "5 2\n1 2 2 3 3 4 4 5 1 5\n",
+        "expectedRaw": "1 5"
+      }
+    ]
+  },
+  "160": {
+    "id": 160,
+    "name": "Fibonacci Number",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "n = 2",
+        "expected": "1",
+        "stdin": "2\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "n = 3",
+        "expected": "2",
+        "stdin": "3\n",
+        "expectedRaw": "2"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "0\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "10\n",
+        "expectedRaw": "55"
+      }
+    ]
+  },
+  "161": {
+    "id": 161,
+    "name": "Factorial using Recursion",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "n = 5",
+        "expected": "120",
+        "stdin": "5\n",
+        "expectedRaw": "120"
+      },
+      {
+        "input": "n = 3",
+        "expected": "6",
+        "stdin": "3\n",
+        "expectedRaw": "6"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "0\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "10\n",
+        "expectedRaw": "3628800"
+      }
+    ]
+  },
+  "162": {
+    "id": 162,
+    "name": "Sum of Digits using Recursion",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "n = 123",
+        "expected": "6",
+        "stdin": "123\n",
+        "expectedRaw": "6"
+      },
+      {
+        "input": "n = 4567",
+        "expected": "22",
+        "stdin": "4567\n",
+        "expectedRaw": "22"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "0\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "9\n",
+        "expectedRaw": "9"
+      },
+      {
+        "stdin": "99999\n",
+        "expectedRaw": "45"
+      }
+    ]
+  },
+  "163": {
+    "id": 163,
+    "name": "Power Function (Fast Exponentiation)",
+    "compareMode": "float",
+    "sampleTests": [
+      {
+        "input": "x = 2.00000, n = 10",
+        "expected": "1024.00000",
+        "stdin": "2\n10\n",
+        "expectedRaw": "1024.00000"
+      },
+      {
+        "input": "x = 2.10000, n = 3",
+        "expected": "9.26100",
+        "stdin": "2.1\n3\n",
+        "expectedRaw": "9.26100"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "2\n-2\n",
+        "expectedRaw": "0.25000"
+      },
+      {
+        "stdin": "1\n1000000000\n",
+        "expectedRaw": "1.00000"
+      },
+      {
+        "stdin": "0\n5\n",
+        "expectedRaw": "0.00000"
+      }
+    ]
+  },
+  "164": {
+    "id": 164,
+    "name": "Tower of Hanoi",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "n = 3",
+        "expected": "7",
+        "stdin": "3\n",
+        "expectedRaw": "7"
+      },
+      {
+        "input": "n = 4",
+        "expected": "15",
+        "stdin": "4\n",
+        "expectedRaw": "15"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "2\n",
+        "expectedRaw": "3"
+      },
+      {
+        "stdin": "5\n",
+        "expectedRaw": "31"
+      }
+    ]
+  },
+  "165": {
+    "id": 165,
+    "name": "Subsets",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [1,2,3]",
+        "expected": "8 subsets",
+        "stdin": "3\n1 2 3\n",
+        "expectedRaw": "8"
+      },
+      {
+        "input": "nums = [0]",
+        "expected": "2 subsets",
+        "stdin": "1\n0\n",
+        "expectedRaw": "2"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "0\n\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "2\n1 2\n",
+        "expectedRaw": "4"
+      },
+      {
+        "stdin": "4\n9 0 3 5\n",
+        "expectedRaw": "16"
+      }
+    ]
+  },
+  "166": {
+    "id": 166,
+    "name": "Permutations",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [1,2,3]",
+        "expected": "6 permutations",
+        "stdin": "3\n1 2 3\n",
+        "expectedRaw": "6"
+      },
+      {
+        "input": "nums = [0,1]",
+        "expected": "2 permutations",
+        "stdin": "2\n0 1\n",
+        "expectedRaw": "2"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "4\n3 2 1 4\n",
+        "expectedRaw": "24"
+      },
+      {
+        "stdin": "2\n5 6\n",
+        "expectedRaw": "2"
+      }
+    ]
+  },
+  "167": {
+    "id": 167,
+    "name": "Combination Sum",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "candidates = [2,3,6,7], target = 7",
+        "expected": "2 combinations",
+        "stdin": "4\n2 3 6 7\n7\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "candidates = [2,3,5], target = 8",
+        "expected": "3 combinations",
+        "stdin": "3\n2 3 5\n8\n",
+        "expectedRaw": "3"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n2\n1\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "1\n1\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "1\n1\n2\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  "168": {
+    "id": 168,
+    "name": "Letter Combinations of Phone Number",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "digits = \"23\"",
+        "expected": "9 combinations",
+        "stdin": "23\n",
+        "expectedRaw": "9"
+      },
+      {
+        "input": "digits = \"2\"",
+        "expected": "3 combinations",
+        "stdin": "2\n",
+        "expectedRaw": "3"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "7\n",
+        "expectedRaw": "4"
+      },
+      {
+        "stdin": "234\n",
+        "expectedRaw": "27"
+      }
+    ]
+  },
+  "169": {
+    "id": 169,
+    "name": "N-Queens",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "n = 4",
+        "expected": "2 solutions",
+        "stdin": "4\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "n = 1",
+        "expected": "1 solution",
+        "stdin": "1\n",
+        "expectedRaw": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "2\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "3\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "5\n",
+        "expectedRaw": "10"
+      }
+    ]
+  },
+  "170": {
+    "id": 170,
+    "name": "Word Search",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "board = [[\"A\",\"B\",\"C\",\"E\"],[\"S\",\"F\",\"C\",\"S\"],[\"A\",\"D\",\"E\",\"E\"]], word = \"ABCCED\"",
+        "expected": "true",
+        "stdin": "3 4\n65 66 67 69\n83 70 67 83\n65 68 69 69\nABCCED\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "board = [[\"A\",\"B\",\"C\",\"E\"],[\"S\",\"F\",\"C\",\"S\"],[\"A\",\"D\",\"E\",\"E\"]], word = \"SEE\"",
+        "expected": "true",
+        "stdin": "3 4\n65 66 67 69\n83 70 67 83\n65 68 69 69\nSEE\n",
+        "expectedRaw": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "3 4\n65 66 67 69\n83 70 67 83\n65 68 69 69\nABCB\n",
+        "expectedRaw": "0"
+      },
+      {
+        "stdin": "1 1\n65\nA\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "1 1\n65\nB\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  "171": {
+    "id": 171,
+    "name": "Kth Largest Element in Array",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "nums = [3,2,1,5,6,4], k = 2",
+        "expected": "5",
+        "stdin": "6\n3 2 1 5 6 4\n2\n",
+        "expectedRaw": "5"
+      },
+      {
+        "input": "nums = [3,2,3,1,2,4,5,5,6], k = 4",
+        "expected": "4",
+        "stdin": "9\n3 2 3 1 2 4 5 5 6\n4\n",
+        "expectedRaw": "4"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n1\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "stdin": "2\n2 1\n1\n",
+        "expectedRaw": "2"
+      },
+      {
+        "stdin": "6\n3 2 1 5 6 4\n6\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  "172": {
+    "id": 172,
+    "name": "Find Median from Data Stream",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "addNum(1),addNum(2),findMedian()",
+        "expected": "2.0",
+        "stdin": "3\n1 2 3\n",
+        "expectedRaw": "2.0"
+      },
+      {
+        "input": "addNum(5),findMedian()",
+        "expected": "5.0",
+        "stdin": "1\n5\n",
+        "expectedRaw": "5.0"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "3\n6 10 2\n",
+        "expectedRaw": "6.0"
+      },
+      {
+        "stdin": "2\n1 2\n",
+        "expectedRaw": "1.5"
+      },
+      {
+        "stdin": "3\n3 1 2\n",
+        "expectedRaw": "2.0"
+      }
+    ]
+  },
+  "173": {
+    "id": 173,
+    "name": "Merge K Sorted Lists",
+    "compareMode": "ordered",
+    "sampleTests": [
+      {
+        "input": "lists = [[1,4,5],[1,3,4],[2,6]]",
+        "expected": "1 1 2 3 4 4 5 6",
+        "stdin": "3\n3\n1 4 5\n3\n1 3 4\n2\n2 6\n",
+        "expectedRaw": "1 1 2 3 4 4 5 6"
+      },
+      {
+        "input": "lists = []",
+        "expected": "[]",
+        "stdin": "0\n",
+        "expectedRaw": ""
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "1\n0\n",
+        "expectedRaw": ""
+      },
+      {
+        "stdin": "3\n1\n1\n1\n2\n1\n3\n",
+        "expectedRaw": "1 2 3"
+      },
+      {
+        "stdin": "2\n2\n1 2\n2\n1 2\n",
+        "expectedRaw": "1 1 2 2"
+      }
+    ]
+  },
+  "174": {
+    "id": 174,
+    "name": "Top K Frequent Elements",
+    "compareMode": "unordered",
+    "sampleTests": [
+      {
+        "input": "nums = [1,1,1,2,2,3], k = 2",
+        "expected": "[1,2]",
+        "stdin": "6\n1 1 1 2 2 3\n2\n",
+        "expectedRaw": "1 2"
+      },
+      {
+        "input": "nums = [1], k = 1",
+        "expected": "[1]",
+        "stdin": "1\n1\n1\n",
+        "expectedRaw": "1"
+      }
+    ],
+    "hiddenTests": [
+      {
+        "stdin": "9\n4 4 4 4 2 2 2 1 3\n2\n",
+        "expectedRaw": "4 2"
+      },
+      {
+        "stdin": "2\n1 2\n2\n",
+        "expectedRaw": "1 2"
+      },
+      {
+        "stdin": "6\n1 1 1 2 2 3\n1\n",
+        "expectedRaw": "1"
+      }
+    ]
+  }
+}

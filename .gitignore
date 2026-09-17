@@ -1,3 +1,28 @@
 .firebase/
 firebase-debug.log
 .DS_Store
+
+# Backend secrets — NEVER commit these
+backend/.env
+.env
+backend/serviceAccount.json
+backend/*.json.key
+*firebase-adminsdk*.json
+*service-account*.json
+serviceAccount.json
+
+# Python & Test artifacts
+__pycache__/
+backend/__pycache__/
+backend/**/__pycache__/
+*.pyc
+backend/*.pyc
+backend/.venv/
+.pytest_cache/
+backend/.pytest_cache/
+.coverage
+htmlcov/
+
+# Backup files
+*.bak
+js/*.bak

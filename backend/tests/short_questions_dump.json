@@ -1,0 +1,3390 @@
+[
+  {
+    "id": 1,
+    "name": "Two Sum",
+    "words": 43,
+    "topic": "Arrays",
+    "pattern": "Hashing",
+    "statement": "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target. You may assume that each input would have exactly one solution, and you may not use the same element twice.",
+    "samples": [
+      {
+        "input": "nums = [2,7,11,15], target = 9",
+        "expected": "[0,1]",
+        "stdin": "4\n2 7 11 15\n9\n",
+        "expectedRaw": "0 1"
+      },
+      {
+        "input": "nums = [3,2,4], target = 6",
+        "expected": "[1,2]",
+        "stdin": "3\n3 2 4\n6\n",
+        "expectedRaw": "1 2"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Contains Duplicate",
+    "words": 25,
+    "topic": "Arrays",
+    "pattern": "Hashing",
+    "statement": "Given an integer array nums, return true if any value appears at least twice in the array, and return false if every element is distinct.",
+    "samples": [
+      {
+        "input": "nums = [1,2,3,1]",
+        "expected": "true",
+        "stdin": "4\n1 2 3 1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "nums = [1,2,3,4]",
+        "expected": "false",
+        "stdin": "4\n1 2 3 4\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "name": "Majority Element",
+    "words": 28,
+    "topic": "Arrays",
+    "pattern": "Hashing",
+    "statement": "Given an array nums of size n, return the majority element. The majority element is the element that appears more than n/2 times. The majority element always exists.",
+    "samples": [
+      {
+        "input": "nums = [3,2,3]",
+        "expected": "3",
+        "stdin": "3\n3 2 3\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "nums = [2,2,1,1,1,2,2]",
+        "expected": "2",
+        "stdin": "7\n2 2 1 1 1 2 2\n",
+        "expectedRaw": "2"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "name": "Find Missing Number",
+    "words": 26,
+    "topic": "Arrays",
+    "pattern": "Hashing",
+    "statement": "Given an array nums containing n distinct numbers in the range [0, n], return the only number in the range that is missing from the array.",
+    "samples": [
+      {
+        "input": "nums = [3,0,1]",
+        "expected": "2",
+        "stdin": "3\n3 0 1\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "nums = [0,1]",
+        "expected": "2",
+        "stdin": "2\n0 1\n",
+        "expectedRaw": "2"
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "name": "Find Duplicate Number",
+    "words": 41,
+    "topic": "Arrays",
+    "pattern": "Hashing",
+    "statement": "Given an array of integers nums containing n + 1 integers where each integer is in the range [1, n] inclusive, return the duplicate number. You must solve the problem without modifying the array nums and using only constant extra space.",
+    "samples": [
+      {
+        "input": "nums = [1,3,4,2,2]",
+        "expected": "2",
+        "stdin": "5\n1 3 4 2 2\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "nums = [3,1,3,4,2]",
+        "expected": "3",
+        "stdin": "5\n3 1 3 4 2\n",
+        "expectedRaw": "3"
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "name": "Count Frequency of Elements",
+    "words": 19,
+    "topic": "Arrays",
+    "pattern": "Hashing",
+    "statement": "Given an integer array nums and an integer target, return the total number of times target appears in nums.",
+    "samples": [
+      {
+        "input": "nums = [1,2,2,3,3,3], target = 3",
+        "expected": "3",
+        "stdin": "6\n1 2 2 3 3 3\n3\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "nums = [1,2,2,3,3,3], target = 2",
+        "expected": "2",
+        "stdin": "6\n1 2 2 3 3 3\n2\n",
+        "expectedRaw": "2"
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "name": "Find First Non-Repeating Element",
+    "words": 30,
+    "topic": "Arrays",
+    "pattern": "Hashing",
+    "statement": "Given an array of integers nums, find and return the first element that does not repeat (occurs exactly once in the array). If there is no such element, return -1.",
+    "samples": [
+      {
+        "input": "nums = [1,2,3,2,1,4]",
+        "expected": "3",
+        "stdin": "6\n1 2 3 2 1 4\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "nums = [9,4,9,6,7,4]",
+        "expected": "6",
+        "stdin": "6\n9 4 9 6 7 4\n",
+        "expectedRaw": "6"
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "name": "Find First Repeating Element",
+    "words": 29,
+    "topic": "Arrays",
+    "pattern": "Hashing",
+    "statement": "Given an array of integers nums, find the first repeating element whose duplicate (second occurrence) appears earliest when scanning from left to right. If no elements repeat, return -1.",
+    "samples": [
+      {
+        "input": "nums = [1,2,3,2,1]",
+        "expected": "2",
+        "stdin": "5\n1 2 3 2 1\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "nums = [3,1,2,1,3]",
+        "expected": "1",
+        "stdin": "5\n3 1 2 1 3\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "name": "Longest Consecutive Sequence",
+    "words": 26,
+    "topic": "Arrays",
+    "pattern": "Hashing",
+    "statement": "Given an unsorted array of integers nums, return the length of the longest consecutive elements sequence. You must write an algorithm that runs in O(n) time.",
+    "samples": [
+      {
+        "input": "nums = [100,4,200,1,3,2]",
+        "expected": "4",
+        "stdin": "6\n100 4 200 1 3 2\n",
+        "expectedRaw": "4"
+      },
+      {
+        "input": "nums = [0,3,7,2,5,8,4,6,0,1]",
+        "expected": "9",
+        "stdin": "10\n0 3 7 2 5 8 4 6 0 1\n",
+        "expectedRaw": "9"
+      }
+    ]
+  },
+  {
+    "id": 10,
+    "name": "Count Distinct Elements",
+    "words": 18,
+    "topic": "Arrays",
+    "pattern": "Hashing",
+    "statement": "Given an integer array nums, count and return the number of distinct (unique) elements present in the array.",
+    "samples": [
+      {
+        "input": "nums = [1,2,3,2,1]",
+        "expected": "3",
+        "stdin": "5\n1 2 3 2 1\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "nums = [1,1,1,1]",
+        "expected": "1",
+        "stdin": "4\n1 1 1 1\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  {
+    "id": 11,
+    "name": "Intersection of Two Arrays",
+    "words": 30,
+    "topic": "Arrays",
+    "pattern": "Hashing",
+    "statement": "Given two integer arrays nums1 and nums2, return an array of their intersection. Each element in the result must be unique and you may return the result in any order.",
+    "samples": [
+      {
+        "input": "nums1 = [1,2,2,1], nums2 = [2,2]",
+        "expected": "[2]",
+        "stdin": "4\n1 2 2 1\n2\n2 2\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "nums1 = [4,9,5], nums2 = [9,4,9,8,4]",
+        "expected": "[9,4]",
+        "stdin": "3\n4 9 5\n5\n9 4 9 8 4\n",
+        "expectedRaw": "4 9"
+      }
+    ]
+  },
+  {
+    "id": 12,
+    "name": "Union of Two Arrays",
+    "words": 24,
+    "topic": "Arrays",
+    "pattern": "Hashing",
+    "statement": "Given two integer arrays nums1 and nums2, determine the union of both arrays and return the total count of distinct elements in the union.",
+    "samples": [
+      {
+        "input": "nums1 = [1,2,3], nums2 = [2,3,4]",
+        "expected": "4",
+        "stdin": "3\n1 2 3\n3\n2 3 4\n",
+        "expectedRaw": "4"
+      },
+      {
+        "input": "nums1 = [1,2,1,3], nums2 = [2,2]",
+        "expected": "3",
+        "stdin": "4\n1 2 1 3\n2\n2 2\n",
+        "expectedRaw": "3"
+      }
+    ]
+  },
+  {
+    "id": 13,
+    "name": "Majority Element II",
+    "words": 19,
+    "topic": "Arrays",
+    "pattern": "Hashing",
+    "statement": "Given an integer array nums of size n, find all elements that appear more than ⌊ n/3 ⌋ times.",
+    "samples": [
+      {
+        "input": "nums = [3,2,3]",
+        "expected": "[3]",
+        "stdin": "3\n3 2 3\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "nums = [1,2]",
+        "expected": "[1,2]",
+        "stdin": "2\n1 2\n",
+        "expectedRaw": "1 2"
+      }
+    ]
+  },
+  {
+    "id": 14,
+    "name": "Move Zeroes",
+    "words": 22,
+    "topic": "Arrays",
+    "pattern": "Two Pointers",
+    "statement": "Given an integer array nums, move all 0s to the end while maintaining the relative order of non-zero elements. Do it in-place.",
+    "samples": [
+      {
+        "input": "nums = [0,1,0,3,12]",
+        "expected": "[1,3,12,0,0]",
+        "stdin": "5\n0 1 0 3 12\n",
+        "expectedRaw": "1 3 12 0 0"
+      },
+      {
+        "input": "nums = [0]",
+        "expected": "[0]",
+        "stdin": "1\n0\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  {
+    "id": 15,
+    "name": "Remove Duplicates from Sorted Array",
+    "words": 39,
+    "topic": "Arrays",
+    "pattern": "Two Pointers",
+    "statement": "Given an integer array nums sorted in non-decreasing order, remove the duplicates in-place such that each unique element appears only once. The relative order of the elements should be kept the same. Return the number of unique elements k.",
+    "samples": [
+      {
+        "input": "nums = [1,1,2]",
+        "expected": "2",
+        "stdin": "3\n1 1 2\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "nums = [0,0,1,1,1,2,2,3,3,4]",
+        "expected": "5",
+        "stdin": "10\n0 0 1 1 1 2 2 3 3 4\n",
+        "expectedRaw": "5"
+      }
+    ]
+  },
+  {
+    "id": 16,
+    "name": "Trapping Rain Water",
+    "words": 25,
+    "topic": "Arrays",
+    "pattern": "Two Pointers",
+    "statement": "Given n non-negative integers representing an elevation map where the width of each bar is 1, compute how much water it can trap after raining.",
+    "samples": [
+      {
+        "input": "height = [0,1,0,2,1,0,1,3,2,1,2,1]",
+        "expected": "6",
+        "stdin": "12\n0 1 0 2 1 0 1 3 2 1 2 1\n",
+        "expectedRaw": "6"
+      },
+      {
+        "input": "height = [4,2,0,3,2,5]",
+        "expected": "9",
+        "stdin": "6\n4 2 0 3 2 5\n",
+        "expectedRaw": "9"
+      }
+    ]
+  },
+  {
+    "id": 19,
+    "name": "Sort Colors",
+    "words": 41,
+    "topic": "Arrays",
+    "pattern": "Two Pointers",
+    "statement": "Given an array nums with n objects colored red, white, or blue, represented by 0, 1, and 2 respectively, sort them in-place so that objects of the same color are adjacent, with the colors in the order red, white, and blue.",
+    "samples": [
+      {
+        "input": "nums = [2,0,2,1,1,0]",
+        "expected": "[0,0,1,1,2,2]",
+        "stdin": "6\n2 0 2 1 1 0\n",
+        "expectedRaw": "0 0 1 1 2 2"
+      },
+      {
+        "input": "nums = [2,0,1]",
+        "expected": "[0,1,2]",
+        "stdin": "3\n2 0 1\n",
+        "expectedRaw": "0 1 2"
+      }
+    ]
+  },
+  {
+    "id": 20,
+    "name": "Pair With Given Sum",
+    "words": 41,
+    "topic": "Arrays",
+    "pattern": "Two Pointers",
+    "statement": "Given an array of integers nums and an integer target, determine whether there exists a pair of distinct elements nums[i] and nums[j] (where i != j) such that their sum equals target. Return true if such a pair exists, otherwise false.",
+    "samples": [
+      {
+        "input": "nums = [2,7,11,15], target = 9",
+        "expected": "true",
+        "stdin": "4\n2 7 11 15\n9\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "nums = [1,3,5], target = 10",
+        "expected": "false",
+        "stdin": "3\n1 3 5\n10\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  {
+    "id": 21,
+    "name": "Three Sum",
+    "words": 42,
+    "topic": "Arrays",
+    "pattern": "Two Pointers",
+    "statement": "Given an integer array nums, return all unique triplets [nums[i], nums[j], nums[k]] such that i != j, i != k, and j != k, and nums[i] + nums[j] + nums[k] == 0. Notice that the solution set must not contain duplicate triplets.",
+    "samples": [
+      {
+        "input": "nums = [-1,0,1,2,-1,-4]",
+        "expected": "[[-1,-1,2],[-1,0,1]]",
+        "stdin": "6\n-1 0 1 2 -1 -4\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "nums = [0,1,1]",
+        "expected": "[]",
+        "stdin": "3\n0 1 1\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  {
+    "id": 23,
+    "name": "Maximum Subarray Sum",
+    "words": 23,
+    "topic": "Arrays",
+    "pattern": "Sliding Window",
+    "statement": "Given an integer array nums, find the contiguous subarray (containing at least one number) which has the largest sum and return its sum.",
+    "samples": [
+      {
+        "input": "nums = [-2,1,-3,4,-1,2,1,-5,4]",
+        "expected": "6",
+        "stdin": "9\n-2 1 -3 4 -1 2 1 -5 4\n",
+        "expectedRaw": "6"
+      },
+      {
+        "input": "nums = [1]",
+        "expected": "1",
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  {
+    "id": 24,
+    "name": "Sliding Window Maximum",
+    "words": 35,
+    "topic": "Arrays",
+    "pattern": "Sliding Window",
+    "statement": "You are given an array of integers nums, there is a sliding window of size k which is moving from the very left of the array to the very right. Return the max sliding window.",
+    "samples": [
+      {
+        "input": "nums = [1,3,-1,-3,5,3,6,7], k = 3",
+        "expected": "[3,3,5,5,6,7]",
+        "stdin": "8\n1 3 -1 -3 5 3 6 7\n3\n",
+        "expectedRaw": "3 3 5 5 6 7"
+      },
+      {
+        "input": "nums = [1], k = 1",
+        "expected": "[1]",
+        "stdin": "1\n1\n1\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  {
+    "id": 25,
+    "name": "Longest Substring Without Repeating Characters",
+    "words": 14,
+    "topic": "Arrays",
+    "pattern": "Sliding Window",
+    "statement": "Given a string s, find the length of the longest substring without repeating characters.",
+    "samples": [
+      {
+        "input": "s = \"abcabcbb\"",
+        "expected": "3",
+        "stdin": "abcabcbb\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "s = \"bbbbb\"",
+        "expected": "1",
+        "stdin": "bbbbb\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  {
+    "id": 26,
+    "name": "Maximum Sum Subarray of Size K",
+    "words": 20,
+    "topic": "Arrays",
+    "pattern": "Sliding Window",
+    "statement": "Given an array of integers and a number k, find the maximum sum of any contiguous subarray of size k.",
+    "samples": [
+      {
+        "input": "arr = [2,3,4,1,5], k = 3",
+        "expected": "10",
+        "stdin": "5\n2 3 4 1 5\n3\n",
+        "expectedRaw": "10"
+      },
+      {
+        "input": "arr = [1,4,2,10,2,3,1,0,20], k = 4",
+        "expected": "24",
+        "stdin": "9\n1 4 2 10 2 3 1 0 20\n4\n",
+        "expectedRaw": "24"
+      }
+    ]
+  },
+  {
+    "id": 27,
+    "name": "First Negative Number in Every Window",
+    "words": 39,
+    "topic": "Arrays",
+    "pattern": "Sliding Window",
+    "statement": "Given an array of integers nums and a positive integer k, find the first negative integer in every window (contiguous subarray) of size k. If a window does not contain any negative integer, then output 0 for that window.",
+    "samples": [
+      {
+        "input": "nums = [-8,2,-6,5,-4], k = 2",
+        "expected": "[-8,-6,-6,-4]",
+        "stdin": "5\n-8 2 -6 5 -4\n2\n",
+        "expectedRaw": "-8 -6 -6 -4"
+      },
+      {
+        "input": "nums = [1,2,3,4,5], k = 2",
+        "expected": "[0,0,0,0]",
+        "stdin": "5\n1 2 3 4 5\n2\n",
+        "expectedRaw": "0 0 0 0"
+      }
+    ]
+  },
+  {
+    "id": 28,
+    "name": "Count Anagrams",
+    "words": 20,
+    "topic": "Arrays",
+    "pattern": "Sliding Window",
+    "statement": "Given two strings s and p, return the total count of substrings in s that are anagrams of pattern p.",
+    "samples": [
+      {
+        "input": "s = \"cbaebabacd\", p = \"abc\"",
+        "expected": "2",
+        "stdin": "cbaebabacd\nabc\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "s = \"abab\", p = \"ab\"",
+        "expected": "3",
+        "stdin": "abab\nab\n",
+        "expectedRaw": "3"
+      }
+    ]
+  },
+  {
+    "id": 29,
+    "name": "Minimum Window Substring",
+    "words": 42,
+    "topic": "Arrays",
+    "pattern": "Sliding Window",
+    "statement": "Given two strings s and t of lengths m and n respectively, return the minimum window substring of s such that every character in t (including duplicates) is included in the window. If there is no such substring, return the empty string.",
+    "samples": [
+      {
+        "input": "s = \"ADOBECODEBANC\", t = \"ABC\"",
+        "expected": "\"BANC\"",
+        "stdin": "ADOBECODEBANC\nABC\n",
+        "expectedRaw": "BANC"
+      },
+      {
+        "input": "s = \"a\", t = \"a\"",
+        "expected": "\"a\"",
+        "stdin": "a\na\n",
+        "expectedRaw": "a"
+      }
+    ]
+  },
+  {
+    "id": 31,
+    "name": "Subarray Sum Equals K",
+    "words": 21,
+    "topic": "Arrays",
+    "pattern": "Prefix Sum",
+    "statement": "Given an array of integers nums and an integer k, return the total number of subarrays whose sum equals to k.",
+    "samples": [
+      {
+        "input": "nums = [1,1,1], k = 2",
+        "expected": "2",
+        "stdin": "3\n1 1 1\n2\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "nums = [1,2,3], k = 3",
+        "expected": "2",
+        "stdin": "3\n1 2 3\n3\n",
+        "expectedRaw": "2"
+      }
+    ]
+  },
+  {
+    "id": 32,
+    "name": "Running Sum of 1D Array",
+    "words": 15,
+    "topic": "Arrays",
+    "pattern": "Prefix Sum",
+    "statement": "Given an array nums, return an array where runningSum[i] = sum of nums[0] through nums[i].",
+    "samples": [
+      {
+        "input": "nums = [1,2,3,4]",
+        "expected": "[1,3,6,10]",
+        "stdin": "4\n1 2 3 4\n",
+        "expectedRaw": "1 3 6 10"
+      },
+      {
+        "input": "nums = [1,1,1,1,1]",
+        "expected": "[1,2,3,4,5]",
+        "stdin": "5\n1 1 1 1 1\n",
+        "expectedRaw": "1 2 3 4 5"
+      }
+    ]
+  },
+  {
+    "id": 33,
+    "name": "Longest Subarray with Sum K",
+    "words": 21,
+    "topic": "Arrays",
+    "pattern": "Prefix Sum",
+    "statement": "Given an array of integers (possibly negative) and integer k, return the length of the longest subarray whose sum equals k.",
+    "samples": [
+      {
+        "input": "nums = [10,5,2,7,1,9], k = 15",
+        "expected": "4",
+        "stdin": "6\n10 5 2 7 1 9\n15\n",
+        "expectedRaw": "4"
+      },
+      {
+        "input": "nums = [1,2,3], k = 3",
+        "expected": "2",
+        "stdin": "3\n1 2 3\n3\n",
+        "expectedRaw": "2"
+      }
+    ]
+  },
+  {
+    "id": 34,
+    "name": "Equilibrium Index",
+    "words": 28,
+    "topic": "Arrays",
+    "pattern": "Prefix Sum",
+    "statement": "Find an index in an array such that the sum of elements to its left equals the sum to its right. Return -1 if no such index exists.",
+    "samples": [
+      {
+        "input": "nums = [-7,1,5,2,-4,3,0]",
+        "expected": "3",
+        "stdin": "7\n-7 1 5 2 -4 3 0\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "nums = [1,2,3]",
+        "expected": "-1",
+        "stdin": "3\n1 2 3\n",
+        "expectedRaw": "-1"
+      }
+    ]
+  },
+  {
+    "id": 35,
+    "name": "Range Sum Query",
+    "words": 41,
+    "topic": "Arrays",
+    "pattern": "Prefix Sum",
+    "statement": "Given an integer array nums and two indices left and right (with left <= right), calculate and return the sum of the elements of nums between indices left and right inclusive (i.e. nums[left] + nums[left + 1] + ... + nums[right]).",
+    "samples": [
+      {
+        "input": "nums = [-2,0,3,-5,2,-1], left = 0, right = 2",
+        "expected": "1",
+        "stdin": "6\n-2 0 3 -5 2 -1\n0\n2\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "nums = [-2,0,3,-5,2,-1], left = 2, right = 5",
+        "expected": "-1",
+        "stdin": "6\n-2 0 3 -5 2 -1\n2\n5\n",
+        "expectedRaw": "-1"
+      }
+    ]
+  },
+  {
+    "id": 36,
+    "name": "Rotate Array",
+    "words": 14,
+    "topic": "Arrays",
+    "pattern": "General",
+    "statement": "Given an integer array nums, rotate the array to the right by k steps.",
+    "samples": [
+      {
+        "input": "nums = [1,2,3,4,5,6,7], k = 3",
+        "expected": "[5,6,7,1,2,3,4]",
+        "stdin": "7\n1 2 3 4 5 6 7\n3\n",
+        "expectedRaw": "5 6 7 1 2 3 4"
+      },
+      {
+        "input": "nums = [-1,-100,3,99], k = 2",
+        "expected": "[3,99,-1,-100]",
+        "stdin": "4\n-1 -100 3 99\n2\n",
+        "expectedRaw": "3 99 -1 -100"
+      }
+    ]
+  },
+  {
+    "id": 37,
+    "name": "Leaders in an Array",
+    "words": 28,
+    "topic": "Arrays",
+    "pattern": "General",
+    "statement": "Given an array, find all leaders. An element is a leader if it is greater than all elements to its right. The rightmost element is always a leader.",
+    "samples": [
+      {
+        "input": "nums = [16,17,4,3,5,2]",
+        "expected": "[17,5,2]",
+        "stdin": "6\n16 17 4 3 5 2\n",
+        "expectedRaw": "17 5 2"
+      },
+      {
+        "input": "nums = [1,2,3,4]",
+        "expected": "[4]",
+        "stdin": "4\n1 2 3 4\n",
+        "expectedRaw": "4"
+      }
+    ]
+  },
+  {
+    "id": 38,
+    "name": "Maximum Subarray",
+    "words": 16,
+    "topic": "Arrays",
+    "pattern": "General",
+    "statement": "Given an integer array nums, find the subarray with the largest sum, and return its sum.",
+    "samples": [
+      {
+        "input": "nums = [-2,1,-3,4,-1,2,1,-5,4]",
+        "expected": "6",
+        "stdin": "9\n-2 1 -3 4 -1 2 1 -5 4\n",
+        "expectedRaw": "6"
+      },
+      {
+        "input": "nums = [1]",
+        "expected": "1",
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  {
+    "id": 39,
+    "name": "Maximum Product Subarray",
+    "words": 17,
+    "topic": "Arrays",
+    "pattern": "General",
+    "statement": "Given an integer array nums, find a subarray that has the largest product, and return the product.",
+    "samples": [
+      {
+        "input": "nums = [2,3,-2,4]",
+        "expected": "6",
+        "stdin": "4\n2 3 -2 4\n",
+        "expectedRaw": "6"
+      },
+      {
+        "input": "nums = [-2,0,-1]",
+        "expected": "0",
+        "stdin": "3\n-2 0 -1\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  {
+    "id": 40,
+    "name": "Merge Intervals",
+    "words": 30,
+    "topic": "Arrays",
+    "pattern": "General",
+    "statement": "Given an array of intervals where intervals[i] = [starti, endi], merge all overlapping intervals, and return an array of the non-overlapping intervals that cover all the intervals in the input.",
+    "samples": [
+      {
+        "input": "intervals = [[1,3],[2,6],[8,10],[15,18]]",
+        "expected": "[[1,6],[8,10],[15,18]]",
+        "stdin": "4 2\n1 3 2 6 8 10 15 18\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "intervals = [[1,4],[4,5]]",
+        "expected": "[[1,5]]",
+        "stdin": "2 2\n1 4 4 5\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  {
+    "id": 41,
+    "name": "Find Minimum in Rotated Sorted Array",
+    "words": 33,
+    "topic": "Arrays",
+    "pattern": "General",
+    "statement": "Suppose an array of length n sorted in ascending order is rotated between 1 and n times. Given the sorted rotated array nums of unique elements, return the minimum element of this array.",
+    "samples": [
+      {
+        "input": "nums = [3,4,5,1,2]",
+        "expected": "1",
+        "stdin": "5\n3 4 5 1 2\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "nums = [4,5,6,7,0,1,2]",
+        "expected": "0",
+        "stdin": "7\n4 5 6 7 0 1 2\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  {
+    "id": 42,
+    "name": "Valid Anagram",
+    "words": 44,
+    "topic": "Strings",
+    "pattern": "Hashing",
+    "statement": "Given two strings s and t, return true if t is an anagram of s, and false otherwise. An Anagram is a word or phrase formed by rearranging the letters of a different word or phrase, typically using all the original letters exactly once.",
+    "samples": [
+      {
+        "input": "s = \"anagram\", t = \"nagaram\"",
+        "expected": "true",
+        "stdin": "anagram\nnagaram\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "s = \"rat\", t = \"car\"",
+        "expected": "false",
+        "stdin": "rat\ncar\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  {
+    "id": 43,
+    "name": "Group Anagrams",
+    "words": 18,
+    "topic": "Strings",
+    "pattern": "Hashing",
+    "statement": "Given an array of strings strs, group the anagrams together. You can return the answer in any order.",
+    "samples": [
+      {
+        "input": "strs = [\"eat\",\"tea\",\"tan\",\"ate\",\"nat\",\"bat\"]",
+        "expected": "3 groups",
+        "stdin": "6\neat\ntea\ntan\nate\nnat\nbat\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "strs = [\"\"]",
+        "expected": "1 group",
+        "stdin": "1\n@@EMPTY@@\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  {
+    "id": 44,
+    "name": "First Unique Character in a String",
+    "words": 20,
+    "topic": "Strings",
+    "pattern": "Hashing",
+    "statement": "Given a string s, find the first non-repeating character and return its index. If it does not exist, return -1.",
+    "samples": [
+      {
+        "input": "s = \"leetcode\"",
+        "expected": "0",
+        "stdin": "leetcode\n",
+        "expectedRaw": "0"
+      },
+      {
+        "input": "s = \"loveleetcode\"",
+        "expected": "2",
+        "stdin": "loveleetcode\n",
+        "expectedRaw": "2"
+      }
+    ]
+  },
+  {
+    "id": 45,
+    "name": "Roman to Integer",
+    "words": 11,
+    "topic": "Strings",
+    "pattern": "Hashing",
+    "statement": "Given a roman numeral string s, convert it to an integer.",
+    "samples": [
+      {
+        "input": "s = \"III\"",
+        "expected": "3",
+        "stdin": "III\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "s = \"LVIII\"",
+        "expected": "58",
+        "stdin": "LVIII\n",
+        "expectedRaw": "58"
+      }
+    ]
+  },
+  {
+    "id": 46,
+    "name": "Character Frequency Count",
+    "words": 15,
+    "topic": "Strings",
+    "pattern": "Hashing",
+    "statement": "Given a string, find and return the frequency of each character present in the string.",
+    "samples": [
+      {
+        "input": "s = \"aababab\", c = \"a\"",
+        "expected": "4",
+        "stdin": "aababab\na\n",
+        "expectedRaw": "4"
+      },
+      {
+        "input": "s = \"hello\", c = \"l\"",
+        "expected": "2",
+        "stdin": "hello\nl\n",
+        "expectedRaw": "2"
+      }
+    ]
+  },
+  {
+    "id": 47,
+    "name": "Count Vowels and Consonants",
+    "words": 22,
+    "topic": "Strings",
+    "pattern": "Hashing",
+    "statement": "Given a string s, count and return the total number of vowels ('a', 'e', 'i', 'o', 'u', case-insensitive) present in the string.",
+    "samples": [
+      {
+        "input": "s = \"hello\"",
+        "expected": "2",
+        "stdin": "hello\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "s = \"aeiou\"",
+        "expected": "5",
+        "stdin": "aeiou\n",
+        "expectedRaw": "5"
+      }
+    ]
+  },
+  {
+    "id": 48,
+    "name": "Valid Palindrome",
+    "words": 40,
+    "topic": "Strings",
+    "pattern": "Two Pointers",
+    "statement": "A phrase is a palindrome if, after converting all uppercase letters into lowercase letters and removing all non-alphanumeric characters, it reads the same forward and backward. Given a string s, return true if it is a palindrome, or false otherwise.",
+    "samples": [
+      {
+        "input": "s = \"A man a plan a canal Panama\"",
+        "expected": "true",
+        "stdin": "AmanaplanacanalPanama\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "s = \"race a car\"",
+        "expected": "false",
+        "stdin": "raceacar\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  {
+    "id": 49,
+    "name": "Reverse String",
+    "words": 14,
+    "topic": "Strings",
+    "pattern": "Two Pointers",
+    "statement": "Write a function that reverses an array of characters in-place using O(1) extra space.",
+    "samples": [
+      {
+        "input": "s = ['h','e','l','l','o']",
+        "expected": "['o','l','l','e','h']",
+        "stdin": "5\n104 101 108 108 111\n",
+        "expectedRaw": "111 108 108 101 104"
+      },
+      {
+        "input": "s = ['H','a','n','n','a','h']",
+        "expected": "['h','a','n','n','a','H']",
+        "stdin": "6\n72 97 110 110 97 104\n",
+        "expectedRaw": "104 97 110 110 97 72"
+      }
+    ]
+  },
+  {
+    "id": 50,
+    "name": "Reverse Words in a String",
+    "words": 21,
+    "topic": "Strings",
+    "pattern": "Two Pointers",
+    "statement": "Given an input string s, reverse the order of the words. Remove leading/trailing spaces and reduce multiple spaces to single space.",
+    "samples": [
+      {
+        "input": "s = \"the sky is blue\"",
+        "expected": "\"blue is sky the\"",
+        "stdin": "the_sky_is_blue\n",
+        "expectedRaw": "blue is sky the"
+      },
+      {
+        "input": "s = \"  hello world  \"",
+        "expected": "\"world hello\"",
+        "stdin": "hello_world\n",
+        "expectedRaw": "world hello"
+      }
+    ]
+  },
+  {
+    "id": 51,
+    "name": "String Compression",
+    "words": 24,
+    "topic": "Strings",
+    "pattern": "Two Pointers",
+    "statement": "Compress a character array in-place: consecutive repeating characters are replaced by the character followed by its count (omit count if 1). Return new length.",
+    "samples": [
+      {
+        "input": "chars = ['a','a','b','b','c','c','c']",
+        "expected": "6",
+        "stdin": "7\n97 97 98 98 99 99 99\n",
+        "expectedRaw": "6"
+      },
+      {
+        "input": "chars = ['a']",
+        "expected": "1",
+        "stdin": "1\n97\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  {
+    "id": 52,
+    "name": "Longest Substring Without Repeating Characters",
+    "words": 14,
+    "topic": "Strings",
+    "pattern": "Sliding Window",
+    "statement": "Given a string s, find the length of the longest substring without repeating characters.",
+    "samples": [
+      {
+        "input": "s = \"abcabcbb\"",
+        "expected": "3",
+        "stdin": "abcabcbb\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "s = \"bbbbb\"",
+        "expected": "1",
+        "stdin": "bbbbb\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  {
+    "id": 54,
+    "name": "Find All Anagrams in String",
+    "words": 27,
+    "topic": "Strings",
+    "pattern": "Sliding Window",
+    "statement": "Given two strings s and p, return an array of all the start indices of p's anagrams in s. You may return the answer in any order.",
+    "samples": [
+      {
+        "input": "s = \"cbaebabacd\", p = \"abc\"",
+        "expected": "[0,6]",
+        "stdin": "cbaebabacd\nabc\n",
+        "expectedRaw": "0 6"
+      },
+      {
+        "input": "s = \"abab\", p = \"ab\"",
+        "expected": "[0,1,2]",
+        "stdin": "abab\nab\n",
+        "expectedRaw": "0 1 2"
+      }
+    ]
+  },
+  {
+    "id": 55,
+    "name": "Minimum Window Substring",
+    "words": 43,
+    "topic": "Strings",
+    "pattern": "Sliding Window",
+    "statement": "Given two strings s and t of lengths m and n respectively, return the minimum window substring of s such that every character in t (including duplicates) is included in the window. If there is no such substring, return the empty string \"\".",
+    "samples": [
+      {
+        "input": "s = \"ADOBECODEBANC\", t = \"ABC\"",
+        "expected": "\"BANC\"",
+        "stdin": "ADOBECODEBANC\nABC\n",
+        "expectedRaw": "BANC"
+      },
+      {
+        "input": "s = \"a\", t = \"a\"",
+        "expected": "\"a\"",
+        "stdin": "a\na\n",
+        "expectedRaw": "a"
+      }
+    ]
+  },
+  {
+    "id": 56,
+    "name": "Longest Common Prefix",
+    "words": 23,
+    "topic": "Strings",
+    "pattern": "General",
+    "statement": "Write a function to find the longest common prefix string amongst an array of strings. Return empty string if no common prefix exists.",
+    "samples": [
+      {
+        "input": "strs = [\"flower\",\"flow\",\"flight\"]",
+        "expected": "\"fl\"",
+        "stdin": "3\nflower\nflow\nflight\n",
+        "expectedRaw": "fl"
+      },
+      {
+        "input": "strs = [\"dog\",\"racecar\",\"car\"]",
+        "expected": "\"\"",
+        "stdin": "3\ndog\nracecar\ncar\n",
+        "expectedRaw": ""
+      }
+    ]
+  },
+  {
+    "id": 57,
+    "name": "Check String Rotation",
+    "words": 19,
+    "topic": "Strings",
+    "pattern": "General",
+    "statement": "Given two strings s and goal, return true if s can become goal after some number of left rotations.",
+    "samples": [
+      {
+        "input": "s = \"abcde\", goal = \"cdeab\"",
+        "expected": "true",
+        "stdin": "abcde\ncdeab\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "s = \"abcde\", goal = \"abced\"",
+        "expected": "false",
+        "stdin": "abcde\nabced\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  {
+    "id": 58,
+    "name": "Encode and Decode Strings",
+    "words": 32,
+    "topic": "Strings",
+    "pattern": "General",
+    "statement": "Design an algorithm to encode a list of strings to a single string. The encoded string is then sent over the network and is decoded back to the original list of strings.",
+    "samples": [
+      {
+        "input": "strs = [\"Hello\",\"World\"]",
+        "expected": "2",
+        "stdin": "2\nHello\nWorld\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "strs = [\"\"]",
+        "expected": "1",
+        "stdin": "1\n-\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  {
+    "id": 59,
+    "name": "Longest Palindromic Substring",
+    "words": 11,
+    "topic": "Strings",
+    "pattern": "General",
+    "statement": "Given a string s, return the longest palindromic substring in s.",
+    "samples": [
+      {
+        "input": "s = \"babad\"",
+        "expected": "\"bab\" or \"aba\"",
+        "stdin": "babad\n",
+        "expectedRaw": "bab | aba"
+      },
+      {
+        "input": "s = \"cbbd\"",
+        "expected": "\"bb\"",
+        "stdin": "cbbd\n",
+        "expectedRaw": "bb"
+      }
+    ]
+  },
+  {
+    "id": 60,
+    "name": "Palindromic Substrings",
+    "words": 36,
+    "topic": "Strings",
+    "pattern": "General",
+    "statement": "Given a string s, return the number of palindromic substrings in it. A string is a palindrome when it reads the same backward as forward. A substring is a contiguous sequence of characters within the string.",
+    "samples": [
+      {
+        "input": "s = \"abc\"",
+        "expected": "3",
+        "stdin": "abc\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "s = \"aaa\"",
+        "expected": "6",
+        "stdin": "aaa\n",
+        "expectedRaw": "6"
+      }
+    ]
+  },
+  {
+    "id": 61,
+    "name": "Linked List Cycle",
+    "words": 45,
+    "topic": "Linked List",
+    "pattern": "Fast & Slow Pointer",
+    "statement": "Given head, the head of a linked list, determine if the linked list has a cycle in it. There is a cycle in a linked list if there is some node in the list that can be reached again by continuously following the next pointer.",
+    "samples": [
+      {
+        "input": "head = [3,2,0,-4], pos = 1",
+        "expected": "true",
+        "stdin": "4\n3 2 0 -4\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "head = [1,2], pos = 0",
+        "expected": "true",
+        "stdin": "2\n1 2\n0\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  {
+    "id": 62,
+    "name": "Middle of Linked List",
+    "words": 20,
+    "topic": "Linked List",
+    "pattern": "Fast & Slow Pointer",
+    "statement": "Given the head of a singly linked list, return the middle node. If two middle nodes, return the second middle.",
+    "samples": [
+      {
+        "input": "head = [1,2,3,4,5]",
+        "expected": "3",
+        "stdin": "5\n1 2 3 4 5\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "head = [1,2,3,4,5,6]",
+        "expected": "4",
+        "stdin": "6\n1 2 3 4 5 6\n",
+        "expectedRaw": "4"
+      }
+    ]
+  },
+  {
+    "id": 63,
+    "name": "Palindrome Linked List",
+    "words": 15,
+    "topic": "Linked List",
+    "pattern": "Fast & Slow Pointer",
+    "statement": "Given the head of a singly linked list, return true if it is a palindrome.",
+    "samples": [
+      {
+        "input": "head = [1,2,2,1]",
+        "expected": "true",
+        "stdin": "4\n1 2 2 1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "head = [1,2]",
+        "expected": "false",
+        "stdin": "2\n1 2\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  {
+    "id": 64,
+    "name": "Detect Cycle Start in Linked List",
+    "words": 21,
+    "topic": "Linked List",
+    "pattern": "Fast & Slow Pointer",
+    "statement": "Given the head of a linked list, return the node where the cycle begins. If there is no cycle, return null.",
+    "samples": [
+      {
+        "input": "head = [3,2,0,-4], pos = 1",
+        "expected": "2",
+        "stdin": "4\n3 2 0 -4\n1\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "head = [1,2], pos = 0",
+        "expected": "1",
+        "stdin": "2\n1 2\n0\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  {
+    "id": 65,
+    "name": "Reverse Linked List",
+    "words": 16,
+    "topic": "Linked List",
+    "pattern": "Reversal",
+    "statement": "Given the head of a singly linked list, reverse the list, and return the reversed list.",
+    "samples": [
+      {
+        "input": "head = [1,2,3,4,5]",
+        "expected": "[5,4,3,2,1]",
+        "stdin": "5\n1 2 3 4 5\n",
+        "expectedRaw": "5 4 3 2 1"
+      },
+      {
+        "input": "head = [1,2]",
+        "expected": "[2,1]",
+        "stdin": "2\n1 2\n",
+        "expectedRaw": "2 1"
+      }
+    ]
+  },
+  {
+    "id": 67,
+    "name": "Merge Two Sorted Lists",
+    "words": 45,
+    "topic": "Linked List",
+    "pattern": "General",
+    "statement": "You are given the heads of two sorted linked lists list1 and list2. Merge the two lists in a one sorted list. The list should be made by splicing together the nodes of the first two lists. Return the head of the merged linked list.",
+    "samples": [
+      {
+        "input": "list1 = [1,2,4], list2 = [1,3,4]",
+        "expected": "[1,1,2,3,4,4]",
+        "stdin": "3\n1 2 4\n3\n1 3 4\n",
+        "expectedRaw": "1 1 2 3 4 4"
+      },
+      {
+        "input": "list1 = [], list2 = []",
+        "expected": "[]",
+        "stdin": "0\n\n0\n\n",
+        "expectedRaw": ""
+      }
+    ]
+  },
+  {
+    "id": 68,
+    "name": "Remove Nth Node From End of List",
+    "words": 21,
+    "topic": "Linked List",
+    "pattern": "General",
+    "statement": "Given the head of a linked list, remove the nth node from the end of the list and return its head.",
+    "samples": [
+      {
+        "input": "head = [1,2,3,4,5], n = 2",
+        "expected": "[1,2,3,5]",
+        "stdin": "5\n1 2 3 4 5\n2\n",
+        "expectedRaw": "1 2 3 5"
+      },
+      {
+        "input": "head = [1], n = 1",
+        "expected": "[]",
+        "stdin": "1\n1\n1\n",
+        "expectedRaw": ""
+      }
+    ]
+  },
+  {
+    "id": 69,
+    "name": "Add Two Numbers",
+    "words": 23,
+    "topic": "Linked List",
+    "pattern": "General",
+    "statement": "Two non-empty linked lists represent two non-negative integers stored in reverse order. Add the two numbers and return sum as a linked list.",
+    "samples": [
+      {
+        "input": "l1 = [2,4,3], l2 = [5,6,4]",
+        "expected": "[7,0,8]",
+        "stdin": "3\n2 4 3\n3\n5 6 4\n",
+        "expectedRaw": "7 0 8"
+      },
+      {
+        "input": "l1 = [0], l2 = [0]",
+        "expected": "[0]",
+        "stdin": "1\n0\n1\n0\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  {
+    "id": 70,
+    "name": "Intersection of Two Linked Lists",
+    "words": 19,
+    "topic": "Linked List",
+    "pattern": "General",
+    "statement": "Given heads of two singly linked lists, return the node where they intersect. Return null if they don't intersect.",
+    "samples": [
+      {
+        "input": "listA=[4,1,8,4,5], listB=[5,6,1,8,4,5], skipA=2, skipB=3",
+        "expected": "8",
+        "stdin": "2\n4 1\n3\n5 6 1\n3\n8 4 5\n",
+        "expectedRaw": "8"
+      },
+      {
+        "input": "listA=[1,9,1,2,4], listB=[3,2,4], skipA=3, skipB=1",
+        "expected": "2",
+        "stdin": "3\n1 9 1\n1\n3\n2\n2 4\n",
+        "expectedRaw": "2"
+      }
+    ]
+  },
+  {
+    "id": 71,
+    "name": "Find The Duplicate Number",
+    "words": 33,
+    "topic": "Linked List",
+    "pattern": "General",
+    "statement": "Given an array of integers nums containing n + 1 integers where each integer is in the range [1, n] inclusive. There is only one repeated number in nums, return this repeated number.",
+    "samples": [
+      {
+        "input": "nums = [1,3,4,2,2]",
+        "expected": "2",
+        "stdin": "5\n1 3 4 2 2\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "nums = [3,1,3,4,2]",
+        "expected": "3",
+        "stdin": "5\n3 1 3 4 2\n",
+        "expectedRaw": "3"
+      }
+    ]
+  },
+  {
+    "id": 72,
+    "name": "Valid Parentheses",
+    "words": 44,
+    "topic": "Stacks & Queues",
+    "pattern": "Stack",
+    "statement": "Given a string s containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid. An input string is valid if open brackets must be closed by the same type of brackets and in the correct order.",
+    "samples": [
+      {
+        "input": "s = \"()\"",
+        "expected": "true",
+        "stdin": "()\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "s = \"()[]{\"",
+        "expected": "true",
+        "stdin": "()[]{}\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  {
+    "id": 73,
+    "name": "Min Stack",
+    "words": 16,
+    "topic": "Stacks & Queues",
+    "pattern": "Stack",
+    "statement": "Design a stack that supports push, pop, top, and retrieving the minimum element in constant time.",
+    "samples": [
+      {
+        "input": "push(-2),push(0),push(-3),getMin()",
+        "expected": "-3",
+        "stdin": "3\n-2 0 -3\n",
+        "expectedRaw": "-3"
+      },
+      {
+        "input": "push(1),getMin()",
+        "expected": "1",
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  {
+    "id": 74,
+    "name": "Implement Queue Using Stacks",
+    "words": 23,
+    "topic": "Stacks & Queues",
+    "pattern": "Stack",
+    "statement": "Implement a first in first out (FIFO) queue using only two stacks. The implemented queue should support push, pop, peek, and empty operations.",
+    "samples": [
+      {
+        "input": "push(1),push(2),peek()",
+        "expected": "1",
+        "stdin": "2\n1 2\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "push(1),peek()",
+        "expected": "1",
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  {
+    "id": 75,
+    "name": "Daily Temperatures",
+    "words": 35,
+    "topic": "Stacks & Queues",
+    "pattern": "Monotonic Stack",
+    "statement": "Given an array of integers temperatures represents the daily temperatures, return an array answer such that answer[i] is the number of days you have to wait after the ith day to get a warmer temperature.",
+    "samples": [
+      {
+        "input": "temperatures = [73,74,75,71,69,72,76,73]",
+        "expected": "[1,1,4,2,1,1,0,0]",
+        "stdin": "8\n73 74 75 71 69 72 76 73\n",
+        "expectedRaw": "1 1 4 2 1 1 0 0"
+      },
+      {
+        "input": "temperatures = [30,40,50,60]",
+        "expected": "[1,1,1,0]",
+        "stdin": "4\n30 40 50 60\n",
+        "expectedRaw": "1 1 1 0"
+      }
+    ]
+  },
+  {
+    "id": 76,
+    "name": "Largest Rectangle in Histogram",
+    "words": 29,
+    "topic": "Stacks & Queues",
+    "pattern": "Monotonic Stack",
+    "statement": "Given an array of integers heights representing the histogram's bar height where the width of each bar is 1, return the area of the largest rectangle in the histogram.",
+    "samples": [
+      {
+        "input": "heights = [2,1,5,6,2,3]",
+        "expected": "10",
+        "stdin": "6\n2 1 5 6 2 3\n",
+        "expectedRaw": "10"
+      },
+      {
+        "input": "heights = [2,4]",
+        "expected": "4",
+        "stdin": "2\n2 4\n",
+        "expectedRaw": "4"
+      }
+    ]
+  },
+  {
+    "id": 77,
+    "name": "Next Greater Element",
+    "words": 23,
+    "topic": "Stacks & Queues",
+    "pattern": "Monotonic Stack",
+    "statement": "For each element in nums1 (subset of nums2), find the next greater element to its right in nums2. Return -1 if none exists.",
+    "samples": [
+      {
+        "input": "nums1 = [4,1,2], nums2 = [1,3,4,2]",
+        "expected": "[-1,3,-1]",
+        "stdin": "3\n4 1 2\n4\n1 3 4 2\n",
+        "expectedRaw": "-1 3 -1"
+      },
+      {
+        "input": "nums1 = [2,4], nums2 = [1,2,3,4]",
+        "expected": "[3,-1]",
+        "stdin": "2\n2 4\n4\n1 2 3 4\n",
+        "expectedRaw": "3 -1"
+      }
+    ]
+  },
+  {
+    "id": 78,
+    "name": "Stock Span Problem",
+    "words": 31,
+    "topic": "Stacks & Queues",
+    "pattern": "Monotonic Stack",
+    "statement": "The span of a stock price today is the maximum number of consecutive days (including today) the price was less than or equal to today's price. Return span for each day.",
+    "samples": [
+      {
+        "input": "prices = [100,80,60,70,60,75,85]",
+        "expected": "[1,1,1,2,1,4,6]",
+        "stdin": "7\n100 80 60 70 60 75 85\n",
+        "expectedRaw": "1 1 1 2 1 4 6"
+      },
+      {
+        "input": "prices = [10,4,5,90,120,80]",
+        "expected": "[1,1,2,4,5,1]",
+        "stdin": "6\n10 4 5 90 120 80\n",
+        "expectedRaw": "1 1 2 4 5 1"
+      }
+    ]
+  },
+  {
+    "id": 80,
+    "name": "Design Circular Queue",
+    "words": 15,
+    "topic": "Stacks & Queues",
+    "pattern": "Queue",
+    "statement": "Design a circular queue of size k with enQueue, deQueue, Front, Rear, isEmpty, isFull operations.",
+    "samples": [
+      {
+        "input": "k=3, enQueue(1),enQueue(2),enQueue(3),Rear()",
+        "expected": "3",
+        "stdin": "3\n1 2 3\n3\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "k=6, enQueue(6),Rear()",
+        "expected": "6",
+        "stdin": "1\n6\n6\n",
+        "expectedRaw": "6"
+      }
+    ]
+  },
+  {
+    "id": 81,
+    "name": "First Non-Repeating Character in Stream",
+    "words": 20,
+    "topic": "Stacks & Queues",
+    "pattern": "Queue",
+    "statement": "Given a stream of characters, at each point print the first non-repeating character. Print '#' if no such character exists.",
+    "samples": [
+      {
+        "input": "stream = \"aabc\"",
+        "expected": "\"a#bb\"",
+        "stdin": "aabc\n",
+        "expectedRaw": "a#bb"
+      },
+      {
+        "input": "stream = \"abcabc\"",
+        "expected": "\"aaabc#\"",
+        "stdin": "abcabc\n",
+        "expectedRaw": "aaabc#"
+      }
+    ]
+  },
+  {
+    "id": 82,
+    "name": "Maximum Depth of Binary Tree",
+    "words": 35,
+    "topic": "Trees & BST",
+    "pattern": "DFS",
+    "statement": "Given the root of a binary tree, return its maximum depth. A binary tree's maximum depth is the number of nodes along the longest path from the root node down to the farthest leaf node.",
+    "samples": [
+      {
+        "input": "root = [3,9,20,null,null,15,7]",
+        "expected": "3",
+        "stdin": "7\n3 9 20 -1 -1 15 7\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "root = [1,null,2]",
+        "expected": "2",
+        "stdin": "2\n1 2\n",
+        "expectedRaw": "2"
+      }
+    ]
+  },
+  {
+    "id": 83,
+    "name": "Invert Binary Tree",
+    "words": 14,
+    "topic": "Trees & BST",
+    "pattern": "DFS",
+    "statement": "Given the root of a binary tree, invert the tree, and return its root.",
+    "samples": [
+      {
+        "input": "root = [4,2,7,1,3,6,9]",
+        "expected": "[4,7,2,9,6,3,1]",
+        "stdin": "7\n4 2 7 1 3 6 9\n",
+        "expectedRaw": "4 7 2 9 6 3 1"
+      },
+      {
+        "input": "root = [2,1,3]",
+        "expected": "[2,3,1]",
+        "stdin": "3\n2 1 3\n",
+        "expectedRaw": "2 3 1"
+      }
+    ]
+  },
+  {
+    "id": 84,
+    "name": "Diameter of Binary Tree",
+    "words": 36,
+    "topic": "Trees & BST",
+    "pattern": "DFS",
+    "statement": "Given the root of a binary tree, return the length of the diameter of the tree. The diameter of a binary tree is the length of the longest path between any two nodes in a tree.",
+    "samples": [
+      {
+        "input": "root = [1,2,3,4,5]",
+        "expected": "3",
+        "stdin": "5\n1 2 3 4 5\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "root = [1,2]",
+        "expected": "1",
+        "stdin": "2\n1 2\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  {
+    "id": 85,
+    "name": "Balanced Binary Tree",
+    "words": 34,
+    "topic": "Trees & BST",
+    "pattern": "DFS",
+    "statement": "Given a binary tree, determine if it is height-balanced. A height-balanced binary tree is a binary tree in which the depth of the two subtrees of every node never differs by more than one.",
+    "samples": [
+      {
+        "input": "root = [3,9,20,null,null,15,7]",
+        "expected": "true",
+        "stdin": "7\n3 9 20 -1 -1 15 7\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "root = [1,2,2,3,3,null,null,4,4]",
+        "expected": "false",
+        "stdin": "9\n1 2 2 3 3 -1 -1 4 4\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  {
+    "id": 86,
+    "name": "Path Sum",
+    "words": 32,
+    "topic": "Trees & BST",
+    "pattern": "DFS",
+    "statement": "Given the root of a binary tree and an integer targetSum, return true if the tree has a root-to-leaf path such that adding up all the values along the path equals targetSum.",
+    "samples": [
+      {
+        "input": "root = [5,4,8,11,null,13,4,7,2,null,null,null,1], targetSum = 22",
+        "expected": "true",
+        "stdin": "13\n5 4 8 11 -1 13 4 7 2 -1 -1 -1 1\n22\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "root = [1,2,3], targetSum = 5",
+        "expected": "false",
+        "stdin": "3\n1 2 3\n5\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  {
+    "id": 87,
+    "name": "Construct Binary Tree from Preorder and Inorder",
+    "words": 33,
+    "topic": "Trees & BST",
+    "pattern": "DFS",
+    "statement": "Given two integer arrays preorder and inorder where preorder is the preorder traversal of a binary tree and inorder is the inorder traversal of the same tree, construct and return the binary tree.",
+    "samples": [
+      {
+        "input": "preorder = [3,9,20,15,7], inorder = [9,3,15,20,7]",
+        "expected": "[3,9,20,null,null,15,7]",
+        "stdin": "5\n3 9 20 15 7\n5\n9 3 15 20 7\n",
+        "expectedRaw": "3 9 20 15 7"
+      },
+      {
+        "input": "preorder = [-1], inorder = [-1]",
+        "expected": "[-1]",
+        "stdin": "1\n-1\n1\n-1\n",
+        "expectedRaw": "-1"
+      }
+    ]
+  },
+  {
+    "id": 88,
+    "name": "LCA of Binary Tree",
+    "words": 31,
+    "topic": "Trees & BST",
+    "pattern": "DFS",
+    "statement": "Given a binary tree (not BST) and two nodes p and q, find the Lowest Common Ancestor. The LCA is the deepest node that has both p and q as descendants.",
+    "samples": [
+      {
+        "input": "root=[3,5,1,6,2,0,8,null,null,7,4], p=5, q=1",
+        "expected": "3",
+        "stdin": "11\n3 5 1 6 2 0 8 -1 -1 7 4\n5\n1\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "root=[3,5,1,6,2,0,8,null,null,7,4], p=5, q=4",
+        "expected": "5",
+        "stdin": "11\n3 5 1 6 2 0 8 -1 -1 7 4\n5\n4\n",
+        "expectedRaw": "5"
+      }
+    ]
+  },
+  {
+    "id": 89,
+    "name": "Validate Binary Search Tree",
+    "words": 17,
+    "topic": "Trees & BST",
+    "pattern": "DFS",
+    "statement": "Given the root of a binary tree, determine if it is a valid binary search tree (BST).",
+    "samples": [
+      {
+        "input": "root = [2,1,3]",
+        "expected": "true",
+        "stdin": "3\n2 1 3\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "root = [5,1,4,null,null,3,6]",
+        "expected": "false",
+        "stdin": "4\n5 1 4 6\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  {
+    "id": 90,
+    "name": "Lowest Common Ancestor of BST",
+    "words": 20,
+    "topic": "Trees & BST",
+    "pattern": "DFS",
+    "statement": "Given a binary search tree (BST), find the lowest common ancestor (LCA) node of two given nodes in the BST.",
+    "samples": [
+      {
+        "input": "root=[6,2,8,0,4,7,9,null,null,3,5], p=2, q=8",
+        "expected": "6",
+        "stdin": "11\n6 2 8 0 4 7 9 -1 -1 3 5\n2\n8\n",
+        "expectedRaw": "6"
+      },
+      {
+        "input": "root=[6,2,8,0,4,7,9,null,null,3,5], p=2, q=4",
+        "expected": "2",
+        "stdin": "11\n6 2 8 0 4 7 9 -1 -1 3 5\n2\n4\n",
+        "expectedRaw": "2"
+      }
+    ]
+  },
+  {
+    "id": 91,
+    "name": "Kth Smallest in BST",
+    "words": 28,
+    "topic": "Trees & BST",
+    "pattern": "DFS",
+    "statement": "Given the root of a binary search tree, and an integer k, return the kth smallest value (1-indexed) of all the values of the nodes in the tree.",
+    "samples": [
+      {
+        "input": "root = [3,1,4,null,2], k = 1",
+        "expected": "1",
+        "stdin": "5\n3 1 4 -1 2\n1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "root = [5,3,6,2,4,null,null,1], k = 3",
+        "expected": "3",
+        "stdin": "8\n5 3 6 2 4 -1 -1 1\n3\n",
+        "expectedRaw": "3"
+      }
+    ]
+  },
+  {
+    "id": 92,
+    "name": "Search in a BST",
+    "words": 28,
+    "topic": "Trees & BST",
+    "pattern": "DFS",
+    "statement": "Given root of a BST and an integer val, find the node whose value equals val and return the subtree rooted at it. Return null if not found.",
+    "samples": [
+      {
+        "input": "root = [4,2,7,1,3], val = 2",
+        "expected": "[2,1,3]",
+        "stdin": "5\n4 2 7 1 3\n2\n",
+        "expectedRaw": "2 1 3"
+      },
+      {
+        "input": "root = [4,2,7,1,3], val = 5",
+        "expected": "[]",
+        "stdin": "5\n4 2 7 1 3\n5\n",
+        "expectedRaw": ""
+      }
+    ]
+  },
+  {
+    "id": 93,
+    "name": "Insert into a BST",
+    "words": 19,
+    "topic": "Trees & BST",
+    "pattern": "DFS",
+    "statement": "Given root of a BST and a value to insert (guaranteed not to exist), return the root after insertion.",
+    "samples": [
+      {
+        "input": "root = [4,2,7,1,3], val = 5",
+        "expected": "6 nodes",
+        "stdin": "5\n4 2 7 1 3\n5\n",
+        "expectedRaw": "6"
+      },
+      {
+        "input": "root = [40,20,60,10,30,50,70], val = 25",
+        "expected": "8 nodes",
+        "stdin": "7\n40 20 60 10 30 50 70\n25\n",
+        "expectedRaw": "8"
+      }
+    ]
+  },
+  {
+    "id": 94,
+    "name": "Level Order Traversal",
+    "words": 24,
+    "topic": "Trees & BST",
+    "pattern": "BFS",
+    "statement": "Given the root of a binary tree, return the level order traversal of its nodes' values (i.e., from left to right, level by level).",
+    "samples": [
+      {
+        "input": "root = [3,9,20,null,null,15,7]",
+        "expected": "[[3],[9,20],[15,7]]",
+        "stdin": "7\n3 9 20 -1 -1 15 7\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "root = [1]",
+        "expected": "[[1]]",
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  {
+    "id": 95,
+    "name": "Right Side View of Binary Tree",
+    "words": 30,
+    "topic": "Trees & BST",
+    "pattern": "BFS",
+    "statement": "Given the root of a binary tree, imagine yourself standing on the right side of it, return the values of the nodes you can see ordered from top to bottom.",
+    "samples": [
+      {
+        "input": "root = [1,2,3,null,5,null,4]",
+        "expected": "[1,3,4]",
+        "stdin": "7\n1 2 3 -1 5 -1 4\n",
+        "expectedRaw": "1 3 4"
+      },
+      {
+        "input": "root = [1,null,3]",
+        "expected": "[1,3]",
+        "stdin": "3\n1 -1 3\n",
+        "expectedRaw": "1 3"
+      }
+    ]
+  },
+  {
+    "id": 96,
+    "name": "Binary Tree Zigzag Level Order Traversal",
+    "words": 19,
+    "topic": "Trees & BST",
+    "pattern": "BFS",
+    "statement": "Given root of a binary tree, return zigzag level order traversal: left to right, then right to left, alternating.",
+    "samples": [
+      {
+        "input": "root = [3,9,20,null,null,15,7]",
+        "expected": "[[3],[20,9],[15,7]]",
+        "stdin": "7\n3 9 20 -1 -1 15 7\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "root = [1]",
+        "expected": "[[1]]",
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  {
+    "id": 97,
+    "name": "Serialize and Deserialize Binary Tree",
+    "words": 38,
+    "topic": "Trees & BST",
+    "pattern": "BFS",
+    "statement": "Serialization is the process of converting a data structure or object into a sequence of bits so that it can be stored in a file or memory buffer. Design an algorithm to serialize and deserialize a binary tree.",
+    "samples": [
+      {
+        "input": "root = [1,2,3,null,null,4,5]",
+        "expected": "5 nodes",
+        "stdin": "7\n1 2 3 -1 -1 4 5\n",
+        "expectedRaw": "5"
+      },
+      {
+        "input": "root = []",
+        "expected": "0 nodes",
+        "stdin": "0\n\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  {
+    "id": 98,
+    "name": "Bubble Sort",
+    "words": 24,
+    "topic": "Sorting",
+    "pattern": "Comparison Sorts",
+    "statement": "Given an unsorted array of integers nums, sort the array in non-decreasing (ascending) order using the Bubble Sort algorithm and return the sorted array.",
+    "samples": [
+      {
+        "input": "nums = [64,34,25,12,22,11,90]",
+        "expected": "[11,12,22,25,34,64,90]",
+        "stdin": "7\n64 34 25 12 22 11 90\n",
+        "expectedRaw": "11 12 22 25 34 64 90"
+      },
+      {
+        "input": "nums = [5,1,4,2,8]",
+        "expected": "[1,2,4,5,8]",
+        "stdin": "5\n5 1 4 2 8\n",
+        "expectedRaw": "1 2 4 5 8"
+      }
+    ]
+  },
+  {
+    "id": 99,
+    "name": "Selection Sort",
+    "words": 24,
+    "topic": "Sorting",
+    "pattern": "Comparison Sorts",
+    "statement": "Given an unsorted array of integers nums, sort the array in non-decreasing (ascending) order using the Selection Sort algorithm and return the sorted array.",
+    "samples": [
+      {
+        "input": "nums = [64,25,12,22,11]",
+        "expected": "[11,12,22,25,64]",
+        "stdin": "5\n64 25 12 22 11\n",
+        "expectedRaw": "11 12 22 25 64"
+      },
+      {
+        "input": "nums = [3,2,1]",
+        "expected": "[1,2,3]",
+        "stdin": "3\n3 2 1\n",
+        "expectedRaw": "1 2 3"
+      }
+    ]
+  },
+  {
+    "id": 100,
+    "name": "Insertion Sort",
+    "words": 24,
+    "topic": "Sorting",
+    "pattern": "Comparison Sorts",
+    "statement": "Given an unsorted array of integers nums, sort the array in non-decreasing (ascending) order using the Insertion Sort algorithm and return the sorted array.",
+    "samples": [
+      {
+        "input": "nums = [12,11,13,5,6]",
+        "expected": "[5,6,11,12,13]",
+        "stdin": "5\n12 11 13 5 6\n",
+        "expectedRaw": "5 6 11 12 13"
+      },
+      {
+        "input": "nums = [5,2,4,6,1,3]",
+        "expected": "[1,2,3,4,5,6]",
+        "stdin": "6\n5 2 4 6 1 3\n",
+        "expectedRaw": "1 2 3 4 5 6"
+      }
+    ]
+  },
+  {
+    "id": 101,
+    "name": "Merge Sort",
+    "words": 38,
+    "topic": "Sorting",
+    "pattern": "Comparison Sorts",
+    "statement": "Given an array of integers nums, sort the array in ascending order and return it. You must solve the problem without using any built-in functions in O(n log n) time complexity and with the smallest space complexity possible.",
+    "samples": [
+      {
+        "input": "nums = [38,27,43,3,9,82,10]",
+        "expected": "[3,9,10,27,38,43,82]",
+        "stdin": "7\n38 27 43 3 9 82 10\n",
+        "expectedRaw": "3 9 10 27 38 43 82"
+      },
+      {
+        "input": "nums = [5,2,4,6,1,3]",
+        "expected": "[1,2,3,4,5,6]",
+        "stdin": "6\n5 2 4 6 1 3\n",
+        "expectedRaw": "1 2 3 4 5 6"
+      }
+    ]
+  },
+  {
+    "id": 102,
+    "name": "Quick Sort",
+    "words": 24,
+    "topic": "Sorting",
+    "pattern": "Comparison Sorts",
+    "statement": "Given an unsorted array of integers nums, sort the array in non-decreasing (ascending) order using the Quick Sort algorithm and return the sorted array.",
+    "samples": [
+      {
+        "input": "nums = [3,6,8,10,1,2,1]",
+        "expected": "[1,1,2,3,6,8,10]",
+        "stdin": "7\n3 6 8 10 1 2 1\n",
+        "expectedRaw": "1 1 2 3 6 8 10"
+      },
+      {
+        "input": "nums = [5,2,4,6,1,3]",
+        "expected": "[1,2,3,4,5,6]",
+        "stdin": "6\n5 2 4 6 1 3\n",
+        "expectedRaw": "1 2 3 4 5 6"
+      }
+    ]
+  },
+  {
+    "id": 103,
+    "name": "Counting Sort",
+    "words": 24,
+    "topic": "Sorting",
+    "pattern": "Non-Comparison Sorts",
+    "statement": "Given an array of non-negative integers nums, sort the array in non-decreasing (ascending) order using the Counting Sort algorithm and return the sorted array.",
+    "samples": [
+      {
+        "input": "nums = [4,2,2,8,3,3,1]",
+        "expected": "[1,2,2,3,3,4,8]",
+        "stdin": "7\n4 2 2 8 3 3 1\n",
+        "expectedRaw": "1 2 2 3 3 4 8"
+      },
+      {
+        "input": "nums = [2,0,2,1,1,0]",
+        "expected": "[0,0,1,1,2,2]",
+        "stdin": "6\n2 0 2 1 1 0\n",
+        "expectedRaw": "0 0 1 1 2 2"
+      }
+    ]
+  },
+  {
+    "id": 104,
+    "name": "Radix Sort",
+    "words": 24,
+    "topic": "Sorting",
+    "pattern": "Non-Comparison Sorts",
+    "statement": "Given an array of non-negative integers nums, sort the array in non-decreasing (ascending) order using the Radix Sort algorithm and return the sorted array.",
+    "samples": [
+      {
+        "input": "nums = [170,45,75,90,802,24,2,66]",
+        "expected": "[2,24,45,66,75,90,170,802]",
+        "stdin": "8\n170 45 75 90 802 24 2 66\n",
+        "expectedRaw": "2 24 45 66 75 90 170 802"
+      },
+      {
+        "input": "nums = [3,6,8,10,1,2]",
+        "expected": "[1,2,3,6,8,10]",
+        "stdin": "6\n3 6 8 10 1 2\n",
+        "expectedRaw": "1 2 3 6 8 10"
+      }
+    ]
+  },
+  {
+    "id": 105,
+    "name": "Merge Intervals",
+    "words": 30,
+    "topic": "Sorting",
+    "pattern": "Application",
+    "statement": "Given an array of intervals where intervals[i] = [start_i, end_i], merge all overlapping intervals, and return an array of the non-overlapping intervals that cover all the intervals in the input.",
+    "samples": [
+      {
+        "input": "intervals = [[1,3],[2,6],[8,10],[15,18]]",
+        "expected": "[[1,6],[8,10],[15,18]]",
+        "stdin": "4 2\n1 3 2 6 8 10 15 18\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "intervals = [[1,4],[4,5]]",
+        "expected": "[[1,5]]",
+        "stdin": "2 2\n1 4 4 5\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  {
+    "id": 107,
+    "name": "Kth Largest Element in Array",
+    "words": 34,
+    "topic": "Sorting",
+    "pattern": "Application",
+    "statement": "Given an integer array nums and an integer k, return the kth largest element in the array. Note that it is the kth largest element in the sorted order, not the kth distinct element.",
+    "samples": [
+      {
+        "input": "nums = [3,2,1,5,6,4], k = 2",
+        "expected": "5",
+        "stdin": "6\n3 2 1 5 6 4\n2\n",
+        "expectedRaw": "5"
+      },
+      {
+        "input": "nums = [3,2,3,1,2,4,5,5,6], k = 4",
+        "expected": "4",
+        "stdin": "9\n3 2 3 1 2 4 5 5 6\n4\n",
+        "expectedRaw": "4"
+      }
+    ]
+  },
+  {
+    "id": 108,
+    "name": "Binary Search",
+    "words": 34,
+    "topic": "Binary Search",
+    "pattern": "Binary Search",
+    "statement": "Given an array of integers nums which is sorted in ascending order, and an integer target, write a function to search target in nums. If target exists, then return its index. Otherwise, return -1.",
+    "samples": [
+      {
+        "input": "nums = [-1,0,3,5,9,12], target = 9",
+        "expected": "4",
+        "stdin": "6\n-1 0 3 5 9 12\n9\n",
+        "expectedRaw": "4"
+      },
+      {
+        "input": "nums = [-1,0,3,5,9,12], target = 2",
+        "expected": "-1",
+        "stdin": "6\n-1 0 3 5 9 12\n2\n",
+        "expectedRaw": "-1"
+      }
+    ]
+  },
+  {
+    "id": 109,
+    "name": "Search in Rotated Sorted Array",
+    "words": 43,
+    "topic": "Binary Search",
+    "pattern": "Binary Search",
+    "statement": "There is an integer array nums sorted in ascending order (with distinct values). Given the array nums after the possible rotation and an integer target, return the index of target if it is in nums, or -1 if it is not in nums.",
+    "samples": [
+      {
+        "input": "nums = [4,5,6,7,0,1,2], target = 0",
+        "expected": "4",
+        "stdin": "7\n4 5 6 7 0 1 2\n0\n",
+        "expectedRaw": "4"
+      },
+      {
+        "input": "nums = [4,5,6,7,0,1,2], target = 3",
+        "expected": "-1",
+        "stdin": "7\n4 5 6 7 0 1 2\n3\n",
+        "expectedRaw": "-1"
+      }
+    ]
+  },
+  {
+    "id": 110,
+    "name": "Find Peak Element",
+    "words": 22,
+    "topic": "Binary Search",
+    "pattern": "Binary Search",
+    "statement": "A peak element is strictly greater than its neighbors. Given an array, find any peak element index. Adjacent elements are not equal.",
+    "samples": [
+      {
+        "input": "nums = [1,2,3,1]",
+        "expected": "2",
+        "stdin": "4\n1 2 3 1\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "nums = [1,2,1,3,5,6,4]",
+        "expected": "5",
+        "stdin": "7\n1 2 1 3 5 6 4\n",
+        "expectedRaw": "5"
+      }
+    ]
+  },
+  {
+    "id": 111,
+    "name": "Search Insert Position",
+    "words": 27,
+    "topic": "Binary Search",
+    "pattern": "Binary Search",
+    "statement": "Given a sorted array of distinct integers and a target, return the index if found. If not, return the index where it would be inserted in order.",
+    "samples": [
+      {
+        "input": "nums = [1,3,5,6], target = 5",
+        "expected": "2",
+        "stdin": "4\n1 3 5 6\n5\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "nums = [1,3,5,6], target = 2",
+        "expected": "1",
+        "stdin": "4\n1 3 5 6\n2\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  {
+    "id": 112,
+    "name": "First and Last Position of Element",
+    "words": 20,
+    "topic": "Binary Search",
+    "pattern": "Binary Search",
+    "statement": "Given a sorted array and target, find the starting and ending position of target. If not found, return [-1, -1].",
+    "samples": [
+      {
+        "input": "nums = [5,7,7,8,8,10], target = 8",
+        "expected": "[3,4]",
+        "stdin": "6\n5 7 7 8 8 10\n8\n",
+        "expectedRaw": "3 4"
+      },
+      {
+        "input": "nums = [5,7,7,8,8,10], target = 6",
+        "expected": "[-1,-1]",
+        "stdin": "6\n5 7 7 8 8 10\n6\n",
+        "expectedRaw": "-1 -1"
+      }
+    ]
+  },
+  {
+    "id": 113,
+    "name": "Square Root using Binary Search",
+    "words": 15,
+    "topic": "Binary Search",
+    "pattern": "Binary Search",
+    "statement": "Given a non-negative integer x, return the floor of its square root without using sqrt().",
+    "samples": [
+      {
+        "input": "x = 4",
+        "expected": "2",
+        "stdin": "4\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "x = 8",
+        "expected": "2",
+        "stdin": "8\n",
+        "expectedRaw": "2"
+      }
+    ]
+  },
+  {
+    "id": 115,
+    "name": "Find Minimum in Rotated Sorted Array",
+    "words": 44,
+    "topic": "Binary Search",
+    "pattern": "Binary Search",
+    "statement": "Suppose an array of length n sorted in ascending order is rotated between 1 and n times. Given the sorted rotated array nums of unique elements, return the minimum element of this array. You must write an algorithm that runs in O(log n) time.",
+    "samples": [
+      {
+        "input": "nums = [3,4,5,1,2]",
+        "expected": "1",
+        "stdin": "5\n3 4 5 1 2\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "nums = [4,5,6,7,0,1,2]",
+        "expected": "0",
+        "stdin": "7\n4 5 6 7 0 1 2\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  {
+    "id": 116,
+    "name": "Search a 2D Matrix",
+    "words": 22,
+    "topic": "Binary Search",
+    "pattern": "Binary Search",
+    "statement": "Given m×n matrix where each row is sorted and each row's first element > previous row's last element, efficiently search for target.",
+    "samples": [
+      {
+        "input": "matrix = [[1,3,5,7],[10,11,16,20],[23,30,34,60]], target = 3",
+        "expected": "true",
+        "stdin": "3 4\n1 3 5 7 10 11 16 20 23 30 34 60\n3\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "matrix = [[1,3,5,7],[10,11,16,20],[23,30,34,60]], target = 13",
+        "expected": "false",
+        "stdin": "3 4\n1 3 5 7 10 11 16 20 23 30 34 60\n13\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  {
+    "id": 117,
+    "name": "Jump Game",
+    "words": 42,
+    "topic": "Greedy",
+    "pattern": "Greedy",
+    "statement": "You are given an integer array nums. You are initially positioned at the array's first index, and each element in the array represents your maximum jump length at that position. Return true if you can reach the last index, or false otherwise.",
+    "samples": [
+      {
+        "input": "nums = [2,3,1,1,4]",
+        "expected": "true",
+        "stdin": "5\n2 3 1 1 4\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "nums = [3,2,1,0,4]",
+        "expected": "false",
+        "stdin": "5\n3 2 1 0 4\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  {
+    "id": 118,
+    "name": "Jump Game II",
+    "words": 24,
+    "topic": "Greedy",
+    "pattern": "Greedy",
+    "statement": "Given an array of non-negative integers where each element is max jump length, return the minimum number of jumps to reach the last index.",
+    "samples": [
+      {
+        "input": "nums = [2,3,1,1,4]",
+        "expected": "2",
+        "stdin": "5\n2 3 1 1 4\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "nums = [2,3,0,1,4]",
+        "expected": "2",
+        "stdin": "5\n2 3 0 1 4\n",
+        "expectedRaw": "2"
+      }
+    ]
+  },
+  {
+    "id": 119,
+    "name": "Gas Station",
+    "words": 39,
+    "topic": "Greedy",
+    "pattern": "Greedy",
+    "statement": "There are n gas stations along a circular route. You are given two integer arrays gas and cost. Return the starting gas station's index if you can travel around the circuit once in the clockwise direction, otherwise return -1.",
+    "samples": [
+      {
+        "input": "gas=[1,2,3,4,5], cost=[3,4,5,1,2]",
+        "expected": "3",
+        "stdin": "5\n1 2 3 4 5\n5\n3 4 5 1 2\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "gas=[2,3,4], cost=[3,4,3]",
+        "expected": "-1",
+        "stdin": "3\n2 3 4\n3\n3 4 3\n",
+        "expectedRaw": "-1"
+      }
+    ]
+  },
+  {
+    "id": 121,
+    "name": "Assign Cookies",
+    "words": 24,
+    "topic": "Greedy",
+    "pattern": "Greedy",
+    "statement": "Given greed factors g[] and cookie sizes s[], maximize the number of content children. A child is content if cookie size >= greed factor.",
+    "samples": [
+      {
+        "input": "g = [1,2,3], s = [1,1]",
+        "expected": "1",
+        "stdin": "3\n1 2 3\n2\n1 1\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "g = [1,2], s = [1,2,3]",
+        "expected": "2",
+        "stdin": "2\n1 2\n3\n1 2 3\n",
+        "expectedRaw": "2"
+      }
+    ]
+  },
+  {
+    "id": 122,
+    "name": "Non-Overlapping Intervals",
+    "words": 18,
+    "topic": "Greedy",
+    "pattern": "Greedy",
+    "statement": "Given an array of intervals, return the minimum number of intervals to remove to make the rest non-overlapping.",
+    "samples": [
+      {
+        "input": "intervals = [[1,2],[2,3],[3,4],[1,3]]",
+        "expected": "1",
+        "stdin": "4 2\n1 2 2 3 3 4 1 3\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "intervals = [[1,2],[1,2],[1,2]]",
+        "expected": "2",
+        "stdin": "3 2\n1 2 1 2 1 2\n",
+        "expectedRaw": "2"
+      }
+    ]
+  },
+  {
+    "id": 123,
+    "name": "Activity Selection Problem",
+    "words": 23,
+    "topic": "Greedy",
+    "pattern": "Greedy",
+    "statement": "Given n activities with start and end times, select the maximum number of non-overlapping activities that can be performed by a single person.",
+    "samples": [
+      {
+        "input": "start=[1,3,0,5,8,5], end=[2,4,6,7,9,9]",
+        "expected": "4",
+        "stdin": "6\n1 3 0 5 8 5\n6\n2 4 6 7 9 9\n",
+        "expectedRaw": "4"
+      },
+      {
+        "input": "start=[1,2,3], end=[3,4,5]",
+        "expected": "2",
+        "stdin": "3\n1 2 3\n3\n3 4 5\n",
+        "expectedRaw": "2"
+      }
+    ]
+  },
+  {
+    "id": 124,
+    "name": "Job Sequencing Problem",
+    "words": 29,
+    "topic": "Greedy",
+    "pattern": "Greedy",
+    "statement": "Given jobs with deadlines and profits, find the sequence of jobs that maximizes total profit. Each job takes 1 unit of time and must be done before its deadline.",
+    "samples": [
+      {
+        "input": "deadlines=[2,1,2,1,3], profits=[100,19,27,25,15]",
+        "expected": "142",
+        "stdin": "5\n2 1 2 1 3\n5\n100 19 27 25 15\n",
+        "expectedRaw": "142"
+      },
+      {
+        "input": "deadlines=[2,1,2,1,3], profits=[100,19,27,25,15] (variant)",
+        "expected": "142",
+        "stdin": "5\n2 1 2 1 3\n5\n100 19 27 25 15\n",
+        "expectedRaw": "142"
+      }
+    ]
+  },
+  {
+    "id": 127,
+    "name": "Climbing Stairs",
+    "words": 34,
+    "topic": "Dynamic Programming",
+    "pattern": "1D DP",
+    "statement": "You are climbing a staircase. It takes n steps to reach the top. Each time you can either climb 1 or 2 steps. In how many distinct ways can you climb to the top?",
+    "samples": [
+      {
+        "input": "n = 2",
+        "expected": "2",
+        "stdin": "2\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "n = 3",
+        "expected": "3",
+        "stdin": "3\n",
+        "expectedRaw": "3"
+      }
+    ]
+  },
+  {
+    "id": 129,
+    "name": "Fibonacci Number",
+    "words": 31,
+    "topic": "Dynamic Programming",
+    "pattern": "1D DP",
+    "statement": "The Fibonacci numbers form a sequence, called the Fibonacci sequence, such that each number is the sum of the two preceding ones, starting from 0 and 1. Given n, calculate F(n).",
+    "samples": [
+      {
+        "input": "n = 2",
+        "expected": "1",
+        "stdin": "2\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "n = 3",
+        "expected": "2",
+        "stdin": "3\n",
+        "expectedRaw": "2"
+      }
+    ]
+  },
+  {
+    "id": 130,
+    "name": "N-th Tribonacci Number",
+    "words": 29,
+    "topic": "Dynamic Programming",
+    "pattern": "1D DP",
+    "statement": "The Tribonacci sequence Tn is defined as: T0=0, T1=1, T2=1, and Tn+3 = Tn + Tn+1 + Tn+2 for n >= 0. Given n, return the value of Tn.",
+    "samples": [
+      {
+        "input": "n = 4",
+        "expected": "4",
+        "stdin": "4\n",
+        "expectedRaw": "4"
+      },
+      {
+        "input": "n = 25",
+        "expected": "1389537",
+        "stdin": "25\n",
+        "expectedRaw": "1389537"
+      }
+    ]
+  },
+  {
+    "id": 131,
+    "name": "Decode Ways",
+    "words": 31,
+    "topic": "Dynamic Programming",
+    "pattern": "1D DP",
+    "statement": "A message containing letters from A-Z can be encoded into numbers using A->1, B->2, ..., Z->26. Given a string s containing only digits, return the number of ways to decode it.",
+    "samples": [
+      {
+        "input": "s = \"12\"",
+        "expected": "2",
+        "stdin": "12\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "s = \"226\"",
+        "expected": "3",
+        "stdin": "226\n",
+        "expectedRaw": "3"
+      }
+    ]
+  },
+  {
+    "id": 132,
+    "name": "Word Break",
+    "words": 24,
+    "topic": "Dynamic Programming",
+    "pattern": "1D DP",
+    "statement": "Given a string s and a dictionary of strings wordDict, return true if s can be segmented into a space-separated sequence of dictionary words.",
+    "samples": [
+      {
+        "input": "s = \"leetcode\", wordDict = [\"leet\",\"code\"]",
+        "expected": "true",
+        "stdin": "leetcode\n2\nleet\ncode\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "s = \"applepenapple\", wordDict = [\"apple\",\"pen\"]",
+        "expected": "true",
+        "stdin": "applepenapple\n2\napple\npen\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  {
+    "id": 133,
+    "name": "Longest Increasing Subsequence",
+    "words": 14,
+    "topic": "Dynamic Programming",
+    "pattern": "1D DP",
+    "statement": "Given an integer array nums, return the length of the longest strictly increasing subsequence.",
+    "samples": [
+      {
+        "input": "nums = [10,9,2,5,3,7,101,18]",
+        "expected": "4",
+        "stdin": "8\n10 9 2 5 3 7 101 18\n",
+        "expectedRaw": "4"
+      },
+      {
+        "input": "nums = [0,1,0,3,2,3]",
+        "expected": "4",
+        "stdin": "6\n0 1 0 3 2 3\n",
+        "expectedRaw": "4"
+      }
+    ]
+  },
+  {
+    "id": 135,
+    "name": "Longest Common Subsequence",
+    "words": 22,
+    "topic": "Dynamic Programming",
+    "pattern": "2D DP",
+    "statement": "Given two strings text1 and text2, return the length of their longest common subsequence. If there is no common subsequence, return 0.",
+    "samples": [
+      {
+        "input": "text1 = \"abcde\", text2 = \"ace\"",
+        "expected": "3",
+        "stdin": "abcde\nace\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "text1 = \"abc\", text2 = \"abc\"",
+        "expected": "3",
+        "stdin": "abc\nabc\n",
+        "expectedRaw": "3"
+      }
+    ]
+  },
+  {
+    "id": 136,
+    "name": "0-1 Knapsack",
+    "words": 28,
+    "topic": "Dynamic Programming",
+    "pattern": "2D DP",
+    "statement": "Given weights and values of n items, put these items in a knapsack of capacity W to get the maximum total value. You cannot break items (0/1 property).",
+    "samples": [
+      {
+        "input": "weights=[1,3,4,5], values=[1,4,5,7], W=7",
+        "expected": "9",
+        "stdin": "4\n1 3 4 5\n4\n1 4 5 7\n7\n",
+        "expectedRaw": "9"
+      },
+      {
+        "input": "weights=[2,3], values=[3,4], W=2",
+        "expected": "3",
+        "stdin": "2\n2 3\n2\n3 4\n2\n",
+        "expectedRaw": "3"
+      }
+    ]
+  },
+  {
+    "id": 137,
+    "name": "Minimum Path Sum",
+    "words": 42,
+    "topic": "Dynamic Programming",
+    "pattern": "2D DP",
+    "statement": "Given an m x n grid filled with non-negative numbers, find a path from top left to bottom right, which minimizes the sum of all numbers along its path. You can only move either down or right at any point in time.",
+    "samples": [
+      {
+        "input": "grid = [[1,3,1],[1,5,1],[4,2,1]]",
+        "expected": "7",
+        "stdin": "3 3\n1 3 1\n1 5 1\n4 2 1\n",
+        "expectedRaw": "7"
+      },
+      {
+        "input": "grid = [[1,2,3],[4,5,6]]",
+        "expected": "12",
+        "stdin": "2 3\n1 2 3\n4 5 6\n",
+        "expectedRaw": "12"
+      }
+    ]
+  },
+  {
+    "id": 138,
+    "name": "Unique Paths",
+    "words": 31,
+    "topic": "Dynamic Programming",
+    "pattern": "2D DP",
+    "statement": "There is a robot on an m x n grid. The robot can only move either down or right. Return the number of possible unique paths to reach the bottom-right corner.",
+    "samples": [
+      {
+        "input": "m = 3, n = 7",
+        "expected": "28",
+        "stdin": "3\n7\n",
+        "expectedRaw": "28"
+      },
+      {
+        "input": "m = 3, n = 2",
+        "expected": "3",
+        "stdin": "3\n2\n",
+        "expectedRaw": "3"
+      }
+    ]
+  },
+  {
+    "id": 139,
+    "name": "Edit Distance",
+    "words": 21,
+    "topic": "Dynamic Programming",
+    "pattern": "2D DP",
+    "statement": "Given two strings word1 and word2, return the minimum number of operations (insert, delete, replace) required to convert word1 to word2.",
+    "samples": [
+      {
+        "input": "word1 = \"horse\", word2 = \"ros\"",
+        "expected": "3",
+        "stdin": "horse\nros\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "word1 = \"intention\", word2 = \"execution\"",
+        "expected": "5",
+        "stdin": "intention\nexecution\n",
+        "expectedRaw": "5"
+      }
+    ]
+  },
+  {
+    "id": 140,
+    "name": "Partition Equal Subset Sum",
+    "words": 18,
+    "topic": "Dynamic Programming",
+    "pattern": "0/1 Knapsack",
+    "statement": "Given an integer array nums, return true if you can partition it into two subsets with equal sum.",
+    "samples": [
+      {
+        "input": "nums = [1,5,11,5]",
+        "expected": "true",
+        "stdin": "4\n1 5 11 5\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "nums = [1,2,3,5]",
+        "expected": "false",
+        "stdin": "4\n1 2 3 5\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  {
+    "id": 142,
+    "name": "Maximum Subarray",
+    "words": 16,
+    "topic": "Arrays",
+    "pattern": "General",
+    "statement": "Given an integer array nums, find the subarray with the largest sum, and return its sum.",
+    "samples": [
+      {
+        "input": "nums = [-2,1,-3,4,-1,2,1,-5,4]",
+        "expected": "6",
+        "stdin": "9\n-2 1 -3 4 -1 2 1 -5 4\n",
+        "expectedRaw": "6"
+      },
+      {
+        "input": "nums = [1]",
+        "expected": "1",
+        "stdin": "1\n1\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  {
+    "id": 143,
+    "name": "Maximum Product Subarray",
+    "words": 17,
+    "topic": "Dynamic Programming",
+    "pattern": "1D DP",
+    "statement": "Given an integer array nums, find a subarray that has the largest product, and return the product.",
+    "samples": [
+      {
+        "input": "nums = [2,3,-2,4]",
+        "expected": "6",
+        "stdin": "4\n2 3 -2 4\n",
+        "expectedRaw": "6"
+      },
+      {
+        "input": "nums = [-2,0,-1]",
+        "expected": "0",
+        "stdin": "3\n-2 0 -1\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  {
+    "id": 144,
+    "name": "BFS Shortest Path",
+    "words": 38,
+    "topic": "Graphs",
+    "pattern": "BFS",
+    "statement": "Given an unweighted, undirected graph with n nodes labeled 0 to n-1 and a list of edges, find the length of the shortest path (in number of edges) between src and dest. Return -1 if no path exists.",
+    "samples": [
+      {
+        "input": "n = 4, edges = [[0,1],[1,2],[2,3]], src = 0, dest = 3",
+        "expected": "3",
+        "stdin": "4\n3 2\n0 1 1 2 2 3\n0\n3\n",
+        "expectedRaw": "3"
+      },
+      {
+        "input": "n = 3, edges = [[0,1]], src = 0, dest = 2",
+        "expected": "-1",
+        "stdin": "3\n1 2\n0 1\n0\n2\n",
+        "expectedRaw": "-1"
+      }
+    ]
+  },
+  {
+    "id": 145,
+    "name": "Pacific Atlantic Water Flow",
+    "words": 21,
+    "topic": "Graphs",
+    "pattern": "BFS/DFS",
+    "statement": "Given a matrix of heights, find all coordinates where water can flow to BOTH the Pacific (top/left) and Atlantic (bottom/right) oceans.",
+    "samples": [
+      {
+        "input": "heights=[[1,2,2,3,5],[3,2,3,4,4],[2,4,5,3,1],[6,7,1,4,5],[5,1,1,2,4]]",
+        "expected": "[[0,4],[1,3],[1,4],[2,2],[3,0],[3,1],[4,0]]",
+        "stdin": "5 5\n1 2 2 3 5\n3 2 3 4 4\n2 4 5 3 1\n6 7 1 4 5\n5 1 1 2 4\n",
+        "expectedRaw": "7"
+      },
+      {
+        "input": "heights = [[1]]",
+        "expected": "[[0,0]]",
+        "stdin": "1 1\n1\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  {
+    "id": 146,
+    "name": "Walls and Gates",
+    "words": 48,
+    "topic": "Graphs",
+    "pattern": "Multi-Source BFS",
+    "statement": "You are given an m x n grid rooms initialized with -1 (a wall), 0 (a gate), or INF = 2147483647 (an empty room). Fill each empty room with the distance to its nearest gate. If it is impossible to reach a gate, the room should remain INF.",
+    "samples": [
+      {
+        "input": "rooms = [[2147483647,-1,0,2147483647],[2147483647,2147483647,2147483647,-1],[2147483647,-1,2147483647,-1],[0,-1,2147483647,2147483647]]",
+        "expected": "[[3,-1,0,1],[2,2,1,-1],[1,-1,2,-1],[0,-1,3,4]]",
+        "stdin": "4 4\n2147483647 -1 0 2147483647\n2147483647 2147483647 2147483647 -1\n2147483647 -1 2147483647 -1\n0 -1 2147483647 2147483647\n",
+        "expectedRaw": "3 -1 0 1\n2 2 1 -1\n1 -1 2 -1\n0 -1 3 4"
+      },
+      {
+        "input": "rooms = [[-1]]",
+        "expected": "[[-1]]",
+        "stdin": "1 1\n-1\n",
+        "expectedRaw": "-1"
+      }
+    ]
+  },
+  {
+    "id": 147,
+    "name": "Rotting Oranges",
+    "words": 27,
+    "topic": "Graphs",
+    "pattern": "Multi-Source BFS",
+    "statement": "In a grid, 1 is fresh, 2 is rotten. Every minute, fresh oranges adjacent to rotten become rotten. Return minimum minutes until no fresh remain, or -1.",
+    "samples": [
+      {
+        "input": "grid = [[2,1,1],[1,1,0],[0,1,1]]",
+        "expected": "4",
+        "stdin": "3 3\n2 1 1\n1 1 0\n0 1 1\n",
+        "expectedRaw": "4"
+      },
+      {
+        "input": "grid = [[2,1,1],[0,1,1],[1,0,1]]",
+        "expected": "-1",
+        "stdin": "3 3\n2 1 1\n0 1 1\n1 0 1\n",
+        "expectedRaw": "-1"
+      }
+    ]
+  },
+  {
+    "id": 148,
+    "name": "Word Ladder",
+    "words": 23,
+    "topic": "Graphs",
+    "pattern": "BFS",
+    "statement": "Find length of shortest transformation sequence from beginWord to endWord changing exactly one letter at a time, with all intermediate words in wordList.",
+    "samples": [
+      {
+        "input": "beginWord=\"hit\", endWord=\"cog\", wordList=[\"hot\",\"dot\",\"dog\",\"lot\",\"log\",\"cog\"]",
+        "expected": "5",
+        "stdin": "hit\ncog\n6\nhot\ndot\ndog\nlot\nlog\ncog\n",
+        "expectedRaw": "5"
+      },
+      {
+        "input": "beginWord=\"hit\", endWord=\"cog\", wordList=[\"hot\",\"dot\",\"dog\",\"lot\",\"log\"]",
+        "expected": "0",
+        "stdin": "hit\ncog\n5\nhot\ndot\ndog\nlot\nlog\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  {
+    "id": 149,
+    "name": "Dijkstra's Algorithm",
+    "words": 38,
+    "topic": "Graphs",
+    "pattern": "Shortest Path",
+    "statement": "Given a weighted, directed graph with n nodes and a list of edges [u, v, weight], find the shortest distance from a source node src to every other node using Dijkstra's algorithm. Return an array of shortest distances.",
+    "samples": [
+      {
+        "input": "n=5, edges=[[0,1,10],[0,4,3],[1,2,2],[4,1,4],[4,3,8],[3,2,2]], src=0",
+        "expected": "0 7 9 11 3",
+        "stdin": "5\n6 3\n0 1 10 0 4 3 1 2 2 4 1 4 4 3 8 3 2 2\n0\n",
+        "expectedRaw": "0 7 9 11 3"
+      },
+      {
+        "input": "n=3, edges=[[0,1,1],[1,2,1]], src=0",
+        "expected": "0 1 2",
+        "stdin": "3\n2 3\n0 1 1 1 2 1\n0\n",
+        "expectedRaw": "0 1 2"
+      }
+    ]
+  },
+  {
+    "id": 150,
+    "name": "Number of Islands",
+    "words": 23,
+    "topic": "Graphs",
+    "pattern": "BFS/DFS",
+    "statement": "Given an m x n 2D binary grid which represents a map of '1's (land) and '0's (water), return the number of islands.",
+    "samples": [
+      {
+        "input": "grid=[[\"1\",\"1\",\"1\",\"1\",\"0\"],[\"1\",\"1\",\"0\",\"1\",\"0\"],[\"1\",\"1\",\"0\",\"0\",\"0\"],[\"0\",\"0\",\"0\",\"0\",\"0\"]]",
+        "expected": "1",
+        "stdin": "4 5\n49 49 49 49 48\n49 49 48 49 48\n49 49 48 48 48\n48 48 48 48 48\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "grid=[[\"1\",\"1\",\"0\",\"0\",\"0\"],[\"1\",\"1\",\"0\",\"0\",\"0\"],[\"0\",\"0\",\"1\",\"0\",\"0\"],[\"0\",\"0\",\"0\",\"1\",\"1\"]]",
+        "expected": "3",
+        "stdin": "4 5\n49 49 48 48 48\n49 49 48 48 48\n48 48 49 48 48\n48 48 48 49 49\n",
+        "expectedRaw": "3"
+      }
+    ]
+  },
+  {
+    "id": 151,
+    "name": "Clone Graph",
+    "words": 19,
+    "topic": "Graphs",
+    "pattern": "DFS/BFS",
+    "statement": "Given a reference of a node in a connected undirected graph, return a deep copy (clone) of the graph.",
+    "samples": [
+      {
+        "input": "adjList = [[2,4],[1,3],[2,4],[1,3]]",
+        "expected": "4 nodes",
+        "stdin": "4\n2 2 4\n2 1 3\n2 2 4\n2 1 3\n",
+        "expectedRaw": "4"
+      },
+      {
+        "input": "adjList = [[]]",
+        "expected": "1 node",
+        "stdin": "1\n0\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  {
+    "id": 152,
+    "name": "Course Schedule",
+    "words": 24,
+    "topic": "Graphs",
+    "pattern": "Topological Sort",
+    "statement": "There are numCourses courses. You are given an array prerequisites. Return true if you can finish all courses, false if there is a cycle.",
+    "samples": [
+      {
+        "input": "numCourses = 2, prerequisites = [[1,0]]",
+        "expected": "true",
+        "stdin": "2\n1 2\n1 0\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "numCourses = 2, prerequisites = [[1,0],[0,1]]",
+        "expected": "false",
+        "stdin": "2\n2 2\n1 0 0 1\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  {
+    "id": 153,
+    "name": "Detect Cycle in Directed Graph",
+    "words": 19,
+    "topic": "Graphs",
+    "pattern": "DFS (3-Color)",
+    "statement": "Given a directed graph with V vertices and an adjacency list adj, determine if the graph contains a cycle.",
+    "samples": [
+      {
+        "input": "V = 4, adj = [[0,1],[1,2],[2,3],[3,3]]",
+        "expected": "true",
+        "stdin": "4\n4 2\n0 1 1 2 2 3 3 3\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "V = 3, adj = [[0,1],[1,2]]",
+        "expected": "false",
+        "stdin": "3\n2 2\n0 1 1 2\n",
+        "expectedRaw": "0"
+      }
+    ]
+  },
+  {
+    "id": 155,
+    "name": "Word Search",
+    "words": 47,
+    "topic": "Graphs",
+    "pattern": "Backtracking + DFS",
+    "statement": "Given an m x n grid of characters board and a string word, return true if word exists in the grid. The word can be constructed from letters of sequentially adjacent cells (horizontally or vertically neighboring), and the same cell may not be used more than once.",
+    "samples": [
+      {
+        "input": "board = [[\"A\",\"B\",\"C\",\"E\"],[\"S\",\"F\",\"C\",\"S\"],[\"A\",\"D\",\"E\",\"E\"]], word = \"ABCCED\"",
+        "expected": "true",
+        "stdin": "3 4\n65 66 67 69\n83 70 67 83\n65 68 69 69\nABCCED\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "board = [[\"A\",\"B\",\"C\",\"E\"],[\"S\",\"F\",\"C\",\"S\"],[\"A\",\"D\",\"E\",\"E\"]], word = \"SEE\"",
+        "expected": "true",
+        "stdin": "3 4\n65 66 67 69\n83 70 67 83\n65 68 69 69\nSEE\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  {
+    "id": 157,
+    "name": "Course Schedule II",
+    "words": 21,
+    "topic": "Graphs",
+    "pattern": "Topological Sort",
+    "statement": "Given numCourses and prerequisites, return the ordering of courses you should take to finish all courses. Return empty array if impossible.",
+    "samples": [
+      {
+        "input": "numCourses = 2, prerequisites = [[1,0]]",
+        "expected": "[0,1]",
+        "stdin": "2\n1 2\n1 0\n",
+        "expectedRaw": "0 1"
+      },
+      {
+        "input": "numCourses = 4, prerequisites = [[1,0],[2,0],[3,1],[3,2]]",
+        "expected": "[0,2,1,3]",
+        "stdin": "4\n4 2\n1 0 2 0 3 1 3 2\n",
+        "expectedRaw": "0 2 1 3"
+      }
+    ]
+  },
+  {
+    "id": 158,
+    "name": "Number of Connected Components",
+    "words": 18,
+    "topic": "Graphs",
+    "pattern": "Union Find",
+    "statement": "Given n nodes and an array of undirected edges, return the number of connected components in the graph.",
+    "samples": [
+      {
+        "input": "n = 5, edges = [[0,1],[1,2],[3,4]]",
+        "expected": "2",
+        "stdin": "5\n3 2\n0 1 1 2 3 4\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "n = 5, edges = [[0,1],[1,2],[2,3],[3,4]]",
+        "expected": "1",
+        "stdin": "5\n4 2\n0 1 1 2 2 3 3 4\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  {
+    "id": 160,
+    "name": "Fibonacci Number",
+    "words": 31,
+    "topic": "Dynamic Programming",
+    "pattern": "1D DP",
+    "statement": "The Fibonacci numbers form a sequence, called the Fibonacci sequence, such that each number is the sum of the two preceding ones, starting from 0 and 1. Given n, calculate F(n).",
+    "samples": [
+      {
+        "input": "n = 2",
+        "expected": "1",
+        "stdin": "2\n",
+        "expectedRaw": "1"
+      },
+      {
+        "input": "n = 3",
+        "expected": "2",
+        "stdin": "3\n",
+        "expectedRaw": "2"
+      }
+    ]
+  },
+  {
+    "id": 161,
+    "name": "Factorial using Recursion",
+    "words": 11,
+    "topic": "Recursion & Backtracking",
+    "pattern": "Basic Recursion",
+    "statement": "Given a non-negative integer n, compute n! (n factorial) using recursion.",
+    "samples": [
+      {
+        "input": "n = 5",
+        "expected": "120",
+        "stdin": "5\n",
+        "expectedRaw": "120"
+      },
+      {
+        "input": "n = 3",
+        "expected": "6",
+        "stdin": "3\n",
+        "expectedRaw": "6"
+      }
+    ]
+  },
+  {
+    "id": 162,
+    "name": "Sum of Digits using Recursion",
+    "words": 13,
+    "topic": "Recursion & Backtracking",
+    "pattern": "Basic Recursion",
+    "statement": "Given a non-negative integer n, compute the sum of its digits using recursion.",
+    "samples": [
+      {
+        "input": "n = 123",
+        "expected": "6",
+        "stdin": "123\n",
+        "expectedRaw": "6"
+      },
+      {
+        "input": "n = 4567",
+        "expected": "22",
+        "stdin": "4567\n",
+        "expectedRaw": "22"
+      }
+    ]
+  },
+  {
+    "id": 163,
+    "name": "Power Function (Fast Exponentiation)",
+    "words": 13,
+    "topic": "Math",
+    "pattern": "Fast Exponentiation",
+    "statement": "Implement pow(x, n), which calculates x raised to the power n (i.e., x^n).",
+    "samples": [
+      {
+        "input": "x = 2.00000, n = 10",
+        "expected": "1024.00000",
+        "stdin": "2\n10\n",
+        "expectedRaw": "1024.00000"
+      },
+      {
+        "input": "x = 2.10000, n = 3",
+        "expected": "9.26100",
+        "stdin": "2.1\n3\n",
+        "expectedRaw": "9.26100"
+      }
+    ]
+  },
+  {
+    "id": 165,
+    "name": "Subsets",
+    "words": 23,
+    "topic": "Recursion & Backtracking",
+    "pattern": "Backtracking",
+    "statement": "Given an integer array nums of unique elements, return all possible subsets (the power set). The solution set must not contain duplicate subsets.",
+    "samples": [
+      {
+        "input": "nums = [1,2,3]",
+        "expected": "8 subsets",
+        "stdin": "3\n1 2 3\n",
+        "expectedRaw": "8"
+      },
+      {
+        "input": "nums = [0]",
+        "expected": "2 subsets",
+        "stdin": "1\n0\n",
+        "expectedRaw": "2"
+      }
+    ]
+  },
+  {
+    "id": 166,
+    "name": "Permutations",
+    "words": 20,
+    "topic": "Recursion & Backtracking",
+    "pattern": "Backtracking",
+    "statement": "Given an array nums of distinct integers, return all the possible permutations. You can return the answer in any order.",
+    "samples": [
+      {
+        "input": "nums = [1,2,3]",
+        "expected": "6 permutations",
+        "stdin": "3\n1 2 3\n",
+        "expectedRaw": "6"
+      },
+      {
+        "input": "nums = [0,1]",
+        "expected": "2 permutations",
+        "stdin": "2\n0 1\n",
+        "expectedRaw": "2"
+      }
+    ]
+  },
+  {
+    "id": 167,
+    "name": "Combination Sum",
+    "words": 41,
+    "topic": "Recursion & Backtracking",
+    "pattern": "Backtracking",
+    "statement": "Given an array of distinct integers candidates and a target integer target, return a list of all unique combinations of candidates where the chosen numbers sum to target. The same number may be chosen from candidates an unlimited number of times.",
+    "samples": [
+      {
+        "input": "candidates = [2,3,6,7], target = 7",
+        "expected": "2 combinations",
+        "stdin": "4\n2 3 6 7\n7\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "candidates = [2,3,5], target = 8",
+        "expected": "3 combinations",
+        "stdin": "3\n2 3 5\n8\n",
+        "expectedRaw": "3"
+      }
+    ]
+  },
+  {
+    "id": 168,
+    "name": "Letter Combinations of Phone Number",
+    "words": 30,
+    "topic": "Recursion & Backtracking",
+    "pattern": "Backtracking",
+    "statement": "Given a string containing digits from 2-9, return all possible letter combinations that the number could represent, using the standard telephone keypad letter mapping. Return the answer in any order.",
+    "samples": [
+      {
+        "input": "digits = \"23\"",
+        "expected": "9 combinations",
+        "stdin": "23\n",
+        "expectedRaw": "9"
+      },
+      {
+        "input": "digits = \"2\"",
+        "expected": "3 combinations",
+        "stdin": "2\n",
+        "expectedRaw": "3"
+      }
+    ]
+  },
+  {
+    "id": 169,
+    "name": "N-Queens",
+    "words": 36,
+    "topic": "Recursion & Backtracking",
+    "pattern": "Backtracking",
+    "statement": "The n-queens puzzle is the problem of placing n queens on an n x n chessboard such that no two queens attack each other. Given an integer n, return all distinct solutions to the n-queens puzzle.",
+    "samples": [
+      {
+        "input": "n = 4",
+        "expected": "2 solutions",
+        "stdin": "4\n",
+        "expectedRaw": "2"
+      },
+      {
+        "input": "n = 1",
+        "expected": "1 solution",
+        "stdin": "1\n",
+        "expectedRaw": "1"
+      }
+    ]
+  },
+  {
+    "id": 171,
+    "name": "Kth Largest Element in Array",
+    "words": 34,
+    "topic": "Sorting",
+    "pattern": "Application",
+    "statement": "Given an integer array nums and an integer k, return the kth largest element in the array. Note that it is the kth largest element in the sorted order, not the kth distinct element.",
+    "samples": [
+      {
+        "input": "nums = [3,2,1,5,6,4], k = 2",
+        "expected": "5",
+        "stdin": "6\n3 2 1 5 6 4\n2\n",
+        "expectedRaw": "5"
+      },
+      {
+        "input": "nums = [3,2,3,1,2,4,5,5,6], k = 4",
+        "expected": "4",
+        "stdin": "9\n3 2 3 1 2 4 5 5 6\n4\n",
+        "expectedRaw": "4"
+      }
+    ]
+  },
+  {
+    "id": 172,
+    "name": "Find Median from Data Stream",
+    "words": 22,
+    "topic": "Heap",
+    "pattern": "Two Heaps",
+    "statement": "Design a data structure that supports adding integer numbers from a data stream and finding the median of the numbers so far.",
+    "samples": [
+      {
+        "input": "addNum(1),addNum(2),findMedian()",
+        "expected": "2.0",
+        "stdin": "3\n1 2 3\n",
+        "expectedRaw": "2.0"
+      },
+      {
+        "input": "addNum(5),findMedian()",
+        "expected": "5.0",
+        "stdin": "1\n5\n",
+        "expectedRaw": "5.0"
+      }
+    ]
+  },
+  {
+    "id": 173,
+    "name": "Merge K Sorted Lists",
+    "words": 27,
+    "topic": "Heap",
+    "pattern": "K-Way Merge (Heap)",
+    "statement": "You are given an array of k linked-lists lists, each linked-list is sorted in ascending order. Merge all the linked-lists into one sorted linked-list and return it.",
+    "samples": [
+      {
+        "input": "lists = [[1,4,5],[1,3,4],[2,6]]",
+        "expected": "1 1 2 3 4 4 5 6",
+        "stdin": "3\n3\n1 4 5\n3\n1 3 4\n2\n2 6\n",
+        "expectedRaw": "1 1 2 3 4 4 5 6"
+      },
+      {
+        "input": "lists = []",
+        "expected": "[]",
+        "stdin": "0\n",
+        "expectedRaw": ""
+      }
+    ]
+  },
+  {
+    "id": 174,
+    "name": "Top K Frequent Elements",
+    "words": 18,
+    "topic": "Heap",
+    "pattern": "Heap / Bucket Sort",
+    "statement": "Given an integer array nums and an integer k, return the k most frequent elements in any order.",
+    "samples": [
+      {
+        "input": "nums = [1,1,1,2,2,3], k = 2",
+        "expected": "[1,2]",
+        "stdin": "6\n1 1 1 2 2 3\n2\n",
+        "expectedRaw": "1 2"
+      },
+      {
+        "input": "nums = [1], k = 1",
+        "expected": "[1]",
+        "stdin": "1\n1\n1\n",
+        "expectedRaw": "1"
+      }
+    ]
+  }
+]

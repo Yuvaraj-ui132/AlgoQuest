@@ -31,7 +31,7 @@
 | 🔐 **Authentication** | Secure login/signup with Firebase Auth |
 | 🌗 **Dark / Light Mode** | Seamless theme toggle with smooth CSS transitions |
 | 📊 **Progress Analytics** | Chart.js visualizations — topic-wise and tier-wise breakdowns |
-| 🎯 **Placement Focused** | TCS NQT · TCS Digital · Infosys · Wipro · FAANG patterns |
+| 🎯 **Interview Focused** | Coding Assessments · Technical Interviews · FAANG & Product patterns |
 
 ---
 
