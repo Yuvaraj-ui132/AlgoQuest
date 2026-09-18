@@ -1085,19 +1085,12 @@
 
   <!-- Scripts -->
   <!-- Backend URL Configuration
-       Automatically selects the correct backend based on the serving environment:
-         • localhost / 127.0.0.1  →  http://localhost:8000  (local development)
-         • Any other host         →  https://algoquest-production.up.railway.app  (production)
+       Local development setup — FastAPI backend must be running at http://localhost:8000.
+       Start the backend with: cd backend && uvicorn app.main:app --reload --port 8000
        To override, set window.ALGOQUEST_BACKEND_URL before this script runs.
   -->
   <script>
-    window.ALGOQUEST_BACKEND_URL = (function () {
-      var h = window.location.hostname;
-      if (h === 'localhost' || h === '127.0.0.1' || h === '') {
-        return 'http://localhost:8000';
-      }
-      return 'https://algoquest-production.up.railway.app';
-    }());
+    window.ALGOQUEST_BACKEND_URL = 'http://localhost:8000';
   </script>
 
   <script src="js/firebase-config.js"></script>

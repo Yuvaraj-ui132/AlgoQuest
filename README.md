@@ -2,7 +2,6 @@
 
 > A full-stack, placement-focused DSA practice platform with in-browser code execution, asynchronous submission processing, real-time Firestore synchronization, and detailed performance analytics.
 
-[![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-algoquest--9aab0.web.app-e06847?style=flat-square)](https://algoquest-9aab0.web.app)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.109+-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
 [![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?style=flat-square&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
@@ -23,7 +22,7 @@ The platform is architected as a decoupled full-stack application: a lightweight
 
 ```mermaid
 flowchart TD
-    subgraph Client["Frontend (Firebase Hosting)"]
+    subgraph Client["Frontend (Local Browser)"]
         UI[AlgoQuest SPA - Vanilla JS]
         Monaco[Monaco Code Editor]
         Auth[Firebase Client Auth]
@@ -89,7 +88,6 @@ flowchart TD
 | **Database** | Google Cloud Firestore | NoSQL document database for user progress & history |
 | **Authentication** | Firebase Admin SDK + Firebase Auth | Secure token verification and session management |
 | **Containerization**| Docker | Production-ready container deployment |
-| **Hosting** | Firebase Hosting | Global CDN static asset delivery |
 
 ---
 
@@ -250,5 +248,4 @@ This project is licensed under the [MIT License](LICENSE).
 ## 👤 Author
 
 **Yuvaraj Murkunde**  
-- GitHub: [@Yuvaraj-ui132](https://github.com/Yuvaraj-ui132)  
-- Live Project: [algoquest-9aab0.web.app](https://algoquest-9aab0.web.app)
+- GitHub: [@Yuvaraj-ui132](https://github.com/Yuvaraj-ui132)
