@@ -27,11 +27,21 @@ class Settings(BaseSettings):
     firebase_project_id: str = ""
     """Your Firebase project ID (e.g. algoquest-9aab0)."""
 
+    firebase_service_account_json: str = ""
+    """
+    Full Firebase service-account JSON as a single string.
+    Set this env var in Railway (or any cloud host) instead of uploading a file.
+    Takes priority over GOOGLE_APPLICATION_CREDENTIALS when present.
+    NEVER commit this value to source control.
+
+    Example (Railway dashboard → Variables):
+        FIREBASE_SERVICE_ACCOUNT_JSON={"type":"service_account","project_id":"...","private_key":"..."}
+    """
+
     google_application_credentials: str = ""
     """
     Absolute path to the Firebase service account JSON file.
-    Alternatively, set the GOOGLE_APPLICATION_CREDENTIALS env var to the same path.
-    The Firebase Admin SDK picks this up automatically.
+    Used for local development. Ignored when firebase_service_account_json is set.
     """
 
     # ── Server ────────────────────────────────────────────────────────────────
