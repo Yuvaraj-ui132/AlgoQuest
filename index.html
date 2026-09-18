@@ -1085,10 +1085,20 @@
 
   <!-- Scripts -->
   <!-- Backend URL Configuration
-       Change this to your deployed backend URL for production.
-       Example: <script>window.ALGOQUEST_BACKEND_URL = 'https://your-backend.com';</script>
+       Automatically selects the correct backend based on the serving environment:
+         • localhost / 127.0.0.1  →  http://localhost:8000  (local development)
+         • Any other host         →  https://algoquest-production.up.railway.app  (production)
+       To override, set window.ALGOQUEST_BACKEND_URL before this script runs.
   -->
-  <script>window.ALGOQUEST_BACKEND_URL = 'http://localhost:8000';</script>
+  <script>
+    window.ALGOQUEST_BACKEND_URL = (function () {
+      var h = window.location.hostname;
+      if (h === 'localhost' || h === '127.0.0.1' || h === '') {
+        return 'http://localhost:8000';
+      }
+      return 'https://algoquest-production.up.railway.app';
+    }());
+  </script>
 
   <script src="js/firebase-config.js"></script>
   <script src="js/api.js"></script>
