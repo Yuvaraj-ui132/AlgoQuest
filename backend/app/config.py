@@ -65,20 +65,23 @@ class Settings(BaseSettings):
     backend_port: int = Field(default=8000, validation_alias=AliasChoices("BACKEND_PORT", "PORT"))
     backend_host: str = "0.0.0.0"
 
-    allowed_origins_str: str = (
-        "http://localhost:5500,"
-        "http://localhost:5501,"
-        "http://localhost:8080,"
-        "http://127.0.0.1:5500,"
-        "http://127.0.0.1:5501,"
-        "http://127.0.0.1:8080,"
-        "https://algoquest-9aab0.web.app,"
-        "https://algoquest-9aab0.firebaseapp.com"
+    allowed_origins_str: str = Field(
+        default=(
+            "http://localhost:5500,"
+            "http://localhost:5501,"
+            "http://localhost:8080,"
+            "http://127.0.0.1:5500,"
+            "http://127.0.0.1:5501,"
+            "http://127.0.0.1:8080,"
+            "https://algoquest-9aab0.web.app,"
+            "https://algoquest-9aab0.firebaseapp.com"
+        ),
+        validation_alias=AliasChoices("ALLOWED_ORIGINS_STR", "ALLOWED_ORIGINS"),
     )
     """
     Comma-separated list of allowed CORS origins.
-    Override via ALLOWED_ORIGINS_STR env var.
-    Example: ALLOWED_ORIGINS_STR=http://localhost:5500,https://algoquest-9aab0.web.app
+    Override via ALLOWED_ORIGINS_STR or ALLOWED_ORIGINS env var.
+    Example: ALLOWED_ORIGINS=https://algoquest-9aab0.web.app,https://algoquest-9aab0.firebaseapp.com
     """
 
     @property
