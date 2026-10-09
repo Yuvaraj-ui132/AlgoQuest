@@ -9,7 +9,7 @@ DELETE /api/bookmarks/{qid}     → remove bookmark
 from fastapi import APIRouter, Depends, status
 from app.dependencies import get_current_user
 from app.models.responses import BookmarksResponse, SuccessResponse
-from app.services import firestore_service
+from app.services import db_service
 
 router = APIRouter()
 
@@ -20,7 +20,7 @@ router = APIRouter()
     summary="Get all bookmarks for the authenticated user",
 )
 async def get_bookmarks(uid: str = Depends(get_current_user)) -> BookmarksResponse:
-    ids = await firestore_service.get_all_bookmarks(uid)
+    ids = await db_service.get_all_bookmarks(uid)
     return BookmarksResponse(bookmarks=ids)
 
 
@@ -33,7 +33,7 @@ async def add_bookmark(
     question_id: int,
     uid: str = Depends(get_current_user),
 ) -> SuccessResponse:
-    await firestore_service.set_bookmark(uid, question_id, bookmarked=True)
+    await db_service.set_bookmark(uid, question_id, bookmarked=True)
     return SuccessResponse(message=f"Question {question_id} bookmarked.")
 
 
@@ -46,5 +46,5 @@ async def remove_bookmark(
     question_id: int,
     uid: str = Depends(get_current_user),
 ) -> SuccessResponse:
-    await firestore_service.set_bookmark(uid, question_id, bookmarked=False)
+    await db_service.set_bookmark(uid, question_id, bookmarked=False)
     return SuccessResponse(message=f"Bookmark removed for question {question_id}.")

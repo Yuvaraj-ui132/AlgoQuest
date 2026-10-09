@@ -9,7 +9,7 @@ from fastapi import APIRouter, Depends
 from app.dependencies import get_current_user
 from app.models.requests import NoteUpdateRequest
 from app.models.responses import NoteResponse, SuccessResponse
-from app.services import firestore_service
+from app.services import db_service
 
 router = APIRouter()
 
@@ -24,7 +24,7 @@ async def get_note(
     question_id: int,
     uid: str = Depends(get_current_user),
 ) -> NoteResponse:
-    content = await firestore_service.get_note(uid, question_id)
+    content = await db_service.get_note(uid, question_id)
     return NoteResponse(question_id=question_id, content=content)
 
 
@@ -39,5 +39,5 @@ async def save_note(
     body: NoteUpdateRequest,
     uid: str = Depends(get_current_user),
 ) -> SuccessResponse:
-    await firestore_service.save_note(uid, question_id, body.content)
+    await db_service.save_note(uid, question_id, body.content)
     return SuccessResponse(message=f"Note saved for question {question_id}.")

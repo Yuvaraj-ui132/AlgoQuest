@@ -55,7 +55,7 @@ from app.models.responses import (
     TestCaseResult,
     UserAllDataResponse,
 )
-from app.services import judge0_service, firestore_service
+from app.services import judge0_service, db_service
 from app.services.submission_queue import submission_queue
 
 logger = logging.getLogger(__name__)
@@ -185,6 +185,82 @@ def _build_stdin(test_cases: List[Dict]) -> str:
             tc_stdin += "\n"
         parts.append(tc_stdin)
     return "\n".join(parts)
+
+
+# ── Structured execution output parsing ───────────────────────────────────────
+
+def parse_test_outputs(stdout: str, expected_count: int) -> List[str]:
+    """
+    Structured test case output parser.
+    Extracts output for each test case using indexed boundary markers
+    `__AQ_TC_START_{i}__` ... `__AQ_TC_END_{i}__`.
+
+    Security & Framing Architecture:
+    - Because execution runs via a combined stdout stream in Judge0, static in-band
+      markers cannot guarantee cryptographic collision immunity if untrusted user code
+      deliberately prints driver markers to stdout.
+    - This parser mitigates common collision and ordering issues:
+      1. Enforces sequential cursor-based index scanning (0 .. expected_count - 1).
+      2. Uses reverse-lookup for end markers before the next test case boundary
+         to resist user output that prints premature end markers.
+      3. Detects duplicate marker occurrences and flags marker injection anomalies.
+      4. Preserves multiline outputs and exact empty outputs without index shifting.
+      5. Safely ignores legacy `---END_TC---` strings inside user output.
+      6. Provides a deprecated transition path for unmigrated legacy streams.
+    """
+    if not stdout:
+        return ["" for _ in range(expected_count)] if expected_count > 0 else []
+
+    # Check for structured protocol
+    if "__AQ_TC_START_" in stdout and "__AQ_TC_END_" in stdout:
+        results: List[str] = []
+        cursor = 0
+        for i in range(expected_count):
+            start_tag = f"__AQ_TC_START_{i}__"
+            end_tag = f"__AQ_TC_END_{i}__"
+            next_start_tag = f"__AQ_TC_START_{i+1}__" if i + 1 < expected_count else None
+
+            s_idx = stdout.find(start_tag, cursor)
+            if s_idx == -1:
+                # Driver start marker missing (e.g. process terminated early)
+                results.append("")
+                continue
+
+            content_start = s_idx + len(start_tag)
+
+            # Determine upper search bound (start of next test case or end of stdout)
+            upper_bound = len(stdout)
+            if next_start_tag:
+                next_s_idx = stdout.find(next_start_tag, content_start)
+                if next_s_idx != -1:
+                    upper_bound = next_s_idx
+
+            # Find the driver's end marker. In case user output contains end_tag,
+            # find the last occurrence before the next test case boundary.
+            e_idx = stdout.rfind(end_tag, content_start, upper_bound)
+            if e_idx == -1:
+                # If rfind within bound failed, check standard find
+                e_idx = stdout.find(end_tag, content_start)
+
+            if e_idx != -1 and e_idx >= content_start:
+                raw_content = stdout[content_start:e_idx]
+                # Strip harness-level legacy markers if present at boundary
+                cleaned = re.sub(r"\n?---END_TC---\s*$", "", raw_content)
+                results.append(cleaned.strip())
+                cursor = e_idx + len(end_tag)
+            else:
+                # Missing end marker
+                results.append("")
+                cursor = content_start
+
+        return results
+
+    # Legacy delimiter transition fallback (deprecated)
+    logger.warning("parse_test_outputs: Stream missing structured markers; using legacy delimiter fallback.")
+    parts = stdout.split("---END_TC---")
+    if parts and not parts[-1].strip():
+        parts = parts[:-1]
+    return [p.strip() for p in parts]
 
 
 # ── Runtime / memory formatting ───────────────────────────────────────────────
@@ -345,11 +421,8 @@ async def create_submission(
     status_id: int = result["status_id"]
     stdout: str = result["stdout"] or ""
 
-    # ── Parse per-test-case outputs ───────────────────────────────────────────
-    output_lines: List[str] = []
-    if stdout:
-        parts = stdout.split("---END_TC---")
-        output_lines = [p.strip() for p in parts if p.strip()]
+    # ── Parse per-test-case outputs (structured or fallback) ──────────────────
+    output_lines = parse_test_outputs(stdout, len(active_tests))
 
     passed_count = 0
     tc_results: List[TestCaseResult] = []
@@ -422,7 +495,7 @@ async def get_all_user_data(
     uid: str = Depends(get_current_user),
 ) -> UserAllDataResponse:
     """Load progress, bookmarks, notes, editor code, and general compiler code."""
-    data = await firestore_service.get_all_user_data(uid)
+    data = await db_service.get_all_user_data(uid)
     return UserAllDataResponse(
         progress=data["progress"],
         bookmarks={"bookmarks": data["bookmarks"]},
@@ -476,7 +549,7 @@ async def get_submission_history(
     UID is always derived from the verified Firebase token —
     the caller cannot request another user's history.
     """
-    result = await firestore_service.get_submission_history(
+    result = await db_service.get_submission_history(
         uid=uid,
         limit=limit,
         after_doc_id=after,

@@ -1,6 +1,8 @@
 .firebase/
 firebase-debug.log
+*.log
 .DS_Store
+Thumbs.db
 
 # Backend secrets — NEVER commit these
 backend/.env
@@ -20,9 +22,21 @@ backend/*.pyc
 backend/.venv/
 .pytest_cache/
 backend/.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 .coverage
 htmlcov/
 
-# Backup files
+# Backup and export files
 *.bak
 js/*.bak
+backend/data/*_export*.json
+backend/data/*.dump
+*.dump
+*.sql.gz
+*.sqlite
+*.db
+
+# Local PostgreSQL portable binaries and data directories
+.pgsql/
+backend/.pgsql/

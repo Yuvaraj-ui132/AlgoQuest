@@ -14,7 +14,7 @@ from fastapi import APIRouter, Depends
 from app.dependencies import get_current_user
 from app.models.requests import EditorCodeUpdateRequest, GeneralCompilerUpdateRequest
 from app.models.responses import EditorCodeResponse, GeneralCompilerResponse, SuccessResponse
-from app.services import firestore_service
+from app.services import db_service
 
 router = APIRouter()
 
@@ -32,7 +32,7 @@ async def get_editor_code(
     question_id: int,
     uid: str = Depends(get_current_user),
 ) -> EditorCodeResponse:
-    data = await firestore_service.get_editor_code(uid, question_id)
+    data = await db_service.get_editor_code(uid, question_id)
     return EditorCodeResponse(
         question_id=question_id,
         language=data.get("language"),
@@ -50,7 +50,7 @@ async def save_editor_code(
     body: EditorCodeUpdateRequest,
     uid: str = Depends(get_current_user),
 ) -> SuccessResponse:
-    await firestore_service.save_editor_code(uid, question_id, body.language, body.code)
+    await db_service.save_editor_code(uid, question_id, body.language, body.code)
     return SuccessResponse(message=f"Editor code saved for question {question_id}.")
 
 
@@ -72,7 +72,7 @@ async def get_general_compiler_code(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Invalid language '{language}'. Must be one of: {sorted(_VALID_LANGUAGES)}",
         )
-    code = await firestore_service.get_general_compiler_code(uid, language)
+    code = await db_service.get_general_compiler_code(uid, language)
     return GeneralCompilerResponse(language=language, code=code)
 
 
@@ -92,5 +92,5 @@ async def save_general_compiler_code(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Invalid language '{language}'. Must be one of: {sorted(_VALID_LANGUAGES)}",
         )
-    await firestore_service.save_general_compiler_code(uid, language, body.code)
+    await db_service.save_general_compiler_code(uid, language, body.code)
     return SuccessResponse(message=f"General compiler code saved for '{language}'.")

@@ -261,11 +261,9 @@ class SubmissionQueue:
         status_id: int = result["status_id"]
         stdout: str    = result["stdout"] or ""
 
-        # ── Parse per-test-case outputs ───────────────────────────────────────
-        output_lines: list = []
-        if stdout:
-            parts = stdout.split("---END_TC---")
-            output_lines = [p.strip() for p in parts if p.strip()]
+        # ── Parse per-test-case outputs (structured or fallback) ──────────────
+        from app.routes.submissions import parse_test_outputs
+        output_lines = parse_test_outputs(stdout, len(active_tests))
 
         passed_count = 0
         tc_results   = []
@@ -309,8 +307,8 @@ class SubmissionQueue:
 
         _compile_err = result.get("compile_output") or result.get("stderr") or None
 
-        # ── Write Firestore history (non-fatal) ───────────────────────────────
-        # asyncio.to_thread dispatches the synchronous Firestore call to a
+        # ── Write database history (non-fatal) ───────────────────────────────
+        # asyncio.to_thread dispatches the synchronous database call to a
         # thread pool so the event loop remains unblocked.
         try:
             await asyncio.to_thread(
@@ -328,7 +326,7 @@ class SubmissionQueue:
             )
         except Exception:
             logger.exception(
-                "[SUBMISSION] Firestore history write failed for job=%s uid=%.8s...",
+                "[SUBMISSION] Database history write failed for job=%s uid=%.8s...",
                 job.job_id, job.uid,
             )
             # Non-fatal: execution result is still returned to the user
@@ -521,6 +519,22 @@ def _record_submission_sync(
     Mirrors firestore_service.record_submission() but avoids awaiting it
     so the worker can run it in a thread.
     """
+    from app.config import settings
+    if settings.database_backend == "supabase":
+        from app.services import supabase_service
+        return supabase_service.record_submission_sync(
+            uid=uid,
+            question_id=question_id,
+            verdict=verdict,
+            status_id=status_id,
+            language_id=language_id,
+            passed_count=passed_count,
+            total_count=total_count,
+            runtime=runtime,
+            memory=memory,
+            compile_error=compile_error,
+        )
+
     from firebase_admin import firestore
     from google.cloud.firestore_v1 import SERVER_TIMESTAMP
 
@@ -548,9 +562,14 @@ def _record_submission_sync(
 
 def _update_progress_sync(uid: str, question_id: int) -> None:
     """
-    Update Firestore progress for an Accepted submission.
+    Update progress for an Accepted submission.
     Synchronous — call via asyncio.to_thread() from the worker.
     """
+    from app.config import settings
+    if settings.database_backend == "supabase":
+        from app.services import supabase_service
+        return supabase_service.update_progress_sync(uid, question_id)
+
     from firebase_admin import firestore
     from google.cloud.firestore_v1 import SERVER_TIMESTAMP
 

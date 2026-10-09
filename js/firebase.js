@@ -313,24 +313,24 @@ function setupAuthEventListeners() {
         console.warn('[SIGNUP] Stage 2b skipped — ApiClient not available.');
       }
 
-      // 2c. Belt-and-suspenders: also write via client Firestore SDK
-      //     (works now that firestore.rules covers /users/{uid}, and
-      //      merge:true ensures it's idempotent with step 2b).
-      try {
-        await db.collection('users').doc(user.uid).set({
-          uid:       user.uid,
-          name:      name,
-          email:     email,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-          migrated:  true,
-        }, { merge: true });
-      } catch (firestoreErr) {
-        console.warn(
-          '[SIGNUP] Stage 2c (client Firestore set) failed:',
-          firestoreErr.code,
-          firestoreErr.message
-        );
+      // 2c. Fallback / client sync: write via client Firestore SDK if backend init was unavailable
+      if (!backendOk) {
+        try {
+          await db.collection('users').doc(user.uid).set({
+            uid:       user.uid,
+            name:      name,
+            email:     email,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+            migrated:  true,
+          }, { merge: true });
+        } catch (firestoreErr) {
+          console.warn(
+            '[SIGNUP] Stage 2c (client Firestore set) failed:',
+            firestoreErr.code,
+            firestoreErr.message
+          );
+        }
       }
 
       hideLoadingOverlay();
@@ -579,6 +579,7 @@ async function handleGoogleSignIn(formContext) {
 
     if (isNewUser) {
       // Authoritative user doc init via backend (Admin SDK, bypasses rules)
+      let googleBackendOk = false;
       if (window.ApiClient) {
         try {
           await window.ApiClient.initUser({
@@ -586,23 +587,26 @@ async function handleGoogleSignIn(formContext) {
             email:     user.email       || null,
             photo_url: user.photoURL    || null,
           });
+          googleBackendOk = true;
         } catch (initErr) {
           console.error('[GOOGLE SIGNUP] Backend initUser failed:', initErr.status, initErr.message);
         }
       }
-      // Belt-and-suspenders: also write via client SDK (merge:true = idempotent)
-      try {
-        await db.collection('users').doc(user.uid).set({
-          uid:       user.uid,
-          name:      user.displayName || 'User',
-          email:     user.email || '',
-          photoURL:  user.photoURL || '',
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-          migrated:  true,
-        }, { merge: true });
-      } catch (firestoreErr) {
-        console.warn('[GOOGLE SIGNUP] Client Firestore set failed:', firestoreErr.code, firestoreErr.message);
+      // Fallback: write via client SDK if backend init was unavailable
+      if (!googleBackendOk) {
+        try {
+          await db.collection('users').doc(user.uid).set({
+            uid:       user.uid,
+            name:      user.displayName || 'User',
+            email:     user.email || '',
+            photoURL:  user.photoURL || '',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+            migrated:  true,
+          }, { merge: true });
+        } catch (firestoreErr) {
+          console.warn('[GOOGLE SIGNUP] Client Firestore set failed:', firestoreErr.code, firestoreErr.message);
+        }
       }
     } else {
       // Existing user — reconcile user document if it ever got out of sync

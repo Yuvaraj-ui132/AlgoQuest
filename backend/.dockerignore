@@ -1,0 +1,29 @@
+# Secrets & Credentials — NEVER include in docker build context
+.env
+*.env*
+*firebase-adminsdk*.json
+*service-account*.json
+serviceAccount.json
+*.json.key
+algoquest-*.json
+
+# Version Control & Local Caches
+.git
+.gitignore
+.dockerignore
+__pycache__
+*.pyc
+.pytest_cache
+.coverage
+htmlcov
+.mypy_cache
+.ruff_cache
+
+# Tests (not needed in production image)
+tests/
+
+# Temporary & Backup files
+*.bak
+scratch/
+data/*_export*.json
+.pgsql/

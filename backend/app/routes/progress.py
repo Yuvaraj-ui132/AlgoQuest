@@ -10,7 +10,7 @@ from fastapi import APIRouter, Depends, status
 from app.dependencies import get_current_user
 from app.models.requests import ProgressUpdateRequest
 from app.models.responses import ProgressResponse, SuccessResponse
-from app.services import firestore_service
+from app.services import db_service
 
 router = APIRouter()
 
@@ -26,7 +26,7 @@ router = APIRouter()
     ),
 )
 async def get_progress(uid: str = Depends(get_current_user)) -> ProgressResponse:
-    raw = await firestore_service.get_all_progress(uid)
+    raw = await db_service.get_all_progress(uid)
 
     solved, rev1, rev2 = [], [], []
     for qid_str, data in raw.items():
@@ -55,7 +55,7 @@ async def update_progress(
     body: ProgressUpdateRequest,
     uid: str = Depends(get_current_user),
 ) -> SuccessResponse:
-    await firestore_service.update_progress(
+    await db_service.update_progress(
         uid=uid,
         question_id=question_id,
         solved=body.solved,

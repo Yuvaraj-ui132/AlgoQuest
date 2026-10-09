@@ -44,6 +44,22 @@ class Settings(BaseSettings):
     Used for local development. Ignored when firebase_service_account_json is set.
     """
 
+    # ── Database Backend (Phase Three Migration) ──────────────────────────────
+    database_backend: str = "firestore"
+    """
+    Active database repository provider:
+      - 'firestore' (default): Google Cloud Firestore via Firebase Admin SDK
+      - 'supabase': Supabase PostgreSQL via SQLAlchemy/psycopg2
+    Defaults to 'firestore' to guarantee zero breaking changes.
+    """
+
+    supabase_db_url: str = ""
+    """
+    PostgreSQL connection string for Supabase or development PostgreSQL instance.
+    Format: postgresql://[user]:[password]@[host]:[port]/[db]
+    Example: postgresql://algoquest_app:secret@db.project.supabase.co:6543/postgres
+    """
+
     # ── Server ────────────────────────────────────────────────────────────────
     backend_port: int = 8000
     backend_host: str = "0.0.0.0"

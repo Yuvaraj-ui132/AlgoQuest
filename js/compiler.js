@@ -1713,11 +1713,12 @@ public:
         `    cin.tie(NULL);\n` +
         `    int T;\n` +
         `    if(cin>>T){\n` +
-        `        while(T--){\n` +
+        `        for(int _tc=0;_tc<T;++_tc){\n` +
+        `            cout<<"__AQ_TC_START_"<<_tc<<"__\\n";\n` +
         paramReadCode +
         solverDecl +
         printCode +
-        `            cout<<"---END_TC---"<<endl;\n` +
+        `            cout<<"\\n__AQ_TC_END_"<<_tc<<"__\\n---END_TC---"<<endl;\n` +
         `        }\n` +
         `    }\n` +
         `    return 0;\n` +
@@ -1742,11 +1743,12 @@ public:
         `        Scanner sc=new Scanner(System.in);\n` +
         `        if(sc.hasNextInt()){\n` +
         `            int T=sc.nextInt();\n` +
-        `            while(T-->0){\n` +
+        `            for(int _tc=0;_tc<T;++_tc){\n` +
+        `                System.out.println("__AQ_TC_START_" + _tc + "__");\n` +
         paramReadCode +
         solverDecl +
         printCode +
-        `                System.out.println("---END_TC---");\n` +
+        `                System.out.println("\\n__AQ_TC_END_" + _tc + "__\\n---END_TC---");\n` +
         `            }\n` +
         `        }\n` +
         `    }\n` +
@@ -1773,12 +1775,13 @@ public:
         `    try:\n` +
         `        T=int(next(iterator))\n` +
         `    except StopIteration:return\n` +
-        `    for _ in range(T):\n` +
+        `    for _tc in range(T):\n` +
         `        try:\n` +
+        `            print(f"__AQ_TC_START_{_tc}__")\n` +
         paramReadCode +
         solverDecl +
         printCode +
-        `            print("---END_TC---")\n` +
+        `            print(f"\\n__AQ_TC_END_{_tc}__\\n---END_TC---")\n` +
         `        except StopIteration:break\n\n` +
         `if __name__=='__main__':main()`
       );
@@ -1802,12 +1805,13 @@ public:
         `    if(!tokens.length||tokens[0]==="")return;\n` +
         `    let idx=0;\n` +
         `    const T=parseInt(tokens[idx++],10);\n` +
-        `    for(let t=0;t<T;t++){\n` +
+        `    for(let _tc=0;_tc<T;++_tc){\n` +
         `        if(idx>=tokens.length)break;\n` +
+        `        console.log(\`__AQ_TC_START_\${_tc}__\`);\n` +
         paramReadCode +
         solverDecl +
         printCode +
-        `        console.log("---END_TC---");\n` +
+        `        console.log(\`\\n__AQ_TC_END_\${_tc}__\\n---END_TC---\`);\n` +
         `    }\n` +
         `}\n\nmain();`
       );
@@ -1869,10 +1873,26 @@ public:
 
     const category = getErrorCategory(statusId, STATUSES[statusId]?.label, stderr || compileOutput);
 
-    let outputLines = stdout ? stdout.split('---END_TC---') : [];
-    outputLines = outputLines.map(line => line.trim());
-    if (outputLines.length > 0 && outputLines[outputLines.length - 1] === "") {
-      outputLines.pop();
+    let outputLines = [];
+    if (stdout && stdout.includes('__AQ_TC_START_') && stdout.includes('__AQ_TC_END_')) {
+      const activeCount = isDsaMode ? (testsToRun ? testsToRun.length : 10) : 100;
+      for (let i = 0; i < activeCount; i++) {
+        const startTag = `__AQ_TC_START_${i}__`;
+        const endTag = `__AQ_TC_END_${i}__`;
+        const sIdx = stdout.indexOf(startTag);
+        if (sIdx !== -1) {
+          const eIdx = stdout.indexOf(endTag, sIdx + startTag.length);
+          if (eIdx !== -1) {
+            outputLines.push(stdout.substring(sIdx + startTag.length, eIdx).trim());
+          }
+        }
+      }
+    }
+    if (outputLines.length === 0 && stdout) {
+      outputLines = stdout.split('---END_TC---').map(line => line.trim());
+      if (outputLines.length > 0 && outputLines[outputLines.length - 1] === "") {
+        outputLines.pop();
+      }
     }
 
     const isDsaPage = window.App?.currentPage === 'dsa-compiler';

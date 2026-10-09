@@ -81,10 +81,16 @@ def initialize_firebase() -> None:
     if creds_path:
         os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = creds_path
 
-    if creds_path and os.path.isfile(creds_path):
+        if not os.path.isfile(creds_path):
+            raise RuntimeError(
+                f"GOOGLE_APPLICATION_CREDENTIALS points to '{os.path.basename(creds_path)}', "
+                "but the file does not exist on the local filesystem. Verify the path or "
+                "configure FIREBASE_SERVICE_ACCOUNT_JSON."
+            )
+
         logger.info(
             "Initializing Firebase Admin from service account file: %s (projectId: %s)",
-            creds_path,
+            os.path.basename(creds_path),
             project_id,
         )
         cred = credentials.Certificate(creds_path)
@@ -94,7 +100,7 @@ def initialize_firebase() -> None:
 
     # ── Priority 3: Application Default Credentials (ADC) ──────────────────────
     # Works on GCP (Cloud Run, GKE, etc.) where a service account is attached.
-    # Will fail on Railway unless FIREBASE_SERVICE_ACCOUNT_JSON is set.
+    # Will fail on non-GCP hosts unless FIREBASE_SERVICE_ACCOUNT_JSON is set.
     logger.info(
         "Initializing Firebase Admin with Application Default Credentials "
         "(projectId: %s). Set FIREBASE_SERVICE_ACCOUNT_JSON for cloud deployments.",

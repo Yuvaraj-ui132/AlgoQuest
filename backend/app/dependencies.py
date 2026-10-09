@@ -44,14 +44,6 @@ async def get_current_user(
     token = credentials.credentials
     try:
         decoded = firebase_auth.verify_id_token(token)
-        uid: str = decoded.get("uid")
-        if not uid:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Token payload missing uid.",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-        return uid
     except firebase_auth.ExpiredIdTokenError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -59,21 +51,31 @@ async def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
     except (firebase_auth.InvalidIdTokenError, firebase_auth.RevokedIdTokenError) as exc:
+        logger.warning("Invalid or revoked Firebase ID token: %s", exc)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Invalid or revoked Firebase ID token: {exc}",
+            detail="Invalid or revoked Firebase ID token.",
             headers={"WWW-Authenticate": "Bearer"},
         )
     except firebase_auth.CertificateFetchError as exc:
         logger.error("Failed to fetch Firebase public key certificates: %s", exc)
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Authentication service temporarily unavailable (public key certificate fetch failed).",
+            detail="Authentication service temporarily unavailable.",
         )
     except Exception as exc:
         logger.error("Unexpected error during Firebase ID token verification: %s", exc, exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Token verification service error: {exc}",
+            detail="Authentication service error. Please try again later.",
         )
+
+    uid: str = decoded.get("uid") if decoded else ""
+    if not uid:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token payload missing uid.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return uid
 

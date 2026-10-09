@@ -17,6 +17,7 @@ class SubmissionRequest(BaseModel):
     source_code: str = Field(
         ...,
         description="Base64-encoded source code (driver-wrapped for DSA mode, raw for general mode).",
+        min_length=1,
         max_length=300_000,
     )
     language_id: int = Field(

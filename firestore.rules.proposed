@@ -1,0 +1,124 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // AUTHENTICATION & OWNERSHIP HELPERS
+    // ─────────────────────────────────────────────────────────────────────────
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // PROFILE FIELD & TYPE VALIDATION HELPERS
+    // ─────────────────────────────────────────────────────────────────────────
+    // Allowed root profile fields written by client (signup, google auth, lastLogin)
+    function hasOnlyValidProfileFields() {
+      return request.resource.data.keys().hasOnly([
+        'uid', 'name', 'email', 'photoURL', 'createdAt', 'lastLogin', 'migrated'
+      ]);
+    }
+
+    // Strict type and value constraints for profile fields
+    function isValidProfileData(userId) {
+      let data = request.resource.data;
+      return hasOnlyValidProfileFields()
+        && data.uid is string
+        && data.uid == userId
+        && data.uid.size() > 0
+        && data.uid.size() <= 128
+        && (!('name' in data) || (data.name is string && data.name.size() <= 150))
+        && (!('email' in data) || (data.email is string && data.email.size() <= 254))
+        && (!('photoURL' in data) || (data.photoURL is string && data.photoURL.size() <= 2048))
+        && (!('migrated' in data) || data.migrated is bool)
+        && (!('createdAt' in data) || data.createdAt is timestamp)
+        && (!('lastLogin' in data) || data.lastLogin is timestamp);
+    }
+
+    // Approved fields that can change during a client profile update.
+    // uid, createdAt, and migrated are strictly immutable/backend-controlled and cannot be modified.
+    function onlyApprovedUpdateFields() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+        'name', 'email', 'photoURL', 'lastLogin'
+      ]);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // ROOT USER PROFILE: /users/{userId}
+    // Direct client operations permitted ONLY for legitimate owner profile actions.
+    // ─────────────────────────────────────────────────────────────────────────
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+
+      // Account bootstrap on signup (Email or Google OAuth)
+      allow create: if isOwner(userId)
+        && isValidProfileData(userId)
+        && ('email' in request.resource.data);
+
+      // Updating login metadata or profile details
+      // Strictly forbids modifying uid, createdAt, or migrated.
+      allow update: if isOwner(userId)
+        && isValidProfileData(userId)
+        && request.resource.data.uid == resource.data.uid
+        && onlyApprovedUpdateFields();
+
+      // Client cannot delete profile directly
+      allow delete: if false;
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // AUTHORITATIVE PROGRESS: /users/{userId}/progress/{qId}
+    // Solved status must only be written by FastAPI backend (Firebase Admin SDK).
+    // Direct client writes are strictly BLOCKED to prevent spoofing.
+    // ─────────────────────────────────────────────────────────────────────────
+    match /users/{userId}/progress/{qId} {
+      allow read, write: if false;
+    }
+
+    // Legacy revisions subcollection
+    match /users/{userId}/revisions/{qId} {
+      allow read, write: if false;
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // SUBMISSION AUDIT LOG: /users/{userId}/submissions/{subId}
+    // Execution history records are created exclusively by backend workers.
+    // Direct client writes/deletes are strictly BLOCKED.
+    // ─────────────────────────────────────────────────────────────────────────
+    match /users/{userId}/submissions/{subId} {
+      allow read, write: if false;
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // APPLICATION STATE MANAGED BY FASTAPI BACKEND (/api/*)
+    // Bookmarks, Notes, Editor drafts, General compiler drafts.
+    // Direct client SDK writes are blocked; requests must go through FastAPI.
+    // ─────────────────────────────────────────────────────────────────────────
+    match /users/{userId}/bookmarks/{qId} {
+      allow read, write: if false;
+    }
+
+    match /users/{userId}/notes/{qId} {
+      allow read, write: if false;
+    }
+
+    match /users/{userId}/editor/{qId} {
+      allow read, write: if false;
+    }
+
+    match /users/{userId}/general_compiler/{lang} {
+      allow read, write: if false;
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // DEFAULT DENY: All unmapped paths and collections are strictly denied.
+    // ─────────────────────────────────────────────────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

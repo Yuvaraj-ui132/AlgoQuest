@@ -15,7 +15,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from app.dependencies import get_current_user
 from app.models.requests import UserInitRequest
 from app.models.responses import SuccessResponse
-from app.services import firestore_service
+from app.services import db_service
 import logging
 
 logger = logging.getLogger(__name__)
@@ -53,7 +53,7 @@ async def init_user(
     it merges the provided fields — it will NOT overwrite existing data.
     """
     try:
-        created = firestore_service.init_user_document(
+        created = db_service.init_user_document(
             uid=uid,
             name=body.name,
             email=body.email,

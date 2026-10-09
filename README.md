@@ -85,7 +85,7 @@ flowchart TD
 | **Backend** | FastAPI (Python 3.11) | Async REST API with Pydantic v2 validation |
 | **Task Queue** | `asyncio.Queue` & Background Workers | Non-blocking in-memory job processing |
 | **Code Execution** | Judge0 CE (RapidAPI) | Multi-language containerized compiler engine |
-| **Database** | Google Cloud Firestore | NoSQL document database for user progress & history |
+| **Database** | Google Cloud Firestore / Supabase PostgreSQL | Modular storage layer supporting Firestore and Supabase/PostgreSQL via `DATABASE_BACKEND` |
 | **Authentication** | Firebase Admin SDK + Firebase Auth | Secure token verification and session management |
 | **Containerization**| Docker | Production-ready container deployment |
 
@@ -198,25 +198,51 @@ Create a `backend/.env` file based on `.env.example`:
 | Variable | Description | Required |
 |---|---|---|
 | `FIREBASE_PROJECT_ID` | Your Firebase Project ID (e.g., `algoquest-9aab0`) | Yes |
-| `GOOGLE_APPLICATION_CREDENTIALS` | Path to Firebase Admin service account JSON | Yes |
+| `GOOGLE_APPLICATION_CREDENTIALS` | Path to Firebase Admin service account JSON | Yes (for Firestore / local Admin SDK) |
+| `FIREBASE_SERVICE_ACCOUNT_JSON` | Raw JSON string of service account (for container/cloud deploys) | Optional (alternative to file path) |
+| `DATABASE_BACKEND` | Active database backend: `firestore` (default) or `supabase` | No (Default: `firestore`) |
+| `SUPABASE_DB_URL` | PostgreSQL connection string (`postgresql://user:pass@host:port/db`) | Required if `DATABASE_BACKEND=supabase` |
 | `JUDGE0_API_KEY` | RapidAPI key for Judge0 CE | Yes |
 | `JUDGE0_USE_RAPIDAPI` | `true` to use RapidAPI, `false` for public endpoint | Yes |
 | `ALLOWED_ORIGINS_STR` | Comma-separated CORS allowed origins | Yes |
 | `SUBMISSION_WORKERS` | Number of concurrent background submission workers | No (Default: `1`) |
 
-> **Security Note**: Never commit `.env` or service account keys. Both are secured via `.gitignore`.
+> **Security Note**: Never commit `.env`, service account keys, or production database exports. All credentials are guarded via `.gitignore` and `.dockerignore`.
+
+---
+
+## 💾 Database Options & Migration
+
+AlgoQuest supports two database backends behind a unified storage interface (`db_service.py`):
+
+1. **Google Cloud Firestore (Default)**:
+   - Preserves existing production behavior without migration friction.
+   - Client security rules in `firestore.rules` and backend writes through Admin SDK.
+
+2. **Supabase PostgreSQL (Enterprise Option)**:
+   - Relational schema defined in `backend/migrations/V1__initial_schema.sql` with Row Level Security (RLS), check constraints, and role privilege separation (`algoquest_app` DML role).
+   - Switchable at runtime via `DATABASE_BACKEND=supabase` in `backend/.env`.
+   - **Data Migration Tool**: Idempotent data migration script `backend/scripts/migrate_firestore_to_postgres.py` with timestamp preservation, conflict resolution (logical OR merge for `progress` and `revisions`), and zero-data-loss rollback support:
+     ```bash
+     # Dry-run audit against live Firestore:
+     python backend/scripts/migrate_firestore_to_postgres.py --dry-run
+
+     # Execute migration to PostgreSQL:
+     python backend/scripts/migrate_firestore_to_postgres.py
+     ```
 
 ---
 
 ## 🧪 Testing
 
-The backend includes a comprehensive automated test suite covering authentication verification, submission queue execution, synchronous run flows, and per-user rate limiting:
+The backend includes a comprehensive automated test suite (105 test cases) covering authentication, submission queue execution, synchronous run flows, per-user rate limiting, emulator security rules, PostgreSQL repository operations, and idempotent migration logic:
 
 ```bash
+# Run full test suite
 python -m pytest backend/tests/
 ```
 
-All 43 tests validate end-to-end functionality including mock Judge0 execution and Firestore transaction simulation.
+All 105 tests validate end-to-end functionality across mock Judge0 execution, Firestore services, and real PostgreSQL instances.
 
 ---
 
