@@ -15,8 +15,31 @@ logger = logging.getLogger(__name__)
 _DEV_MODE = os.environ.get("APP_ENV", "development").lower() != "production"
 
 
+def _cors_headers(request: Request) -> dict:
+    from app.config import settings
+    origin = request.headers.get("origin")
+    if origin and (origin in settings.allowed_origins or "*" in settings.allowed_origins):
+        return {
+            "Access-Control-Allow-Origin": origin,
+            "Access-Control-Allow-Credentials": "true",
+            "Vary": "Origin",
+        }
+    return {}
+
+
 def add_exception_handlers(app: FastAPI) -> None:
     """Register global exception handlers on the FastAPI app."""
+    from fastapi import HTTPException
+
+    @app.exception_handler(HTTPException)
+    async def http_exception_handler(request: Request, exc: HTTPException):
+        headers = dict(exc.headers) if exc.headers else {}
+        headers.update(_cors_headers(request))
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={"detail": exc.detail},
+            headers=headers,
+        )
 
     @app.exception_handler(RequestValidationError)
     async def validation_error_handler(request: Request, exc: RequestValidationError):
@@ -28,6 +51,7 @@ def add_exception_handlers(app: FastAPI) -> None:
         return JSONResponse(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             content={"detail": "; ".join(errors)},
+            headers=_cors_headers(request),
         )
 
     @app.exception_handler(Exception)
@@ -47,6 +71,7 @@ def add_exception_handlers(app: FastAPI) -> None:
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={"detail": detail},
+            headers=_cors_headers(request),
         )
 
 

@@ -23,10 +23,17 @@ Judge0 status IDs reference:
 
 import asyncio
 import base64
+import logging
 import httpx
 from typing import Dict, Any, Optional
+from fastapi import HTTPException, status
 
 from app.config import settings
+
+logger = logging.getLogger(__name__)
+
+# Track which endpoint base URL was used for each active submission token
+_token_base_urls: Dict[str, str] = {}
 
 
 # ── Status helpers ────────────────────────────────────────────────────────────
@@ -59,21 +66,27 @@ def is_terminal(status_id: int) -> bool:
     return status_id not in (1, 2)
 
 
-def _get_headers() -> Dict[str, str]:
+def _clean_api_key() -> str:
+    return (settings.judge0_api_key or "").strip("'\" \t\r\n")
+
+
+def _get_headers(for_rapidapi: bool = True) -> Dict[str, str]:
     """Build request headers depending on whether RapidAPI is configured."""
     headers = {"content-type": "application/json"}
-    if settings.judge0_use_rapidapi and settings.judge0_api_key:
+    api_key = _clean_api_key()
+    if for_rapidapi and settings.judge0_use_rapidapi and api_key:
         headers.update(
             {
                 "x-rapidapi-host": "judge0-ce.p.rapidapi.com",
-                "x-rapidapi-key": settings.judge0_api_key,
+                "x-rapidapi-key": api_key,
             }
         )
     return headers
 
 
 def _base_url() -> str:
-    if settings.judge0_use_rapidapi and settings.judge0_api_key:
+    api_key = _clean_api_key()
+    if settings.judge0_use_rapidapi and api_key:
         return settings.judge0_rapidapi_base
     return settings.judge0_public_base
 
@@ -101,23 +114,11 @@ async def create_submission(
 ) -> str:
     """
     Create a Judge0 submission.
-
-    Args:
-        source_code:      Plain-text (or already base64-encoded) source code.
-        language_id:      Judge0 language ID.
-        stdin:            Combined stdin string (already formatted as T\\n<tc1>...).
-        compiler_options: Compiler flags (e.g. '-std=c++17').
-
-    Returns:
-        Judge0 submission token (str).
     """
-    # If source_code looks like it is already base64, decode first then re-encode
-    # to ensure consistent encoding. The frontend sends base64; we need the plain text.
     try:
         decoded = base64.b64decode(source_code).decode("utf-8")
         plain_code = decoded
     except Exception:
-        # Not base64 — treat as plain text
         plain_code = source_code
 
     payload = {
@@ -127,21 +128,53 @@ async def create_submission(
         "redirect_stderr_to_stdout": False,
     }
 
-    # Setting compiler options is only allowed for compiled languages (C, C++)
     if compiler_options and language_id in (50, 54, 76):
         payload["compiler_options"] = compiler_options
 
-    url = f"{_base_url()}/submissions?base64_encoded=true&wait=false"
-    headers = _get_headers()
+    target_base = _base_url()
+    url = f"{target_base}/submissions?base64_encoded=true&wait=false"
+    headers = _get_headers(for_rapidapi=("rapidapi.com" in target_base))
 
     async with httpx.AsyncClient(timeout=30.0) as client:
-        response = await client.post(url, json=payload, headers=headers)
-        response.raise_for_status()
-        data = response.json()
+        try:
+            response = await client.post(url, json=payload, headers=headers)
+            # If RapidAPI returns 401 or 403 (unauthorized, invalid key, or not subscribed),
+            # gracefully fall back to the public Judge0 CE endpoint so code execution succeeds!
+            if response.status_code in (401, 403) and "rapidapi.com" in url:
+                logger.warning(
+                    "[Judge0] RapidAPI returned HTTP %s (%s). Falling back to public endpoint %s.",
+                    response.status_code,
+                    response.text[:200],
+                    settings.judge0_public_base,
+                )
+                target_base = settings.judge0_public_base
+                url = f"{target_base}/submissions?base64_encoded=true&wait=false"
+                headers = {"content-type": "application/json"}
+                response = await client.post(url, json=payload, headers=headers)
+
+            response.raise_for_status()
+            data = response.json()
+        except httpx.HTTPStatusError as exc:
+            logger.error("[Judge0] HTTP error: %s - %s", exc.response.status_code, exc.response.text[:200])
+            raise HTTPException(
+                status_code=status.HTTP_502_BAD_GATEWAY,
+                detail=f"Code execution provider error: HTTP {exc.response.status_code} - {exc.response.text[:200]}",
+            )
+        except httpx.RequestError as exc:
+            logger.error("[Judge0] Connection error: %s", exc)
+            raise HTTPException(
+                status_code=status.HTTP_502_BAD_GATEWAY,
+                detail=f"Code execution provider unreachable: {exc}",
+            )
 
     token = data.get("token")
     if not token:
-        raise RuntimeError(f"Judge0 did not return a token. Response: {data}")
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"Judge0 did not return a submission token. Response: {data}",
+        )
+
+    _token_base_urls[token] = target_base
     return token
 
 
@@ -150,36 +183,49 @@ async def create_submission(
 async def poll_submission(token: str) -> Dict[str, Any]:
     """
     Poll Judge0 until the submission reaches a terminal status.
-
-    Polls every `settings.judge0_poll_interval_seconds` seconds,
-    up to `settings.judge0_max_poll_attempts` attempts (~40 seconds total).
-
-    Returns:
-        The full Judge0 submission object at its terminal state.
-
-    Raises:
-        TimeoutError: If the submission does not complete within the polling window.
     """
+    target_base = _token_base_urls.get(token, _base_url())
+    is_rapidapi = "rapidapi.com" in target_base
     fields = "status,stdout,stderr,compile_output,time,memory,message"
-    url = f"{_base_url()}/submissions/{token}?base64_encoded=true&fields={fields}"
-    headers = _get_headers()
-    # Remove content-type header for GET requests
+    url = f"{target_base}/submissions/{token}?base64_encoded=true&fields={fields}"
+    headers = _get_headers(for_rapidapi=is_rapidapi)
     headers.pop("content-type", None)
 
     async with httpx.AsyncClient(timeout=30.0) as client:
         for attempt in range(settings.judge0_max_poll_attempts):
             await asyncio.sleep(settings.judge0_poll_interval_seconds)
-            response = await client.get(url, headers=headers)
-            response.raise_for_status()
-            data = response.json()
+            try:
+                response = await client.get(url, headers=headers)
+                response.raise_for_status()
+                data = response.json()
+            except httpx.HTTPStatusError as exc:
+                logger.error("[Judge0] Poll error on %s: %s", url, exc)
+                _token_base_urls.pop(token, None)
+                raise HTTPException(
+                    status_code=status.HTTP_502_BAD_GATEWAY,
+                    detail=f"Judge0 polling failed: HTTP {exc.response.status_code}",
+                )
+            except httpx.RequestError as exc:
+                logger.error("[Judge0] Poll network error on %s: %s", url, exc)
+                _token_base_urls.pop(token, None)
+                raise HTTPException(
+                    status_code=status.HTTP_502_BAD_GATEWAY,
+                    detail=f"Judge0 polling unreachable: {exc}",
+                )
+
             status_id = data.get("status", {}).get("id", 0)
             if is_terminal(status_id):
+                _token_base_urls.pop(token, None)
                 return data
 
-    raise TimeoutError(
-        f"Judge0 submission {token!r} did not complete after "
-        f"{settings.judge0_max_poll_attempts} polling attempts "
-        f"({settings.judge0_max_poll_attempts * settings.judge0_poll_interval_seconds:.0f}s)."
+    _token_base_urls.pop(token, None)
+    raise HTTPException(
+        status_code=status.HTTP_504_GATEWAY_TIMEOUT,
+        detail=(
+            f"Judge0 submission {token!r} did not complete after "
+            f"{settings.judge0_max_poll_attempts} polling attempts "
+            f"({settings.judge0_max_poll_attempts * settings.judge0_poll_interval_seconds:.0f}s)."
+        ),
     )
 
 
