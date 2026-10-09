@@ -6,20 +6,30 @@
 -- =============================================================================
 
 -- Enable required extensions
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+-- Note: gen_random_uuid() is built natively into PostgreSQL 13+ (no extension required).
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 1. ROLE DEFINITIONS & PRIVILEGE BOUNDARIES
 -- ─────────────────────────────────────────────────────────────────────────────
--- 1. algoquest_migration: Schema owner role executing DDL migrations.
--- 2. algoquest_app:       Least-privilege runtime application pool role (DML only).
--- 3. anon, authenticated: Public PostgREST client roles (blocked from direct access).
+-- 1. algoquest_app:       Non-login group role defining least-privilege DML permissions.
+-- 2. postgres:            Superuser / schema owner executing migrations and pooler connections.
+-- 3. anon, authenticated: Public PostgREST client roles (strictly blocked from direct access).
 
 DO $$
 BEGIN
-    -- Create application runtime role if it doesn't already exist
+    -- Create application group role (NOLOGIN) if it doesn't already exist.
+    -- This defines an authorization boundary without hardcoding a login password.
     IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'algoquest_app') THEN
-        CREATE ROLE algoquest_app WITH LOGIN PASSWORD 'CHANGE_IN_PRODUCTION';
+        CREATE ROLE algoquest_app WITH NOLOGIN;
+    ELSE
+        -- Ensure it is configured with NOLOGIN (removes any placeholder password)
+        ALTER ROLE algoquest_app WITH NOLOGIN;
+    END IF;
+
+    -- Grant membership to the admin/connecting role (postgres)
+    -- so connections inherit algoquest_app permissions and RLS policies
+    IF EXISTS (SELECT FROM pg_roles WHERE rolname = 'postgres') THEN
+        GRANT algoquest_app TO postgres;
     END IF;
 END $$;
 
