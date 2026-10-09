@@ -3,6 +3,7 @@ Application configuration — all values loaded from environment variables.
 Never hardcode secrets; use a .env file locally and env vars in production.
 """
 
+from pydantic import Field, AliasChoices
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -61,7 +62,7 @@ class Settings(BaseSettings):
     """
 
     # ── Server ────────────────────────────────────────────────────────────────
-    backend_port: int = 8000
+    backend_port: int = Field(default=8000, validation_alias=AliasChoices("BACKEND_PORT", "PORT"))
     backend_host: str = "0.0.0.0"
 
     allowed_origins_str: str = (

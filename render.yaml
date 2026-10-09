@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: algoquest-api
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 1
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: DATABASE_BACKEND
+        value: supabase
+      - key: SUPABASE_DB_URL
+        sync: false
+      - key: FIREBASE_PROJECT_ID
+        sync: false
+      - key: FIREBASE_SERVICE_ACCOUNT_JSON
+        sync: false
+      - key: JUDGE0_API_KEY
+        sync: false
+      - key: JUDGE0_USE_RAPIDAPI
+        value: "true"
+      - key: ALLOWED_ORIGINS_STR
+        value: "https://algoquest-9aab0.web.app,https://algoquest-9aab0.firebaseapp.com,http://localhost:5500"
+      - key: SUBMISSION_WORKERS
+        value: "1"
