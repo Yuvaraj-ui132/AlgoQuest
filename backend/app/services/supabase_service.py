@@ -34,7 +34,7 @@ from sqlalchemy import (
     desc,
     or_,
 )
-from sqlalchemy.orm import declarative_base, sessionmaker, scoped_session
+from sqlalchemy.orm import declarative_base, sessionmaker, Session
 from sqlalchemy.pool import StaticPool, QueuePool
 
 from app.config import settings
@@ -188,12 +188,12 @@ def get_engine(db_url: Optional[str] = None):
                 pool_timeout=30,
                 pool_pre_ping=True,
             )
-        _SessionFactory = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=_engine))
+        _SessionFactory = sessionmaker(autocommit=False, autoflush=False, bind=_engine)
 
     return _engine
 
 
-def get_db_session():
+def get_db_session() -> Session:
     if _SessionFactory is None:
         get_engine()
     return _SessionFactory()
@@ -212,14 +212,16 @@ def init_user_document(
     name: Optional[str] = None,
     email: Optional[str] = None,
     photo_url: Optional[str] = None,
+    session: Optional[Session] = None,
 ) -> bool:
     """
     Idempotent user bootstrap.
     Creates user record if not exists, or updates last_login and provided fields.
     Returns True if created (new user), False if existing.
+    If session is provided, operations execute within that session (caller manages commit/close).
+    Otherwise, an independent session is created, committed, and closed.
     """
-    session = get_db_session()
-    try:
+    if session is not None:
         user = session.query(User).filter(User.id == uid).first()
         now = datetime.now(timezone.utc)
         if not user:
@@ -233,7 +235,7 @@ def init_user_document(
                 migrated=True,
             )
             session.add(user)
-            session.commit()
+            session.flush()
             return True
         else:
             user.last_login = now
@@ -243,10 +245,41 @@ def init_user_document(
                 user.email = email
             if photo_url:
                 user.photo_url = photo_url
-            session.commit()
+            session.flush()
             return False
+
+    sess = get_db_session()
+    try:
+        user = sess.query(User).filter(User.id == uid).first()
+        now = datetime.now(timezone.utc)
+        if not user:
+            user = User(
+                id=uid,
+                name=name,
+                email=email,
+                photo_url=photo_url,
+                created_at=now,
+                last_login=now,
+                migrated=True,
+            )
+            sess.add(user)
+            sess.commit()
+            return True
+        else:
+            user.last_login = now
+            if name:
+                user.name = name
+            if email:
+                user.email = email
+            if photo_url:
+                user.photo_url = photo_url
+            sess.commit()
+            return False
+    except Exception:
+        sess.rollback()
+        raise
     finally:
-        session.close()
+        sess.close()
 
 
 # ── Progress ──────────────────────────────────────────────────────────────────
@@ -282,7 +315,7 @@ async def update_progress(
     try:
         # Ensure user exists (FK constraint)
         if not session.query(User).filter(User.id == uid).first():
-            init_user_document(uid)
+            init_user_document(uid, session=session)
 
         now = datetime.now(timezone.utc)
         record = (
@@ -314,6 +347,9 @@ async def update_progress(
             record.updated_at = now
 
         session.commit()
+    except Exception:
+        session.rollback()
+        raise
     finally:
         session.close()
 
@@ -323,7 +359,7 @@ def update_progress_sync(uid: str, question_id: int) -> None:
     session = get_db_session()
     try:
         if not session.query(User).filter(User.id == uid).first():
-            init_user_document(uid)
+            init_user_document(uid, session=session)
 
         now = datetime.now(timezone.utc)
         record = (
@@ -347,6 +383,9 @@ def update_progress_sync(uid: str, question_id: int) -> None:
             record.updated_at = now
 
         session.commit()
+    except Exception:
+        session.rollback()
+        raise
     finally:
         session.close()
 
@@ -369,7 +408,7 @@ async def set_bookmark(uid: str, question_id: int, bookmarked: bool) -> None:
     try:
         if bookmarked:
             if not session.query(User).filter(User.id == uid).first():
-                init_user_document(uid)
+                init_user_document(uid, session=session)
 
             existing = (
                 session.query(UserBookmark)
@@ -384,6 +423,9 @@ async def set_bookmark(uid: str, question_id: int, bookmarked: bool) -> None:
                 UserBookmark.user_id == uid, UserBookmark.question_id == question_id
             ).delete()
             session.commit()
+    except Exception:
+        session.rollback()
+        raise
     finally:
         session.close()
 
@@ -419,7 +461,7 @@ async def save_note(uid: str, question_id: int, content: str) -> None:
     session = get_db_session()
     try:
         if not session.query(User).filter(User.id == uid).first():
-            init_user_document(uid)
+            init_user_document(uid, session=session)
 
         record = (
             session.query(UserNote)
@@ -433,6 +475,9 @@ async def save_note(uid: str, question_id: int, content: str) -> None:
             record.content = content
             record.updated_at = now
         session.commit()
+    except Exception:
+        session.rollback()
+        raise
     finally:
         session.close()
 
@@ -473,7 +518,7 @@ async def save_editor_code(uid: str, question_id: int, language: str, code: str)
     session = get_db_session()
     try:
         if not session.query(User).filter(User.id == uid).first():
-            init_user_document(uid)
+            init_user_document(uid, session=session)
 
         record = (
             session.query(UserEditorDraft)
@@ -488,6 +533,9 @@ async def save_editor_code(uid: str, question_id: int, language: str, code: str)
             record.code = code
             record.updated_at = now
         session.commit()
+    except Exception:
+        session.rollback()
+        raise
     finally:
         session.close()
 
@@ -523,7 +571,7 @@ async def save_general_compiler_code(uid: str, language: str, code: str) -> None
     session = get_db_session()
     try:
         if not session.query(User).filter(User.id == uid).first():
-            init_user_document(uid)
+            init_user_document(uid, session=session)
 
         record = (
             session.query(UserCompilerDraft)
@@ -537,6 +585,9 @@ async def save_general_compiler_code(uid: str, language: str, code: str) -> None
             record.code = code
             record.updated_at = now
         session.commit()
+    except Exception:
+        session.rollback()
+        raise
     finally:
         session.close()
 
@@ -644,7 +695,7 @@ def record_submission_sync(
     session = get_db_session()
     try:
         if not session.query(User).filter(User.id == uid).first():
-            init_user_document(uid)
+            init_user_document(uid, session=session)
 
         sub = Submission(
             id=str(uuid.uuid4()),
@@ -665,6 +716,9 @@ def record_submission_sync(
         )
         session.add(sub)
         session.commit()
+    except Exception:
+        session.rollback()
+        raise
     finally:
         session.close()
 

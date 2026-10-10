@@ -324,10 +324,14 @@ class SubmissionQueue:
                 _fmt_memory(result["memory"]),
                 _compile_err,
             )
-        except Exception:
-            logger.exception(
-                "[SUBMISSION] Database history write failed for job=%s uid=%.8s...",
-                job.job_id, job.uid,
+        except Exception as exc:
+            logger.error(
+                "[SUBMISSION_PERSISTENCE_FAILED] job_id=%s question_id=%s verdict=%s error=%s",
+                job.job_id,
+                job.question_id,
+                final_verdict,
+                exc,
+                exc_info=True,
             )
             # Non-fatal: execution result is still returned to the user
 
@@ -339,10 +343,13 @@ class SubmissionQueue:
                     job.uid,
                     job.question_id,
                 )
-            except Exception:
-                logger.exception(
-                    "[SUBMISSION] Progress update failed for job=%s uid=%.8s...",
-                    job.job_id, job.uid,
+            except Exception as exc:
+                logger.error(
+                    "[PROGRESS_PERSISTENCE_FAILED] job_id=%s question_id=%s error=%s",
+                    job.job_id,
+                    job.question_id,
+                    exc,
+                    exc_info=True,
                 )
 
         # ── Build safe result (no hidden test data) ───────────────────────────

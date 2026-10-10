@@ -16,7 +16,7 @@ from datetime import datetime, timezone, timedelta
 from typing import Dict, Any
 
 from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.orm import sessionmaker
 
 from app.services import supabase_service
 from app.services.supabase_service import (
@@ -41,8 +41,8 @@ class TestPostgresRepository(unittest.IsolatedAsyncioTestCase):
     def setUpClass(cls):
         cls.engine = create_engine(cls.DB_URL, pool_pre_ping=True)
         Base.metadata.create_all(bind=cls.engine)
-        cls.SessionFactory = scoped_session(
-            sessionmaker(autocommit=False, autoflush=False, bind=cls.engine)
+        cls.SessionFactory = sessionmaker(
+            autocommit=False, autoflush=False, bind=cls.engine
         )
         # Inject engine and SessionFactory into supabase_service
         supabase_service._engine = cls.engine
@@ -311,6 +311,130 @@ class TestPostgresRepository(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len(validated_history.items), 1)
         self.assertEqual(validated_history.items[0].verdict, "Accepted")
         self.assertEqual(validated_history.items[0].language, "python")
+
+    # ── Session Lifecycle & Submission Persistence Regression Tests ───────────
+
+    def test_submission_persistence_existing_user(self):
+        """A user who already exists must have their submission recorded and committed."""
+        supabase_service.init_user_document(self.user_a)
+        supabase_service.record_submission_sync(
+            uid=self.user_a,
+            question_id=1,
+            verdict="Accepted",
+            status_id=3,
+            language_id=71,
+            passed_count=5,
+            total_count=5,
+            runtime="0.015s",
+            memory="3.2 MB",
+            compile_error=None,
+        )
+        session = supabase_service.get_db_session()
+        try:
+            subs = session.query(Submission).filter_by(user_id=self.user_a).all()
+            self.assertEqual(len(subs), 1)
+            self.assertEqual(subs[0].verdict, "Accepted")
+            self.assertEqual(subs[0].question_id, 1)
+        finally:
+            session.close()
+
+    def test_submission_persistence_uninitialized_user(self):
+        """A user who does not exist must be initialized and have their submission recorded without error."""
+        uninit_uid = "uninit_user_999"
+        # Confirm user does NOT exist
+        session = supabase_service.get_db_session()
+        try:
+            self.assertIsNone(session.query(User).filter_by(id=uninit_uid).first())
+        finally:
+            session.close()
+
+        # Record submission for uninitialized user
+        supabase_service.record_submission_sync(
+            uid=uninit_uid,
+            question_id=2,
+            verdict="Wrong Answer",
+            status_id=4,
+            language_id=76,
+            passed_count=2,
+            total_count=5,
+            runtime="0.008s",
+            memory="2.1 MB",
+            compile_error=None,
+        )
+
+        # Verify user was automatically created and submission was persisted
+        session = supabase_service.get_db_session()
+        try:
+            user = session.query(User).filter_by(id=uninit_uid).first()
+            self.assertIsNotNone(user)
+            subs = session.query(Submission).filter_by(user_id=uninit_uid).all()
+            self.assertEqual(len(subs), 1)
+            self.assertEqual(subs[0].verdict, "Wrong Answer")
+            self.assertEqual(subs[0].question_id, 2)
+        finally:
+            session.close()
+
+    def test_submission_persistence_failure_rollback(self):
+        """Database failure during persistence must cleanly rollback without leaving dangling state."""
+        invalid_uid = "user_fail_test"
+        # Mock / pass a invalid question_id violating check constraint (question_id > 0)
+        with self.assertRaises(Exception):
+            supabase_service.record_submission_sync(
+                uid=invalid_uid,
+                question_id=-99,  # Violates CHECK (question_id > 0)
+                verdict="Accepted",
+                status_id=3,
+                language_id=71,
+                passed_count=0,
+                total_count=0,
+                runtime="--",
+                memory="--",
+            )
+
+        # Confirm nothing was committed
+        session = supabase_service.get_db_session()
+        try:
+            subs = session.query(Submission).filter_by(user_id=invalid_uid).all()
+            self.assertEqual(len(subs), 0)
+        finally:
+            session.close()
+
+    async def test_independent_sessions_during_concurrent_operations(self):
+        """Concurrent coroutines must operate on independent sessions without cross-talk or closed-session errors."""
+        async def operation_a():
+            supabase_service.init_user_document("concurrent_user_a")
+            for i in range(1, 4):
+                await supabase_service.update_progress("concurrent_user_a", question_id=i, solved=True)
+                await asyncio.sleep(0.01)
+            return await supabase_service.get_all_progress("concurrent_user_a")
+
+        async def operation_b():
+            supabase_service.init_user_document("concurrent_user_b")
+            for i in range(1, 4):
+                await supabase_service.set_bookmark("concurrent_user_b", question_id=i, bookmarked=True)
+                await asyncio.sleep(0.01)
+            return await supabase_service.get_all_bookmarks("concurrent_user_b")
+
+        async def operation_c():
+            # Uninitialized user concurrent submission
+            await asyncio.sleep(0.02)
+            supabase_service.record_submission_sync(
+                uid="concurrent_user_c",
+                question_id=5,
+                verdict="Accepted",
+                status_id=3,
+                language_id=71,
+                passed_count=3,
+                total_count=3,
+                runtime="0.01s",
+                memory="2MB",
+            )
+            return await supabase_service.get_submission_history("concurrent_user_c")
+
+        res_a, res_b, res_c = await asyncio.gather(operation_a(), operation_b(), operation_c())
+        self.assertEqual(len(res_a), 3)
+        self.assertEqual(len(res_b), 3)
+        self.assertEqual(len(res_c["items"]), 1)
 
 
 if __name__ == "__main__":
