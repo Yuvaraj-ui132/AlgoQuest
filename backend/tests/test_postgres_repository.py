@@ -437,5 +437,35 @@ class TestPostgresRepository(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len(res_c["items"]), 1)
 
 
+class TestPostgresEngineConfiguration(unittest.TestCase):
+    """Unit tests for PostgreSQL driver and engine initialization without requiring a live database."""
+
+    def setUp(self):
+        self._orig_engine = supabase_service._engine
+        self._orig_session_factory = supabase_service._SessionFactory
+
+    def tearDown(self):
+        supabase_service._engine = self._orig_engine
+        supabase_service._SessionFactory = self._orig_session_factory
+
+    def test_postgres_engine_initialization_with_psycopg(self):
+        """Verify PostgreSQL engine initialization loads psycopg (v3) driver without live DB connection."""
+        import psycopg
+        self.assertTrue(hasattr(psycopg, "__version__"))
+
+        dummy_url = "postgresql+psycopg://mock_user:mock_pass@mock-host:5432/mock_db"
+        engine = supabase_service.get_engine(dummy_url)
+        self.assertEqual(engine.dialect.name, "postgresql")
+        self.assertEqual(engine.dialect.driver, "psycopg")
+        self.assertEqual(engine.dialect.dbapi.__name__, "psycopg")
+
+    def test_postgres_legacy_url_normalization(self):
+        """Verify legacy postgres:// URLs are normalized to postgresql:// without live DB connection."""
+        legacy_url = "postgres://mock_user:mock_pass@mock-host:5432/mock_db"
+        engine = supabase_service.get_engine(legacy_url)
+        self.assertEqual(engine.url.drivername, "postgresql")
+        self.assertEqual(str(engine.url), "postgresql://mock_user:***@mock-host:5432/mock_db")
+
+
 if __name__ == "__main__":
     unittest.main()

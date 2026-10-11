@@ -179,6 +179,8 @@ def get_engine(db_url: Optional[str] = None):
                 poolclass=StaticPool,
             )
         else:
+            if url.startswith("postgres://"):
+                url = "postgresql://" + url[len("postgres://"):]
             # PostgreSQL / Supabase with QueuePool
             _engine = create_engine(
                 url,
