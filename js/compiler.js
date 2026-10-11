@@ -224,10 +224,8 @@ const Compiler = (() => {
 
     if (isDsaMode) {
       activeMetadata = qMeta;
-      // Driver code generation stays client-side — wraps user's Solution class
-      const wrapped = generateDriverCode(qMeta, sourceCode, language);
-      // Combined stdin is built server-side from test_cases.json for ALL sample cases
-      _execute(wrapped, language, currentQ.id, 'run', null, null);
+      // Driver code generation is authoritative on backend — send raw editor source code
+      _execute(sourceCode, language, currentQ.id, 'run', null, null);
     } else {
       activeMetadata = null;
       const inputVal = isDsaPage ? (window.App?.currentQuestion?.sampleInput || '') : (stdin || '');
@@ -259,9 +257,9 @@ const Compiler = (() => {
 
     if (isDsaMode) {
       activeMetadata = qMeta;
-      const wrapped = generateDriverCode(qMeta, sourceCode, language);
+      // Driver code generation is authoritative on backend — send raw editor source code
       // Hidden test cases loaded server-side — never sent to browser
-      _execute(wrapped, language, currentQ.id, 'submit', null, null);
+      _execute(sourceCode, language, currentQ.id, 'submit', null, null);
     } else {
       activeMetadata = null;
       const q = window.App?.currentQuestion;

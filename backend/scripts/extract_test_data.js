@@ -95,9 +95,14 @@ for (const [qId, meta] of Object.entries(registry)) {
   }));
 
   output[qId] = {
-    id:          meta.id,
-    name:        meta.name,
-    compareMode: meta.compareMode || 'ordered',
+    id:              meta.id,
+    name:            meta.name,
+    compareMode:     meta.compareMode || 'ordered',
+    functionName:    meta.functionName || '',
+    parameters:      meta.parameters || [],
+    returnType:      meta.returnType || '',
+    className:       meta.className || null,
+    constructorArgs: meta.constructorArgs || null,
     sampleTests,
     hiddenTests,
   };

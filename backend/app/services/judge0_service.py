@@ -156,6 +156,12 @@ async def create_submission(
             data = response.json()
         except httpx.HTTPStatusError as exc:
             logger.error("[Judge0] HTTP error: %s - %s", exc.response.status_code, exc.response.text[:200])
+            if exc.response.status_code == 429:
+                raise HTTPException(
+                    status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                    detail="Code execution provider rate limit reached. Please retry shortly.",
+                    headers={"Retry-After": "30"},
+                )
             raise HTTPException(
                 status_code=status.HTTP_502_BAD_GATEWAY,
                 detail=f"Code execution provider error: HTTP {exc.response.status_code} - {exc.response.text[:200]}",

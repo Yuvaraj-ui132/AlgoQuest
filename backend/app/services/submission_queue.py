@@ -28,6 +28,7 @@ Cleanup:
 
 import asyncio
 import logging
+import secrets
 import time
 import uuid
 from dataclasses import dataclass, field
@@ -222,14 +223,14 @@ class SubmissionQueue:
         )
 
         # ── Load test data ────────────────────────────────────────────────────
-        # _get_question_test_data is synchronous (reads cached JSON);
-        # run it in a thread to be safe and keep event loop free.
-        q_data = await asyncio.to_thread(
-            _get_question_test_data_sync, job.question_id
+        # _get_question_submission_data_sync is synchronous;
+        # run it in a thread to keep event loop free.
+        q_data, load_err, is_sample_only = await asyncio.to_thread(
+            _get_question_submission_data_sync, job.question_id
         )
-        if q_data is None:
+        if load_err or q_data is None:
             self._mark_failed(
-                job, f"Question {job.question_id} not found in test_cases.json"
+                job, load_err or f"Question {job.question_id} not found in catalogue"
             )
             return
 
@@ -242,11 +243,20 @@ class SubmissionQueue:
         # ── Build combined stdin ──────────────────────────────────────────────
         combined_stdin = _build_stdin_sync(active_tests)
 
+        # ── Dynamic backend nonce injection & marker anti-spoofing ───────────
+        nonce = secrets.token_hex(16)
+        from app.routes.submissions import prepare_dsa_source, parse_test_outputs
+        secured_code, is_clean = prepare_dsa_source(
+            source_code=job.source_code,
+            q_data=q_data,
+            language_id=job.language_id,
+            nonce=nonce,
+        )
+
         # ── Execute Judge0 ────────────────────────────────────────────────────
-        # judge0_service.execute is already async (uses httpx).
         try:
             result = await judge0_service.execute(
-                source_code=job.source_code,
+                source_code=secured_code,
                 language_id=job.language_id,
                 stdin=combined_stdin,
                 compiler_options=job.compiler_options,
@@ -261,9 +271,11 @@ class SubmissionQueue:
         status_id: int = result["status_id"]
         stdout: str    = result["stdout"] or ""
 
-        # ── Parse per-test-case outputs (structured or fallback) ──────────────
-        from app.routes.submissions import parse_test_outputs
-        output_lines = parse_test_outputs(stdout, len(active_tests))
+        # ── Parse per-test-case outputs (authenticated with session nonce) ────
+        if not is_clean:
+            output_lines = ["" for _ in range(len(active_tests))]
+        else:
+            output_lines = parse_test_outputs(stdout, len(active_tests), nonce=nonce)
 
         passed_count = 0
         tc_results   = []
@@ -273,17 +285,18 @@ class SubmissionQueue:
             is_hidden  = i >= n_sample
 
             passed = (
-                status_id == 3
+                is_clean
+                and status_id == 3
                 and _compare_sync(actual_raw, tc.get("expectedRaw", ""), compare_mode)
             )
             if passed:
                 passed_count += 1
 
-            # Build SAFE tc dict — hidden test stdin/expectedRaw are NEVER included
+            # Build SAFE tc dict — hidden test stdin/expectedRaw/actual are NEVER included
             item: Dict[str, Any] = {
                 "index":     i + 1,
                 "passed":    passed,
-                "actual":    actual_raw,
+                "actual":    None if is_hidden else actual_raw,
                 "is_hidden": is_hidden,
             }
             if not is_hidden:
@@ -293,19 +306,29 @@ class SubmissionQueue:
 
         # ── Determine final verdict ───────────────────────────────────────────
         all_passed = (passed_count == len(active_tests)) and (status_id == 3)
-        if all_passed:
-            final_verdict = "Accepted"
-        elif status_id == 3:
-            final_verdict = "Wrong Answer"
+        if is_sample_only:
+            if all_passed:
+                final_verdict = "Sample Accepted (Dev Only)"
+            elif status_id == 3:
+                final_verdict = "Wrong Answer"
+            else:
+                final_verdict = result["verdict"]
         else:
-            final_verdict = result["verdict"]
+            if all_passed:
+                final_verdict = "Accepted"
+            elif status_id == 3:
+                final_verdict = "Wrong Answer"
+            else:
+                final_verdict = result["verdict"]
 
         logger.info(
-            "[SUBMISSION] job=%s verdict=%s passed=%d/%d",
-            job.job_id, final_verdict, passed_count, len(active_tests),
+            "[SUBMISSION] job=%s verdict=%s passed=%d/%d (sample_only=%s)",
+            job.job_id, final_verdict, passed_count, len(active_tests), is_sample_only,
         )
 
-        _compile_err = result.get("compile_output") or result.get("stderr") or None
+        # Compile error is ONLY recorded if status_id == 6 (Compilation Error)
+        # Runtime stderr is NEVER stored in compile_error to prevent hidden test leakage
+        _compile_err = (result.get("compile_output") or None) if status_id == 6 else None
 
         # ── Write database history (non-fatal) ───────────────────────────────
         # asyncio.to_thread dispatches the synchronous database call to a
@@ -340,7 +363,8 @@ class SubmissionQueue:
             # Non-fatal: execution result is still returned to the user
 
         # ── Update progress if Accepted (non-fatal) ───────────────────────────
-        if all_passed:
+        # CRITICAL: In sample-only dev mode, progress is NEVER updated.
+        if all_passed and not is_sample_only:
             try:
                 await asyncio.to_thread(
                     _update_progress_sync,
@@ -368,9 +392,9 @@ class SubmissionQueue:
             "memory":         _fmt_memory(result["memory"]),
             "passed_count":   passed_count,
             "total_count":    len(active_tests),
-            "compile_output": result.get("compile_output") or None,
-            "stderr":         result.get("stderr") or None,
-            "test_cases":     tc_results,  # hidden tc items have no input/expected
+            "compile_output": (result.get("compile_output") or None) if status_id == 6 else None,
+            "stderr":         None,  # Submit mode NEVER exposes runtime stderr
+            "test_cases":     tc_results,  # hidden tc items have no input/expected/actual
         }
 
         self._mark_completed(job, safe_result)
@@ -448,9 +472,29 @@ submission_queue = SubmissionQueue()
 
 # ── Pure helper functions (module-level for testability) ─────────────────────
 
+def _get_question_submission_data_sync(question_id: int):
+    """
+    Synchronous wrapper around the route-level submission test data loader.
+    Safe to call from asyncio.to_thread().
+    Returns (q_data, error_message, is_sample_only).
+    """
+    # Backward-compatibility hook for tests patching _get_question_test_data_sync
+    try:
+        from unittest.mock import Mock
+        if isinstance(_get_question_test_data_sync, Mock):
+            res = _get_question_test_data_sync(question_id)
+            if isinstance(res, dict):
+                return res, None, False
+    except Exception:
+        pass
+
+    from app.routes.submissions import get_question_submission_data
+    return get_question_submission_data(question_id)
+
+
 def _get_question_test_data_sync(question_id: int):
     """
-    Synchronous wrapper around the route-level test-data loader.
+    Synchronous wrapper around the public route-level test-data loader.
     Safe to call from asyncio.to_thread().
     """
     from app.routes.submissions import _get_question_test_data

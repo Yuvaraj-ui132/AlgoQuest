@@ -27,3 +27,6 @@ tests/
 scratch/
 data/*_export*.json
 .pgsql/
+data/hidden_test_cases.json
+scripts/private_*
+private_*

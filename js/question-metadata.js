@@ -4628,7 +4628,7 @@ window.QUESTION_METADATA_REGISTRY = {
   "157": {
     "id": 157,
     "name": "Course Schedule II",
-    "compareMode": "unordered",
+    "compareMode": "any_of",
     "functionName": "findOrder",
     "parameters": [
       {

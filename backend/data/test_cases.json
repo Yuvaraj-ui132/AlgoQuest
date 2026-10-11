@@ -17,20 +17,19 @@
         "expectedRaw": "1 2"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "twoSum",
+    "parameters": [
       {
-        "stdin": "2\n3 3\n6\n",
-        "expectedRaw": "0 1"
+        "name": "nums",
+        "type": "vector<int>"
       },
       {
-        "stdin": "4\n1 5 3 2\n8\n",
-        "expectedRaw": "1 2"
-      },
-      {
-        "stdin": "5\n-1 -2 -3 -4 -5\n-8\n",
-        "expectedRaw": "2 4"
+        "name": "target",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "vector<int>"
   },
   "2": {
     "id": 2,
@@ -50,20 +49,15 @@
         "expectedRaw": "0"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "containsDuplicate",
+    "parameters": [
       {
-        "stdin": "10\n1 1 1 3 3 4 3 2 4 2\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "1\n1\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "4\n-1 -2 -3 -1\n",
-        "expectedRaw": "1"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "bool"
   },
   "3": {
     "id": 3,
@@ -83,20 +77,15 @@
         "expectedRaw": "2"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "majorityElement",
+    "parameters": [
       {
-        "stdin": "1\n1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "3\n6 5 5\n",
-        "expectedRaw": "5"
-      },
-      {
-        "stdin": "5\n3 3 4 2 3\n",
-        "expectedRaw": "3"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "4": {
     "id": 4,
@@ -116,20 +105,15 @@
         "expectedRaw": "2"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "missingNumber",
+    "parameters": [
       {
-        "stdin": "9\n9 6 4 2 3 5 7 0 1\n",
-        "expectedRaw": "8"
-      },
-      {
-        "stdin": "1\n0\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "5\n1 2 3 4 5\n",
-        "expectedRaw": "0"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "5": {
     "id": 5,
@@ -149,20 +133,15 @@
         "expectedRaw": "3"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "findDuplicate",
+    "parameters": [
       {
-        "stdin": "2\n1 1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "5\n2 2 2 2 2\n",
-        "expectedRaw": "2"
-      },
-      {
-        "stdin": "7\n3 3 1 2 4 5 6\n",
-        "expectedRaw": "3"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "6": {
     "id": 6,
@@ -182,20 +161,19 @@
         "expectedRaw": "2"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "countFrequency",
+    "parameters": [
       {
-        "stdin": "4\n5 5 5 5\n5\n",
-        "expectedRaw": "4"
+        "name": "nums",
+        "type": "vector<int>"
       },
       {
-        "stdin": "4\n1 2 3 4\n5\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "1\n7\n7\n",
-        "expectedRaw": "1"
+        "name": "target",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "7": {
     "id": 7,
@@ -215,20 +193,15 @@
         "expectedRaw": "6"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "firstNonRepeating",
+    "parameters": [
       {
-        "stdin": "1\n1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "5\n2 2 3 3 4\n",
-        "expectedRaw": "4"
-      },
-      {
-        "stdin": "6\n1 1 2 2 3 3\n",
-        "expectedRaw": "-1"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "8": {
     "id": 8,
@@ -248,20 +221,15 @@
         "expectedRaw": "1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "firstRepeating",
+    "parameters": [
       {
-        "stdin": "4\n1 2 3 4\n",
-        "expectedRaw": "-1"
-      },
-      {
-        "stdin": "2\n5 5\n",
-        "expectedRaw": "5"
-      },
-      {
-        "stdin": "5\n7 4 7 3 4\n",
-        "expectedRaw": "7"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "9": {
     "id": 9,
@@ -281,20 +249,15 @@
         "expectedRaw": "9"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "longestConsecutive",
+    "parameters": [
       {
-        "stdin": "0\n\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "1\n1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "4\n1 2 3 10\n",
-        "expectedRaw": "3"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "10": {
     "id": 10,
@@ -314,20 +277,15 @@
         "expectedRaw": "1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "countDistinct",
+    "parameters": [
       {
-        "stdin": "5\n1 2 3 4 5\n",
-        "expectedRaw": "5"
-      },
-      {
-        "stdin": "4\n-1 -2 -1 0\n",
-        "expectedRaw": "3"
-      },
-      {
-        "stdin": "1\n7\n",
-        "expectedRaw": "1"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "11": {
     "id": 11,
@@ -347,20 +305,19 @@
         "expectedRaw": "4 9"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "intersection",
+    "parameters": [
       {
-        "stdin": "3\n1 2 3\n3\n4 5 6\n",
-        "expectedRaw": ""
+        "name": "nums1",
+        "type": "vector<int>"
       },
       {
-        "stdin": "1\n1\n1\n1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "3\n1 2 3\n3\n1 2 3\n",
-        "expectedRaw": "1 2 3"
+        "name": "nums2",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "vector<int>"
   },
   "12": {
     "id": 12,
@@ -380,20 +337,19 @@
         "expectedRaw": "3"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "unionArrays",
+    "parameters": [
       {
-        "stdin": "3\n1 2 3\n3\n4 5 6\n",
-        "expectedRaw": "6"
+        "name": "nums1",
+        "type": "vector<int>"
       },
       {
-        "stdin": "3\n1 1 1\n2\n1 1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "3\n5 6 7\n4\n5 6 7 8\n",
-        "expectedRaw": "4"
+        "name": "nums2",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "13": {
     "id": 13,
@@ -413,20 +369,15 @@
         "expectedRaw": "1 2"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "majorityElement",
+    "parameters": [
       {
-        "stdin": "8\n1 1 1 3 3 2 2 2\n",
-        "expectedRaw": "1 2"
-      },
-      {
-        "stdin": "1\n1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "4\n1 2 3 4\n",
-        "expectedRaw": ""
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "vector<int>"
   },
   "14": {
     "id": 14,
@@ -446,20 +397,15 @@
         "expectedRaw": "0"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "moveZeroes",
+    "parameters": [
       {
-        "stdin": "3\n1 0 1\n",
-        "expectedRaw": "1 1 0"
-      },
-      {
-        "stdin": "4\n0 0 0 1\n",
-        "expectedRaw": "1 0 0 0"
-      },
-      {
-        "stdin": "3\n1 2 3\n",
-        "expectedRaw": "1 2 3"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "void"
   },
   "15": {
     "id": 15,
@@ -479,20 +425,15 @@
         "expectedRaw": "5"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "removeDuplicates",
+    "parameters": [
       {
-        "stdin": "1\n1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "4\n1 1 1 1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "3\n1 2 3\n",
-        "expectedRaw": "3"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "16": {
     "id": 16,
@@ -512,20 +453,15 @@
         "expectedRaw": "9"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "trap",
+    "parameters": [
       {
-        "stdin": "3\n1 0 1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "6\n3 0 0 2 0 4\n",
-        "expectedRaw": "10"
-      },
-      {
-        "stdin": "5\n1 2 3 4 5\n",
-        "expectedRaw": "0"
+        "name": "height",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "17": {
     "id": 17,
@@ -545,20 +481,15 @@
         "expectedRaw": "1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "maxArea",
+    "parameters": [
       {
-        "stdin": "5\n4 3 2 1 4\n",
-        "expectedRaw": "16"
-      },
-      {
-        "stdin": "3\n1 2 1\n",
-        "expectedRaw": "2"
-      },
-      {
-        "stdin": "7\n2 3 4 5 18 17 6\n",
-        "expectedRaw": "17"
+        "name": "height",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "18": {
     "id": 18,
@@ -578,20 +509,27 @@
         "expectedRaw": "1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "merge",
+    "parameters": [
       {
-        "stdin": "1\n0\n0\n1\n1\n1\n",
-        "expectedRaw": "1"
+        "name": "nums1",
+        "type": "vector<int>"
       },
       {
-        "stdin": "6\n4 5 6 0 0 0\n3\n3\n1 2 3\n3\n",
-        "expectedRaw": "1 2 3 4 5 6"
+        "name": "m",
+        "type": "int"
       },
       {
-        "stdin": "6\n1 2 4 0 0 0\n3\n3\n3 5 6\n3\n",
-        "expectedRaw": "1 2 3 4 5 6"
+        "name": "nums2",
+        "type": "vector<int>"
+      },
+      {
+        "name": "n",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "void"
   },
   "19": {
     "id": 19,
@@ -611,20 +549,15 @@
         "expectedRaw": "0 1 2"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "sortColors",
+    "parameters": [
       {
-        "stdin": "1\n0\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "6\n1 1 1 0 0 2\n",
-        "expectedRaw": "0 0 1 1 1 2"
-      },
-      {
-        "stdin": "4\n2 2 2 2\n",
-        "expectedRaw": "2 2 2 2"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "void"
   },
   "20": {
     "id": 20,
@@ -644,20 +577,19 @@
         "expectedRaw": "0"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "hasPairWithSum",
+    "parameters": [
       {
-        "stdin": "5\n1 2 3 4 5\n9\n",
-        "expectedRaw": "1"
+        "name": "nums",
+        "type": "vector<int>"
       },
       {
-        "stdin": "3\n0 0 0\n0\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "4\n-1 -2 3 4\n2\n",
-        "expectedRaw": "1"
+        "name": "target",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "bool"
   },
   "21": {
     "id": 21,
@@ -677,20 +609,15 @@
         "expectedRaw": "0"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "threeSum",
+    "parameters": [
       {
-        "stdin": "3\n0 0 0\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "5\n-2 0 1 1 2\n",
-        "expectedRaw": "2"
-      },
-      {
-        "stdin": "15\n-4 -2 -2 -2 0 1 2 2 2 3 3 4 4 6 6\n",
-        "expectedRaw": "6"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "count:vector<vector<int>>"
   },
   "22": {
     "id": 22,
@@ -710,20 +637,19 @@
         "expectedRaw": "1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "fourSum",
+    "parameters": [
       {
-        "stdin": "4\n0 0 0 0\n0\n",
-        "expectedRaw": "1"
+        "name": "nums",
+        "type": "vector<int>"
       },
       {
-        "stdin": "4\n-3 -2 -1 0\n-6\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "5\n1 2 3 4 5\n100\n",
-        "expectedRaw": "0"
+        "name": "target",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "count:vector<vector<int>>"
   },
   "23": {
     "id": 23,
@@ -743,20 +669,15 @@
         "expectedRaw": "1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "maxSubArray",
+    "parameters": [
       {
-        "stdin": "5\n5 4 -1 7 8\n",
-        "expectedRaw": "23"
-      },
-      {
-        "stdin": "4\n-1 -2 -3 -4\n",
-        "expectedRaw": "-1"
-      },
-      {
-        "stdin": "1\n0\n",
-        "expectedRaw": "0"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "24": {
     "id": 24,
@@ -776,20 +697,19 @@
         "expectedRaw": "1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "maxSlidingWindow",
+    "parameters": [
       {
-        "stdin": "6\n1 3 1 2 0 5\n3\n",
-        "expectedRaw": "3 3 2 5"
+        "name": "nums",
+        "type": "vector<int>"
       },
       {
-        "stdin": "2\n9 11\n2\n",
-        "expectedRaw": "11"
-      },
-      {
-        "stdin": "2\n4 -2\n2\n",
-        "expectedRaw": "4"
+        "name": "k",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "vector<int>"
   },
   "25": {
     "id": 25,
@@ -809,20 +729,15 @@
         "expectedRaw": "1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "lengthOfLongestSubstring",
+    "parameters": [
       {
-        "stdin": "pwwkew\n",
-        "expectedRaw": "3"
-      },
-      {
-        "stdin": "@@EMPTY@@\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "abcdef\n",
-        "expectedRaw": "6"
+        "name": "s",
+        "type": "string"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "26": {
     "id": 26,
@@ -842,20 +757,19 @@
         "expectedRaw": "24"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "maxSumSubarray",
+    "parameters": [
       {
-        "stdin": "4\n5 5 5 5\n2\n",
-        "expectedRaw": "10"
+        "name": "arr",
+        "type": "vector<int>"
       },
       {
-        "stdin": "4\n-1 -2 -3 -4\n2\n",
-        "expectedRaw": "-3"
-      },
-      {
-        "stdin": "1\n1\n1\n",
-        "expectedRaw": "1"
+        "name": "k",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "27": {
     "id": 27,
@@ -875,20 +789,19 @@
         "expectedRaw": "0 0 0 0"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "firstNegativeInWindow",
+    "parameters": [
       {
-        "stdin": "3\n-1 -2 -3\n1\n",
-        "expectedRaw": "-1 -2 -3"
+        "name": "nums",
+        "type": "vector<int>"
       },
       {
-        "stdin": "4\n1 -2 3 -4\n3\n",
-        "expectedRaw": "-2 -2"
-      },
-      {
-        "stdin": "3\n0 0 0\n2\n",
-        "expectedRaw": "0 0"
+        "name": "k",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "vector<int>"
   },
   "28": {
     "id": 28,
@@ -908,20 +821,19 @@
         "expectedRaw": "3"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "countAnagrams",
+    "parameters": [
       {
-        "stdin": "a\na\n",
-        "expectedRaw": "1"
+        "name": "s",
+        "type": "string"
       },
       {
-        "stdin": "abcabc\nabc\n",
-        "expectedRaw": "4"
-      },
-      {
-        "stdin": "abcdefg\nxyz\n",
-        "expectedRaw": "0"
+        "name": "p",
+        "type": "string"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "29": {
     "id": 29,
@@ -941,20 +853,19 @@
         "expectedRaw": "a"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "minWindow",
+    "parameters": [
       {
-        "stdin": "a\naa\n",
-        "expectedRaw": ""
+        "name": "s",
+        "type": "string"
       },
       {
-        "stdin": "ab\nb\n",
-        "expectedRaw": "b"
-      },
-      {
-        "stdin": "ADOBECODEBANC\nAABC\n",
-        "expectedRaw": "ADOBECODEBA"
+        "name": "t",
+        "type": "string"
       }
-    ]
+    ],
+    "returnType": "string"
   },
   "30": {
     "id": 30,
@@ -974,20 +885,15 @@
         "expectedRaw": "0 0 9 0 0"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "productExceptSelf",
+    "parameters": [
       {
-        "stdin": "4\n1 1 1 1\n",
-        "expectedRaw": "1 1 1 1"
-      },
-      {
-        "stdin": "3\n2 3 4\n",
-        "expectedRaw": "12 8 6"
-      },
-      {
-        "stdin": "2\n0 0\n",
-        "expectedRaw": "0 0"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "vector<int>"
   },
   "31": {
     "id": 31,
@@ -1007,20 +913,19 @@
         "expectedRaw": "2"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "subarraySum",
+    "parameters": [
       {
-        "stdin": "1\n1\n1\n",
-        "expectedRaw": "1"
+        "name": "nums",
+        "type": "vector<int>"
       },
       {
-        "stdin": "3\n-1 2 3\n5\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "4\n0 0 0 0\n0\n",
-        "expectedRaw": "10"
+        "name": "k",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "32": {
     "id": 32,
@@ -1040,20 +945,15 @@
         "expectedRaw": "1 2 3 4 5"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "runningSum",
+    "parameters": [
       {
-        "stdin": "5\n3 1 2 10 1\n",
-        "expectedRaw": "3 4 6 16 17"
-      },
-      {
-        "stdin": "1\n1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "3\n0 0 0\n",
-        "expectedRaw": "0 0 0"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "vector<int>"
   },
   "33": {
     "id": 33,
@@ -1073,20 +973,19 @@
         "expectedRaw": "2"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "longestSubarrayWithSumK",
+    "parameters": [
       {
-        "stdin": "3\n1 2 3\n6\n",
-        "expectedRaw": "3"
+        "name": "nums",
+        "type": "vector<int>"
       },
       {
-        "stdin": "1\n1\n1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "3\n1 0 1\n1\n",
-        "expectedRaw": "2"
+        "name": "k",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "34": {
     "id": 34,
@@ -1106,20 +1005,15 @@
         "expectedRaw": "-1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "findEquilibriumIndex",
+    "parameters": [
       {
-        "stdin": "1\n1\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "4\n0 0 0 0\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "5\n2 3 4 1 4\n",
-        "expectedRaw": "2"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "35": {
     "id": 35,
@@ -1139,20 +1033,23 @@
         "expectedRaw": "-1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "rangeSumQuery",
+    "parameters": [
       {
-        "stdin": "5\n1 2 3 4 5\n0\n4\n",
-        "expectedRaw": "15"
+        "name": "nums",
+        "type": "vector<int>"
       },
       {
-        "stdin": "1\n1\n0\n0\n",
-        "expectedRaw": "1"
+        "name": "left",
+        "type": "int"
       },
       {
-        "stdin": "3\n-1 -2 -3\n0\n2\n",
-        "expectedRaw": "-6"
+        "name": "right",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "36": {
     "id": 36,
@@ -1172,20 +1069,19 @@
         "expectedRaw": "3 99 -1 -100"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "rotate",
+    "parameters": [
       {
-        "stdin": "3\n1 2 3\n0\n",
-        "expectedRaw": "1 2 3"
+        "name": "nums",
+        "type": "vector<int>"
       },
       {
-        "stdin": "1\n1\n5\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "2\n1 2\n2\n",
-        "expectedRaw": "1 2"
+        "name": "k",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "void"
   },
   "37": {
     "id": 37,
@@ -1205,20 +1101,15 @@
         "expectedRaw": "4"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "findLeaders",
+    "parameters": [
       {
-        "stdin": "4\n4 3 2 1\n",
-        "expectedRaw": "4 3 2 1"
-      },
-      {
-        "stdin": "1\n7\n",
-        "expectedRaw": "7"
-      },
-      {
-        "stdin": "4\n1 1 1 1\n",
-        "expectedRaw": "1"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "vector<int>"
   },
   "38": {
     "id": 38,
@@ -1238,20 +1129,15 @@
         "expectedRaw": "1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "maxSubArray",
+    "parameters": [
       {
-        "stdin": "5\n5 4 -1 7 8\n",
-        "expectedRaw": "23"
-      },
-      {
-        "stdin": "4\n-1 -2 -3 -4\n",
-        "expectedRaw": "-1"
-      },
-      {
-        "stdin": "4\n0 -3 1 1\n",
-        "expectedRaw": "2"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "39": {
     "id": 39,
@@ -1271,20 +1157,15 @@
         "expectedRaw": "0"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "maxProduct",
+    "parameters": [
       {
-        "stdin": "3\n-2 3 -4\n",
-        "expectedRaw": "24"
-      },
-      {
-        "stdin": "2\n0 -2\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "1\n-2\n",
-        "expectedRaw": "-2"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "40": {
     "id": 40,
@@ -1304,20 +1185,15 @@
         "expectedRaw": "1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "merge",
+    "parameters": [
       {
-        "stdin": "2 2\n1 4 2 3\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "3 2\n1 2 3 4 5 6\n",
-        "expectedRaw": "3"
-      },
-      {
-        "stdin": "3 2\n1 10 2 3 4 8\n",
-        "expectedRaw": "1"
+        "name": "intervals",
+        "type": "vector<vector<int>>"
       }
-    ]
+    ],
+    "returnType": "count:vector<vector<int>>"
   },
   "41": {
     "id": 41,
@@ -1337,20 +1213,15 @@
         "expectedRaw": "0"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "findMin",
+    "parameters": [
       {
-        "stdin": "4\n11 13 15 17\n",
-        "expectedRaw": "11"
-      },
-      {
-        "stdin": "2\n2 1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "1\n1\n",
-        "expectedRaw": "1"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "42": {
     "id": 42,
@@ -1370,20 +1241,19 @@
         "expectedRaw": "0"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "isAnagram",
+    "parameters": [
       {
-        "stdin": "a\na\n",
-        "expectedRaw": "1"
+        "name": "s",
+        "type": "string"
       },
       {
-        "stdin": "ab\na\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "aacc\nccac\n",
-        "expectedRaw": "0"
+        "name": "t",
+        "type": "string"
       }
-    ]
+    ],
+    "returnType": "bool"
   },
   "43": {
     "id": 43,
@@ -1403,20 +1273,15 @@
         "expectedRaw": "1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "groupAnagrams",
+    "parameters": [
       {
-        "stdin": "1\na\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "3\nab\nba\nc\n",
-        "expectedRaw": "2"
-      },
-      {
-        "stdin": "3\nz\ny\nx\n",
-        "expectedRaw": "3"
+        "name": "strs",
+        "type": "vector<string>"
       }
-    ]
+    ],
+    "returnType": "count:vector<vector<string>>"
   },
   "44": {
     "id": 44,
@@ -1436,20 +1301,15 @@
         "expectedRaw": "2"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "firstUniqChar",
+    "parameters": [
       {
-        "stdin": "aabb\n",
-        "expectedRaw": "-1"
-      },
-      {
-        "stdin": "z\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "aabbc\n",
-        "expectedRaw": "4"
+        "name": "s",
+        "type": "string"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "45": {
     "id": 45,
@@ -1469,20 +1329,15 @@
         "expectedRaw": "58"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "romanToInt",
+    "parameters": [
       {
-        "stdin": "MCMXCIV\n",
-        "expectedRaw": "1994"
-      },
-      {
-        "stdin": "IV\n",
-        "expectedRaw": "4"
-      },
-      {
-        "stdin": "IX\n",
-        "expectedRaw": "9"
+        "name": "s",
+        "type": "string"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "46": {
     "id": 46,
@@ -1502,20 +1357,19 @@
         "expectedRaw": "2"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "charFrequency",
+    "parameters": [
       {
-        "stdin": "aaa\na\n",
-        "expectedRaw": "3"
+        "name": "s",
+        "type": "string"
       },
       {
-        "stdin": "abc\nd\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "z\nz\n",
-        "expectedRaw": "1"
+        "name": "c",
+        "type": "string"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "47": {
     "id": 47,
@@ -1535,20 +1389,15 @@
         "expectedRaw": "5"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "countVowels",
+    "parameters": [
       {
-        "stdin": "rhythm\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "a\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "bcdfgh\n",
-        "expectedRaw": "0"
+        "name": "s",
+        "type": "string"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "48": {
     "id": 48,
@@ -1568,20 +1417,15 @@
         "expectedRaw": "0"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "isPalindrome",
+    "parameters": [
       {
-        "stdin": "@@EMPTY@@\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "abcba\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "abc\n",
-        "expectedRaw": "0"
+        "name": "s",
+        "type": "string"
       }
-    ]
+    ],
+    "returnType": "bool"
   },
   "49": {
     "id": 49,
@@ -1601,20 +1445,15 @@
         "expectedRaw": "104 97 110 110 97 72"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "reverseString",
+    "parameters": [
       {
-        "stdin": "1\n97\n",
-        "expectedRaw": "97"
-      },
-      {
-        "stdin": "2\n97 98\n",
-        "expectedRaw": "98 97"
-      },
-      {
-        "stdin": "4\n97 98 99 100\n",
-        "expectedRaw": "100 99 98 97"
+        "name": "s",
+        "type": "vector<char>"
       }
-    ]
+    ],
+    "returnType": "void"
   },
   "50": {
     "id": 50,
@@ -1634,20 +1473,15 @@
         "expectedRaw": "world hello"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "reverseWords",
+    "parameters": [
       {
-        "stdin": "a_good_example\n",
-        "expectedRaw": "example good a"
-      },
-      {
-        "stdin": "Alice\n",
-        "expectedRaw": "Alice"
-      },
-      {
-        "stdin": "single\n",
-        "expectedRaw": "single"
+        "name": "s",
+        "type": "string:line"
       }
-    ]
+    ],
+    "returnType": "string"
   },
   "51": {
     "id": 51,
@@ -1667,20 +1501,15 @@
         "expectedRaw": "1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "compress",
+    "parameters": [
       {
-        "stdin": "13\n97 98 98 98 98 98 98 98 98 98 98 98 98\n",
-        "expectedRaw": "4"
-      },
-      {
-        "stdin": "4\n97 97 97 97\n",
-        "expectedRaw": "2"
-      },
-      {
-        "stdin": "3\n97 98 99\n",
-        "expectedRaw": "3"
+        "name": "chars",
+        "type": "vector<char>"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "52": {
     "id": 52,
@@ -1700,20 +1529,15 @@
         "expectedRaw": "1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "lengthOfLongestSubstring",
+    "parameters": [
       {
-        "stdin": "pwwkew\n",
-        "expectedRaw": "3"
-      },
-      {
-        "stdin": "au\n",
-        "expectedRaw": "2"
-      },
-      {
-        "stdin": "dvdf\n",
-        "expectedRaw": "3"
+        "name": "s",
+        "type": "string"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "53": {
     "id": 53,
@@ -1733,20 +1557,19 @@
         "expectedRaw": "4"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "characterReplacement",
+    "parameters": [
       {
-        "stdin": "A\n0\n",
-        "expectedRaw": "1"
+        "name": "s",
+        "type": "string"
       },
       {
-        "stdin": "AAAA\n2\n",
-        "expectedRaw": "4"
-      },
-      {
-        "stdin": "ABCD\n1\n",
-        "expectedRaw": "2"
+        "name": "k",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "54": {
     "id": 54,
@@ -1766,20 +1589,19 @@
         "expectedRaw": "0 1 2"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "findAnagrams",
+    "parameters": [
       {
-        "stdin": "aa\nbb\n",
-        "expectedRaw": ""
+        "name": "s",
+        "type": "string"
       },
       {
-        "stdin": "baa\naa\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "abcd\nd\n",
-        "expectedRaw": "3"
+        "name": "p",
+        "type": "string"
       }
-    ]
+    ],
+    "returnType": "vector<int>"
   },
   "55": {
     "id": 55,
@@ -1799,20 +1621,19 @@
         "expectedRaw": "a"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "minWindow",
+    "parameters": [
       {
-        "stdin": "a\naa\n",
-        "expectedRaw": ""
+        "name": "s",
+        "type": "string"
       },
       {
-        "stdin": "abc\nb\n",
-        "expectedRaw": "b"
-      },
-      {
-        "stdin": "cabwefgewcwaefgcf\ncae\n",
-        "expectedRaw": "cwae"
+        "name": "t",
+        "type": "string"
       }
-    ]
+    ],
+    "returnType": "string"
   },
   "56": {
     "id": 56,
@@ -1832,20 +1653,15 @@
         "expectedRaw": ""
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "longestCommonPrefix",
+    "parameters": [
       {
-        "stdin": "1\nabc\n",
-        "expectedRaw": "abc"
-      },
-      {
-        "stdin": "2\n-\nb\n",
-        "expectedRaw": ""
-      },
-      {
-        "stdin": "3\nab\nab\nabc\n",
-        "expectedRaw": "ab"
+        "name": "strs",
+        "type": "vector<string>"
       }
-    ]
+    ],
+    "returnType": "string"
   },
   "57": {
     "id": 57,
@@ -1865,20 +1681,19 @@
         "expectedRaw": "0"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "rotateString",
+    "parameters": [
       {
-        "stdin": "@@EMPTY@@\n@@EMPTY@@\n",
-        "expectedRaw": "1"
+        "name": "s",
+        "type": "string"
       },
       {
-        "stdin": "a\na\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "aa\na\n",
-        "expectedRaw": "0"
+        "name": "goal",
+        "type": "string"
       }
-    ]
+    ],
+    "returnType": "bool"
   },
   "58": {
     "id": 58,
@@ -1898,20 +1713,15 @@
         "expectedRaw": "1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "encode",
+    "parameters": [
       {
-        "stdin": "0\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "3\na\nb\nc\n",
-        "expectedRaw": "3"
-      },
-      {
-        "stdin": "1\nHello-World\n",
-        "expectedRaw": "1"
+        "name": "strs",
+        "type": "vector<string>"
       }
-    ]
+    ],
+    "returnType": "design:Codec"
   },
   "59": {
     "id": 59,
@@ -1931,20 +1741,15 @@
         "expectedRaw": "bb"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "longestPalindrome",
+    "parameters": [
       {
-        "stdin": "a\n",
-        "expectedRaw": "a"
-      },
-      {
-        "stdin": "ac\n",
-        "expectedRaw": "a | c"
-      },
-      {
-        "stdin": "racecar\n",
-        "expectedRaw": "racecar"
+        "name": "s",
+        "type": "string"
       }
-    ]
+    ],
+    "returnType": "string"
   },
   "60": {
     "id": 60,
@@ -1964,20 +1769,15 @@
         "expectedRaw": "6"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "countSubstrings",
+    "parameters": [
       {
-        "stdin": "a\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "ab\n",
-        "expectedRaw": "2"
-      },
-      {
-        "stdin": "aaaa\n",
-        "expectedRaw": "10"
+        "name": "s",
+        "type": "string"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "61": {
     "id": 61,
@@ -1997,20 +1797,15 @@
         "expectedRaw": "1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "hasCycle",
+    "parameters": [
       {
-        "stdin": "1\n1\n-1\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "3\n1 2 3\n-1\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "4\n1 2 3 4\n2\n",
-        "expectedRaw": "1"
+        "name": "head",
+        "type": "ListNode*:cycle"
       }
-    ]
+    ],
+    "returnType": "bool"
   },
   "62": {
     "id": 62,
@@ -2030,20 +1825,15 @@
         "expectedRaw": "4"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "middleNode",
+    "parameters": [
       {
-        "stdin": "1\n1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "2\n1 2\n",
-        "expectedRaw": "2"
-      },
-      {
-        "stdin": "3\n1 2 3\n",
-        "expectedRaw": "2"
+        "name": "head",
+        "type": "ListNode*"
       }
-    ]
+    ],
+    "returnType": "ListNode*->val"
   },
   "63": {
     "id": 63,
@@ -2063,20 +1853,15 @@
         "expectedRaw": "0"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "isPalindrome",
+    "parameters": [
       {
-        "stdin": "1\n1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "3\n1 2 1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "4\n1 2 3 1\n",
-        "expectedRaw": "0"
+        "name": "head",
+        "type": "ListNode*"
       }
-    ]
+    ],
+    "returnType": "bool"
   },
   "64": {
     "id": 64,
@@ -2096,20 +1881,15 @@
         "expectedRaw": "1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "detectCycle",
+    "parameters": [
       {
-        "stdin": "1\n1\n-1\n",
-        "expectedRaw": "-1"
-      },
-      {
-        "stdin": "3\n1 2 3\n-1\n",
-        "expectedRaw": "-1"
-      },
-      {
-        "stdin": "4\n1 2 3 4\n0\n",
-        "expectedRaw": "1"
+        "name": "head",
+        "type": "ListNode*:cycle"
       }
-    ]
+    ],
+    "returnType": "ListNode*->val"
   },
   "65": {
     "id": 65,
@@ -2129,20 +1909,15 @@
         "expectedRaw": "2 1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "reverseList",
+    "parameters": [
       {
-        "stdin": "0\n",
-        "expectedRaw": ""
-      },
-      {
-        "stdin": "1\n1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "3\n1 2 3\n",
-        "expectedRaw": "3 2 1"
+        "name": "head",
+        "type": "ListNode*"
       }
-    ]
+    ],
+    "returnType": "ListNode*"
   },
   "66": {
     "id": 66,
@@ -2162,20 +1937,19 @@
         "expectedRaw": "3 2 1 4 5"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "reverseKGroup",
+    "parameters": [
       {
-        "stdin": "4\n1 2 3 4\n2\n",
-        "expectedRaw": "2 1 4 3"
+        "name": "head",
+        "type": "ListNode*"
       },
       {
-        "stdin": "1\n1\n1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "2\n1 2\n2\n",
-        "expectedRaw": "2 1"
+        "name": "k",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "ListNode*"
   },
   "67": {
     "id": 67,
@@ -2195,20 +1969,19 @@
         "expectedRaw": ""
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "mergeTwoLists",
+    "parameters": [
       {
-        "stdin": "0\n\n1\n0\n",
-        "expectedRaw": "0"
+        "name": "list1",
+        "type": "ListNode*"
       },
       {
-        "stdin": "1\n1\n1\n2\n",
-        "expectedRaw": "1 2"
-      },
-      {
-        "stdin": "3\n1 3 5\n2\n2 4\n",
-        "expectedRaw": "1 2 3 4 5"
+        "name": "list2",
+        "type": "ListNode*"
       }
-    ]
+    ],
+    "returnType": "ListNode*"
   },
   "68": {
     "id": 68,
@@ -2228,20 +2001,19 @@
         "expectedRaw": ""
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "removeNthFromEnd",
+    "parameters": [
       {
-        "stdin": "2\n1 2\n1\n",
-        "expectedRaw": "1"
+        "name": "head",
+        "type": "ListNode*"
       },
       {
-        "stdin": "2\n1 2\n2\n",
-        "expectedRaw": "2"
-      },
-      {
-        "stdin": "3\n1 2 3\n2\n",
-        "expectedRaw": "1 3"
+        "name": "n",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "ListNode*"
   },
   "69": {
     "id": 69,
@@ -2261,20 +2033,19 @@
         "expectedRaw": "0"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "addTwoNumbers",
+    "parameters": [
       {
-        "stdin": "7\n9 9 9 9 9 9 9\n4\n9 9 9 9\n",
-        "expectedRaw": "8 9 9 9 0 0 0 1"
+        "name": "l1",
+        "type": "ListNode*"
       },
       {
-        "stdin": "1\n1\n2\n9 9\n",
-        "expectedRaw": "0 0 1"
-      },
-      {
-        "stdin": "1\n5\n1\n5\n",
-        "expectedRaw": "0 1"
+        "name": "l2",
+        "type": "ListNode*"
       }
-    ]
+    ],
+    "returnType": "ListNode*"
   },
   "70": {
     "id": 70,
@@ -2294,20 +2065,19 @@
         "expectedRaw": "2"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "getIntersectionNode",
+    "parameters": [
       {
-        "stdin": "3\n2 6 4\n2\n1 5\n0\n\n",
-        "expectedRaw": "-1"
+        "name": "headA",
+        "type": "ListNode*:intersectA"
       },
       {
-        "stdin": "0\n\n0\n\n1\n1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "1\n5\n1\n9\n0\n\n",
-        "expectedRaw": "-1"
+        "name": "headB",
+        "type": "ListNode*:intersectB"
       }
-    ]
+    ],
+    "returnType": "ListNode*->val"
   },
   "71": {
     "id": 71,
@@ -2327,20 +2097,15 @@
         "expectedRaw": "3"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "findDuplicate",
+    "parameters": [
       {
-        "stdin": "2\n1 1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "5\n3 3 3 3 3\n",
-        "expectedRaw": "3"
-      },
-      {
-        "stdin": "5\n1 2 4 4 3\n",
-        "expectedRaw": "4"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "72": {
     "id": 72,
@@ -2360,20 +2125,15 @@
         "expectedRaw": "1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "isValid",
+    "parameters": [
       {
-        "stdin": "(]\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "([)]\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "{[]}\n",
-        "expectedRaw": "1"
+        "name": "s",
+        "type": "string"
       }
-    ]
+    ],
+    "returnType": "bool"
   },
   "73": {
     "id": 73,
@@ -2393,20 +2153,15 @@
         "expectedRaw": "1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "getMin",
+    "parameters": [
       {
-        "stdin": "4\n2 0 3 0\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "3\n5 3 7\n",
-        "expectedRaw": "3"
-      },
-      {
-        "stdin": "1\n-1\n",
-        "expectedRaw": "-1"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "design:MinStack"
   },
   "74": {
     "id": 74,
@@ -2426,20 +2181,15 @@
         "expectedRaw": "1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "peek",
+    "parameters": [
       {
-        "stdin": "2\n1 2\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "1\n3\n",
-        "expectedRaw": "3"
-      },
-      {
-        "stdin": "2\n5 6\n",
-        "expectedRaw": "5"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "design:MyQueue"
   },
   "75": {
     "id": 75,
@@ -2459,20 +2209,15 @@
         "expectedRaw": "1 1 1 0"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "dailyTemperatures",
+    "parameters": [
       {
-        "stdin": "3\n30 60 90\n",
-        "expectedRaw": "1 1 0"
-      },
-      {
-        "stdin": "1\n50\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "4\n90 80 70 60\n",
-        "expectedRaw": "0 0 0 0"
+        "name": "temperatures",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "vector<int>"
   },
   "76": {
     "id": 76,
@@ -2492,20 +2237,15 @@
         "expectedRaw": "4"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "largestRectangleArea",
+    "parameters": [
       {
-        "stdin": "1\n1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "4\n1 1 1 1\n",
-        "expectedRaw": "4"
-      },
-      {
-        "stdin": "5\n5 4 3 2 1\n",
-        "expectedRaw": "9"
+        "name": "heights",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "77": {
     "id": 77,
@@ -2525,20 +2265,19 @@
         "expectedRaw": "3 -1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "nextGreaterElement",
+    "parameters": [
       {
-        "stdin": "1\n1\n2\n1 3\n",
-        "expectedRaw": "3"
+        "name": "nums1",
+        "type": "vector<int>"
       },
       {
-        "stdin": "1\n2\n2\n3 2\n",
-        "expectedRaw": "-1"
-      },
-      {
-        "stdin": "5\n1 3 5 2 4\n7\n6 5 4 3 2 1 7\n",
-        "expectedRaw": "7 7 7 7 7"
+        "name": "nums2",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "vector<int>"
   },
   "78": {
     "id": 78,
@@ -2558,20 +2297,15 @@
         "expectedRaw": "1 1 2 4 5 1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "stockSpan",
+    "parameters": [
       {
-        "stdin": "1\n1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "5\n1 2 3 4 5\n",
-        "expectedRaw": "1 2 3 4 5"
-      },
-      {
-        "stdin": "5\n5 4 3 2 1\n",
-        "expectedRaw": "1 1 1 1 1"
+        "name": "prices",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "vector<int>"
   },
   "79": {
     "id": 79,
@@ -2591,20 +2325,19 @@
         "expectedRaw": "1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "maxSlidingWindow",
+    "parameters": [
       {
-        "stdin": "6\n1 3 1 2 0 5\n3\n",
-        "expectedRaw": "3 3 2 5"
+        "name": "nums",
+        "type": "vector<int>"
       },
       {
-        "stdin": "2\n9 11\n2\n",
-        "expectedRaw": "11"
-      },
-      {
-        "stdin": "5\n1 2 3 4 5\n1\n",
-        "expectedRaw": "1 2 3 4 5"
+        "name": "k",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "vector<int>"
   },
   "80": {
     "id": 80,
@@ -2624,20 +2357,19 @@
         "expectedRaw": "6"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "Rear",
+    "parameters": [
       {
-        "stdin": "2\n9 9\n2\n",
-        "expectedRaw": "9"
+        "name": "nums",
+        "type": "vector<int>"
       },
       {
-        "stdin": "3\n1 2 3\n2\n",
-        "expectedRaw": "2"
-      },
-      {
-        "stdin": "1\n4\n1\n",
-        "expectedRaw": "4"
+        "name": "k",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "design:MyCircularQueue"
   },
   "81": {
     "id": 81,
@@ -2657,20 +2389,15 @@
         "expectedRaw": "aaabc#"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "firstNonRepeating",
+    "parameters": [
       {
-        "stdin": "a\n",
-        "expectedRaw": "a"
-      },
-      {
-        "stdin": "aa\n",
-        "expectedRaw": "a#"
-      },
-      {
-        "stdin": "abab\n",
-        "expectedRaw": "aab#"
+        "name": "s",
+        "type": "string"
       }
-    ]
+    ],
+    "returnType": "string"
   },
   "82": {
     "id": 82,
@@ -2690,20 +2417,15 @@
         "expectedRaw": "2"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "maxDepth",
+    "parameters": [
       {
-        "stdin": "0\n\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "1\n1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "4\n1 2 3 4\n",
-        "expectedRaw": "3"
+        "name": "root",
+        "type": "TreeNode*"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "83": {
     "id": 83,
@@ -2723,20 +2445,15 @@
         "expectedRaw": "2 3 1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "invertTree",
+    "parameters": [
       {
-        "stdin": "0\n\n",
-        "expectedRaw": ""
-      },
-      {
-        "stdin": "1\n1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "2\n1 2\n",
-        "expectedRaw": "1 2"
+        "name": "root",
+        "type": "TreeNode*"
       }
-    ]
+    ],
+    "returnType": "TreeNode*"
   },
   "84": {
     "id": 84,
@@ -2756,20 +2473,15 @@
         "expectedRaw": "1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "diameterOfBinaryTree",
+    "parameters": [
       {
-        "stdin": "1\n1\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "3\n1 2 3\n",
-        "expectedRaw": "2"
-      },
-      {
-        "stdin": "7\n1 2 3 4 5 6 7\n",
-        "expectedRaw": "4"
+        "name": "root",
+        "type": "TreeNode*"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "85": {
     "id": 85,
@@ -2789,20 +2501,15 @@
         "expectedRaw": "0"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "isBalanced",
+    "parameters": [
       {
-        "stdin": "0\n\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "1\n1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "8\n1 2 3 4 5 6 -1 8\n",
-        "expectedRaw": "1"
+        "name": "root",
+        "type": "TreeNode*"
       }
-    ]
+    ],
+    "returnType": "bool"
   },
   "86": {
     "id": 86,
@@ -2822,20 +2529,19 @@
         "expectedRaw": "0"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "hasPathSum",
+    "parameters": [
       {
-        "stdin": "0\n\n0\n",
-        "expectedRaw": "0"
+        "name": "root",
+        "type": "TreeNode*"
       },
       {
-        "stdin": "2\n1 2\n1\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "2\n1 2\n3\n",
-        "expectedRaw": "1"
+        "name": "targetSum",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "bool"
   },
   "87": {
     "id": 87,
@@ -2855,20 +2561,19 @@
         "expectedRaw": "-1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "buildTree",
+    "parameters": [
       {
-        "stdin": "2\n1 2\n2\n2 1\n",
-        "expectedRaw": "1 2"
+        "name": "preorder",
+        "type": "vector<int>"
       },
       {
-        "stdin": "3\n1 2 3\n3\n1 2 3\n",
-        "expectedRaw": "1 2 3"
-      },
-      {
-        "stdin": "3\n1 2 3\n3\n2 3 1\n",
-        "expectedRaw": "1 2 3"
+        "name": "inorder",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "TreeNode*:raw"
   },
   "88": {
     "id": 88,
@@ -2888,20 +2593,23 @@
         "expectedRaw": "5"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "lowestCommonAncestor",
+    "parameters": [
       {
-        "stdin": "2\n1 2\n1\n2\n",
-        "expectedRaw": "1"
+        "name": "root",
+        "type": "TreeNode*"
       },
       {
-        "stdin": "3\n1 2 3\n2\n3\n",
-        "expectedRaw": "1"
+        "name": "p",
+        "type": "TreeNode*->val"
       },
       {
-        "stdin": "4\n1 2 3 4\n3\n4\n",
-        "expectedRaw": "1"
+        "name": "q",
+        "type": "TreeNode*->val"
       }
-    ]
+    ],
+    "returnType": "TreeNode*->val"
   },
   "89": {
     "id": 89,
@@ -2921,20 +2629,15 @@
         "expectedRaw": "0"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "isValidBST",
+    "parameters": [
       {
-        "stdin": "1\n1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "4\n5 4 6 3\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "7\n3 1 5 0 2 4 6\n",
-        "expectedRaw": "1"
+        "name": "root",
+        "type": "TreeNode*"
       }
-    ]
+    ],
+    "returnType": "bool"
   },
   "90": {
     "id": 90,
@@ -2954,20 +2657,23 @@
         "expectedRaw": "2"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "lowestCommonAncestor",
+    "parameters": [
       {
-        "stdin": "2\n2 1\n2\n1\n",
-        "expectedRaw": "2"
+        "name": "root",
+        "type": "TreeNode*"
       },
       {
-        "stdin": "3\n3 1 5\n1\n5\n",
-        "expectedRaw": "3"
+        "name": "p",
+        "type": "TreeNode*->val"
       },
       {
-        "stdin": "5\n5 3 6 2 4\n3\n4\n",
-        "expectedRaw": "3"
+        "name": "q",
+        "type": "TreeNode*->val"
       }
-    ]
+    ],
+    "returnType": "TreeNode*->val"
   },
   "91": {
     "id": 91,
@@ -2987,20 +2693,19 @@
         "expectedRaw": "3"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "kthSmallest",
+    "parameters": [
       {
-        "stdin": "1\n1\n1\n",
-        "expectedRaw": "1"
+        "name": "root",
+        "type": "TreeNode*"
       },
       {
-        "stdin": "5\n3 1 4 -1 2\n3\n",
-        "expectedRaw": "3"
-      },
-      {
-        "stdin": "5\n5 3 6 2 4\n5\n",
-        "expectedRaw": "6"
+        "name": "k",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "92": {
     "id": 92,
@@ -3020,20 +2725,19 @@
         "expectedRaw": ""
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "searchBST",
+    "parameters": [
       {
-        "stdin": "1\n1\n1\n",
-        "expectedRaw": "1"
+        "name": "root",
+        "type": "TreeNode*"
       },
       {
-        "stdin": "3\n4 2 7\n7\n",
-        "expectedRaw": "7"
-      },
-      {
-        "stdin": "3\n4 2 7\n6\n",
-        "expectedRaw": ""
+        "name": "val",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "TreeNode*"
   },
   "93": {
     "id": 93,
@@ -3053,20 +2757,19 @@
         "expectedRaw": "8"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "insertIntoBST",
+    "parameters": [
       {
-        "stdin": "0\n\n5\n",
-        "expectedRaw": "1"
+        "name": "root",
+        "type": "TreeNode*"
       },
       {
-        "stdin": "3\n2 1 3\n4\n",
-        "expectedRaw": "4"
-      },
-      {
-        "stdin": "1\n1\n2\n",
-        "expectedRaw": "2"
+        "name": "val",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "count:TreeNode*"
   },
   "94": {
     "id": 94,
@@ -3086,20 +2789,15 @@
         "expectedRaw": "1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "levelOrder",
+    "parameters": [
       {
-        "stdin": "0\n\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "3\n1 2 3\n",
-        "expectedRaw": "2"
-      },
-      {
-        "stdin": "7\n1 2 3 4 5 -1 -1\n",
-        "expectedRaw": "3"
+        "name": "root",
+        "type": "TreeNode*"
       }
-    ]
+    ],
+    "returnType": "count:vector<vector<int>>"
   },
   "95": {
     "id": 95,
@@ -3119,20 +2817,15 @@
         "expectedRaw": "1 3"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "rightSideView",
+    "parameters": [
       {
-        "stdin": "0\n\n",
-        "expectedRaw": ""
-      },
-      {
-        "stdin": "1\n1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "2\n1 2\n",
-        "expectedRaw": "1 2"
+        "name": "root",
+        "type": "TreeNode*"
       }
-    ]
+    ],
+    "returnType": "vector<int>"
   },
   "96": {
     "id": 96,
@@ -3152,20 +2845,15 @@
         "expectedRaw": "1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "zigzagLevelOrder",
+    "parameters": [
       {
-        "stdin": "0\n\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "7\n1 2 3 4 5 -1 -1\n",
-        "expectedRaw": "3"
-      },
-      {
-        "stdin": "2\n1 2\n",
-        "expectedRaw": "2"
+        "name": "root",
+        "type": "TreeNode*"
       }
-    ]
+    ],
+    "returnType": "count:vector<vector<int>>"
   },
   "97": {
     "id": 97,
@@ -3185,20 +2873,15 @@
         "expectedRaw": "0"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "serialize",
+    "parameters": [
       {
-        "stdin": "1\n1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "2\n1 2\n",
-        "expectedRaw": "2"
-      },
-      {
-        "stdin": "7\n1 2 3 4 -1 -1 -1\n",
-        "expectedRaw": "4"
+        "name": "root",
+        "type": "TreeNode*"
       }
-    ]
+    ],
+    "returnType": "design:CodecTree"
   },
   "98": {
     "id": 98,
@@ -3218,20 +2901,15 @@
         "expectedRaw": "1 2 4 5 8"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "bubbleSort",
+    "parameters": [
       {
-        "stdin": "1\n1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "2\n2 1\n",
-        "expectedRaw": "1 2"
-      },
-      {
-        "stdin": "4\n1 2 3 4\n",
-        "expectedRaw": "1 2 3 4"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "vector<int>"
   },
   "99": {
     "id": 99,
@@ -3251,20 +2929,15 @@
         "expectedRaw": "1 2 3"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "selectionSort",
+    "parameters": [
       {
-        "stdin": "1\n1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "5\n5 4 3 2 1\n",
-        "expectedRaw": "1 2 3 4 5"
-      },
-      {
-        "stdin": "3\n-3 -1 -2\n",
-        "expectedRaw": "-3 -2 -1"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "vector<int>"
   },
   "100": {
     "id": 100,
@@ -3284,20 +2957,15 @@
         "expectedRaw": "1 2 3 4 5 6"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "insertionSort",
+    "parameters": [
       {
-        "stdin": "1\n1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "2\n2 1\n",
-        "expectedRaw": "1 2"
-      },
-      {
-        "stdin": "3\n3 3 3\n",
-        "expectedRaw": "3 3 3"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "vector<int>"
   },
   "101": {
     "id": 101,
@@ -3317,20 +2985,15 @@
         "expectedRaw": "1 2 3 4 5 6"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "mergeSort",
+    "parameters": [
       {
-        "stdin": "1\n1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "2\n2 1\n",
-        "expectedRaw": "1 2"
-      },
-      {
-        "stdin": "5\n-5 -1 3 0 2\n",
-        "expectedRaw": "-5 -1 0 2 3"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "vector<int>"
   },
   "102": {
     "id": 102,
@@ -3350,20 +3013,15 @@
         "expectedRaw": "1 2 3 4 5 6"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "quickSort",
+    "parameters": [
       {
-        "stdin": "1\n1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "4\n1 1 1 1\n",
-        "expectedRaw": "1 1 1 1"
-      },
-      {
-        "stdin": "5\n5 4 3 2 1\n",
-        "expectedRaw": "1 2 3 4 5"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "vector<int>"
   },
   "103": {
     "id": 103,
@@ -3383,20 +3041,15 @@
         "expectedRaw": "0 0 1 1 2 2"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "countingSort",
+    "parameters": [
       {
-        "stdin": "1\n1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "4\n0 0 0 0\n",
-        "expectedRaw": "0 0 0 0"
-      },
-      {
-        "stdin": "5\n5 3 1 4 2\n",
-        "expectedRaw": "1 2 3 4 5"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "vector<int>"
   },
   "104": {
     "id": 104,
@@ -3416,20 +3069,15 @@
         "expectedRaw": "1 2 3 6 8 10"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "radixSort",
+    "parameters": [
       {
-        "stdin": "1\n1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "3\n100 10 1\n",
-        "expectedRaw": "1 10 100"
-      },
-      {
-        "stdin": "3\n1 1 1\n",
-        "expectedRaw": "1 1 1"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "vector<int>"
   },
   "105": {
     "id": 105,
@@ -3449,20 +3097,15 @@
         "expectedRaw": "1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "merge",
+    "parameters": [
       {
-        "stdin": "2 2\n1 4 2 3\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "2 2\n1 2 3 4\n",
-        "expectedRaw": "2"
-      },
-      {
-        "stdin": "2 2\n1 4 0 4\n",
-        "expectedRaw": "1"
+        "name": "intervals",
+        "type": "vector<vector<int>>"
       }
-    ]
+    ],
+    "returnType": "count:vector<vector<int>>"
   },
   "106": {
     "id": 106,
@@ -3482,20 +3125,15 @@
         "expectedRaw": "0 1 2"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "sortColors",
+    "parameters": [
       {
-        "stdin": "1\n0\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "3\n1 2 0\n",
-        "expectedRaw": "0 1 2"
-      },
-      {
-        "stdin": "3\n2 2 2\n",
-        "expectedRaw": "2 2 2"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "void"
   },
   "107": {
     "id": 107,
@@ -3515,20 +3153,19 @@
         "expectedRaw": "4"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "findKthLargest",
+    "parameters": [
       {
-        "stdin": "1\n1\n1\n",
-        "expectedRaw": "1"
+        "name": "nums",
+        "type": "vector<int>"
       },
       {
-        "stdin": "2\n2 1\n1\n",
-        "expectedRaw": "2"
-      },
-      {
-        "stdin": "6\n3 2 1 5 6 4\n6\n",
-        "expectedRaw": "1"
+        "name": "k",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "108": {
     "id": 108,
@@ -3548,20 +3185,19 @@
         "expectedRaw": "-1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "search",
+    "parameters": [
       {
-        "stdin": "1\n5\n5\n",
-        "expectedRaw": "0"
+        "name": "nums",
+        "type": "vector<int>"
       },
       {
-        "stdin": "5\n1 2 3 4 5\n6\n",
-        "expectedRaw": "-1"
-      },
-      {
-        "stdin": "5\n1 3 5 7 9\n7\n",
-        "expectedRaw": "3"
+        "name": "target",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "109": {
     "id": 109,
@@ -3581,20 +3217,19 @@
         "expectedRaw": "-1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "search",
+    "parameters": [
       {
-        "stdin": "1\n1\n0\n",
-        "expectedRaw": "-1"
+        "name": "nums",
+        "type": "vector<int>"
       },
       {
-        "stdin": "2\n1 3\n3\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "3\n5 1 3\n5\n",
-        "expectedRaw": "0"
+        "name": "target",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "110": {
     "id": 110,
@@ -3614,20 +3249,15 @@
         "expectedRaw": "5"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "findPeakElement",
+    "parameters": [
       {
-        "stdin": "1\n1\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "2\n1 2\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "2\n2 1\n",
-        "expectedRaw": "0"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "111": {
     "id": 111,
@@ -3647,20 +3277,19 @@
         "expectedRaw": "1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "searchInsert",
+    "parameters": [
       {
-        "stdin": "4\n1 3 5 6\n7\n",
-        "expectedRaw": "4"
+        "name": "nums",
+        "type": "vector<int>"
       },
       {
-        "stdin": "4\n1 3 5 6\n0\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "1\n1\n1\n",
-        "expectedRaw": "0"
+        "name": "target",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "112": {
     "id": 112,
@@ -3680,20 +3309,19 @@
         "expectedRaw": "-1 -1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "searchRange",
+    "parameters": [
       {
-        "stdin": "0\n\n0\n",
-        "expectedRaw": "-1 -1"
+        "name": "nums",
+        "type": "vector<int>"
       },
       {
-        "stdin": "1\n1\n1\n",
-        "expectedRaw": "0 0"
-      },
-      {
-        "stdin": "5\n1 2 3 4 5\n3\n",
-        "expectedRaw": "2 2"
+        "name": "target",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "vector<int>"
   },
   "113": {
     "id": 113,
@@ -3713,20 +3341,15 @@
         "expectedRaw": "2"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "mySqrt",
+    "parameters": [
       {
-        "stdin": "0\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "16\n",
-        "expectedRaw": "4"
+        "name": "x",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "114": {
     "id": 114,
@@ -3746,20 +3369,19 @@
         "expectedRaw": "30"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "minEatingSpeed",
+    "parameters": [
       {
-        "stdin": "5\n30 11 23 4 20\n6\n",
-        "expectedRaw": "23"
+        "name": "piles",
+        "type": "vector<int>"
       },
       {
-        "stdin": "4\n1 1 1 1\n4\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "1\n1000000000\n2\n",
-        "expectedRaw": "500000000"
+        "name": "h",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "115": {
     "id": 115,
@@ -3779,20 +3401,15 @@
         "expectedRaw": "0"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "findMin",
+    "parameters": [
       {
-        "stdin": "4\n11 13 15 17\n",
-        "expectedRaw": "11"
-      },
-      {
-        "stdin": "2\n2 1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "1\n1\n",
-        "expectedRaw": "1"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "116": {
     "id": 116,
@@ -3812,20 +3429,19 @@
         "expectedRaw": "0"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "searchMatrix",
+    "parameters": [
       {
-        "stdin": "1 1\n1\n1\n",
-        "expectedRaw": "1"
+        "name": "matrix",
+        "type": "vector<vector<int>>"
       },
       {
-        "stdin": "2 2\n1 3 6 7\n6\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "2 2\n1 3 6 7\n5\n",
-        "expectedRaw": "0"
+        "name": "target",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "bool"
   },
   "117": {
     "id": 117,
@@ -3845,20 +3461,15 @@
         "expectedRaw": "0"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "canJump",
+    "parameters": [
       {
-        "stdin": "1\n0\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "2\n1 0\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "2\n0 1\n",
-        "expectedRaw": "0"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "bool"
   },
   "118": {
     "id": 118,
@@ -3878,20 +3489,15 @@
         "expectedRaw": "2"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "jump",
+    "parameters": [
       {
-        "stdin": "1\n0\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "4\n1 1 1 1\n",
-        "expectedRaw": "3"
-      },
-      {
-        "stdin": "7\n3 2 1 0 4 1 2\n",
-        "expectedRaw": "2"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "119": {
     "id": 119,
@@ -3911,20 +3517,19 @@
         "expectedRaw": "-1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "canCompleteCircuit",
+    "parameters": [
       {
-        "stdin": "1\n5\n1\n4\n",
-        "expectedRaw": "0"
+        "name": "gas",
+        "type": "vector<int>"
       },
       {
-        "stdin": "1\n1\n1\n2\n",
-        "expectedRaw": "-1"
-      },
-      {
-        "stdin": "3\n3 1 1\n3\n1 2 2\n",
-        "expectedRaw": "0"
+        "name": "cost",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "120": {
     "id": 120,
@@ -3944,20 +3549,15 @@
         "expectedRaw": "4"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "maxProfit",
+    "parameters": [
       {
-        "stdin": "5\n7 6 4 3 1\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "1\n1\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "8\n3 3 5 0 0 3 1 4\n",
-        "expectedRaw": "8"
+        "name": "prices",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "121": {
     "id": 121,
@@ -3977,20 +3577,19 @@
         "expectedRaw": "2"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "findContentChildren",
+    "parameters": [
       {
-        "stdin": "2\n2 3\n3\n1 2 3\n",
-        "expectedRaw": "2"
+        "name": "g",
+        "type": "vector<int>"
       },
       {
-        "stdin": "1\n1\n0\n\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "3\n10 9 8\n3\n5 6 7\n",
-        "expectedRaw": "0"
+        "name": "s",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "122": {
     "id": 122,
@@ -4010,20 +3609,15 @@
         "expectedRaw": "2"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "eraseOverlapIntervals",
+    "parameters": [
       {
-        "stdin": "2 2\n1 2 2 3\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "5 2\n0 2 1 3 2 4 3 5 4 6\n",
-        "expectedRaw": "2"
-      },
-      {
-        "stdin": "4 2\n1 100 11 22 1 11 2 12\n",
-        "expectedRaw": "2"
+        "name": "intervals",
+        "type": "vector<vector<int>>"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "123": {
     "id": 123,
@@ -4043,20 +3637,19 @@
         "expectedRaw": "2"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "activitySelection",
+    "parameters": [
       {
-        "stdin": "1\n1\n1\n2\n",
-        "expectedRaw": "1"
+        "name": "start",
+        "type": "vector<int>"
       },
       {
-        "stdin": "3\n0 1 2\n3\n1 2 3\n",
-        "expectedRaw": "3"
-      },
-      {
-        "stdin": "4\n0 3 1 5\n4\n6 5 4 7\n",
-        "expectedRaw": "2"
+        "name": "end",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "124": {
     "id": 124,
@@ -4076,20 +3669,19 @@
         "expectedRaw": "142"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "jobSequencing",
+    "parameters": [
       {
-        "stdin": "1\n1\n1\n5\n",
-        "expectedRaw": "5"
+        "name": "deadlines",
+        "type": "vector<int>"
       },
       {
-        "stdin": "5\n1 2 3 4 5\n5\n10 20 30 40 50\n",
-        "expectedRaw": "150"
-      },
-      {
-        "stdin": "3\n3 1 2\n3\n50 10 20\n",
-        "expectedRaw": "80"
+        "name": "profits",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "125": {
     "id": 125,
@@ -4109,20 +3701,15 @@
         "expectedRaw": "0"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "maxProfit",
+    "parameters": [
       {
-        "stdin": "1\n1\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "3\n2 4 1\n",
-        "expectedRaw": "2"
-      },
-      {
-        "stdin": "6\n3 2 6 5 0 3\n",
-        "expectedRaw": "4"
+        "name": "prices",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "126": {
     "id": 126,
@@ -4142,20 +3729,19 @@
         "expectedRaw": "-1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "coinChange",
+    "parameters": [
       {
-        "stdin": "1\n1\n0\n",
-        "expectedRaw": "0"
+        "name": "coins",
+        "type": "vector<int>"
       },
       {
-        "stdin": "1\n2\n0\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "3\n1 2 5\n11\n",
-        "expectedRaw": "3"
+        "name": "amount",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "127": {
     "id": 127,
@@ -4175,20 +3761,15 @@
         "expectedRaw": "3"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "climbStairs",
+    "parameters": [
       {
-        "stdin": "1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "5\n",
-        "expectedRaw": "8"
-      },
-      {
-        "stdin": "10\n",
-        "expectedRaw": "89"
+        "name": "n",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "128": {
     "id": 128,
@@ -4208,20 +3789,15 @@
         "expectedRaw": "12"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "rob",
+    "parameters": [
       {
-        "stdin": "1\n1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "2\n1 2\n",
-        "expectedRaw": "2"
-      },
-      {
-        "stdin": "4\n2 1 1 2\n",
-        "expectedRaw": "4"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "129": {
     "id": 129,
@@ -4241,20 +3817,15 @@
         "expectedRaw": "2"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "fib",
+    "parameters": [
       {
-        "stdin": "0\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "10\n",
-        "expectedRaw": "55"
+        "name": "n",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "130": {
     "id": 130,
@@ -4274,20 +3845,15 @@
         "expectedRaw": "1389537"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "tribonacci",
+    "parameters": [
       {
-        "stdin": "0\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "10\n",
-        "expectedRaw": "149"
+        "name": "n",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "131": {
     "id": 131,
@@ -4307,20 +3873,15 @@
         "expectedRaw": "3"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "numDecodings",
+    "parameters": [
       {
-        "stdin": "0\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "10\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "1234\n",
-        "expectedRaw": "3"
+        "name": "s",
+        "type": "string"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "132": {
     "id": 132,
@@ -4340,20 +3901,19 @@
         "expectedRaw": "1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "wordBreak",
+    "parameters": [
       {
-        "stdin": "catsandog\n5\ncats\ndog\nsand\nand\ncat\n",
-        "expectedRaw": "0"
+        "name": "s",
+        "type": "string"
       },
       {
-        "stdin": "a\n1\na\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "ab\n2\na\nb\n",
-        "expectedRaw": "1"
+        "name": "wordDict",
+        "type": "vector<string>"
       }
-    ]
+    ],
+    "returnType": "bool"
   },
   "133": {
     "id": 133,
@@ -4373,20 +3933,15 @@
         "expectedRaw": "4"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "lengthOfLIS",
+    "parameters": [
       {
-        "stdin": "5\n7 7 7 7 7\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "1\n1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "5\n1 2 3 4 5\n",
-        "expectedRaw": "5"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "134": {
     "id": 134,
@@ -4406,20 +3961,19 @@
         "expectedRaw": "-1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "coinChange",
+    "parameters": [
       {
-        "stdin": "1\n1\n0\n",
-        "expectedRaw": "0"
+        "name": "coins",
+        "type": "vector<int>"
       },
       {
-        "stdin": "1\n2\n0\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "3\n1 2 5\n11\n",
-        "expectedRaw": "3"
+        "name": "amount",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "135": {
     "id": 135,
@@ -4439,20 +3993,19 @@
         "expectedRaw": "3"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "longestCommonSubsequence",
+    "parameters": [
       {
-        "stdin": "abc\ndef\n",
-        "expectedRaw": "0"
+        "name": "s",
+        "type": "string"
       },
       {
-        "stdin": "a\na\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "abcba\nabcbcba\n",
-        "expectedRaw": "5"
+        "name": "t",
+        "type": "string"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "136": {
     "id": 136,
@@ -4472,20 +4025,23 @@
         "expectedRaw": "3"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "knapSack",
+    "parameters": [
       {
-        "stdin": "1\n1\n1\n5\n1\n",
-        "expectedRaw": "5"
+        "name": "weights",
+        "type": "vector<int>"
       },
       {
-        "stdin": "3\n1 2 3\n3\n6 10 12\n5\n",
-        "expectedRaw": "22"
+        "name": "values",
+        "type": "vector<int>"
       },
       {
-        "stdin": "2\n4 5\n2\n1 2\n3\n",
-        "expectedRaw": "0"
+        "name": "W",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "137": {
     "id": 137,
@@ -4505,20 +4061,15 @@
         "expectedRaw": "12"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "minPathSum",
+    "parameters": [
       {
-        "stdin": "1 1\n9\n",
-        "expectedRaw": "9"
-      },
-      {
-        "stdin": "2 2\n1 2\n1 1\n",
-        "expectedRaw": "3"
-      },
-      {
-        "stdin": "2 3\n1 2 5\n3 2 1\n",
-        "expectedRaw": "6"
+        "name": "grid",
+        "type": "vector<vector<int>>"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "138": {
     "id": 138,
@@ -4538,20 +4089,19 @@
         "expectedRaw": "3"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "uniquePaths",
+    "parameters": [
       {
-        "stdin": "7\n3\n",
-        "expectedRaw": "28"
+        "name": "m",
+        "type": "int"
       },
       {
-        "stdin": "3\n3\n",
-        "expectedRaw": "6"
-      },
-      {
-        "stdin": "1\n1\n",
-        "expectedRaw": "1"
+        "name": "n",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "139": {
     "id": 139,
@@ -4571,20 +4121,19 @@
         "expectedRaw": "5"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "minDistance",
+    "parameters": [
       {
-        "stdin": "@@EMPTY@@\n@@EMPTY@@\n",
-        "expectedRaw": "0"
+        "name": "s",
+        "type": "string"
       },
       {
-        "stdin": "a\nb\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "abc\n@@EMPTY@@\n",
-        "expectedRaw": "3"
+        "name": "t",
+        "type": "string"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "140": {
     "id": 140,
@@ -4604,20 +4153,15 @@
         "expectedRaw": "0"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "canPartition",
+    "parameters": [
       {
-        "stdin": "2\n1 1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "2\n1 2\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "6\n3 1 1 2 2 1\n",
-        "expectedRaw": "1"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "bool"
   },
   "141": {
     "id": 141,
@@ -4637,20 +4181,15 @@
         "expectedRaw": "10"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "maxCoins",
+    "parameters": [
       {
-        "stdin": "0\n\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "1\n3\n",
-        "expectedRaw": "3"
-      },
-      {
-        "stdin": "3\n7 9 8\n",
-        "expectedRaw": "568"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "142": {
     "id": 142,
@@ -4670,20 +4209,15 @@
         "expectedRaw": "1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "maxSubArray",
+    "parameters": [
       {
-        "stdin": "5\n5 4 -1 7 8\n",
-        "expectedRaw": "23"
-      },
-      {
-        "stdin": "4\n-1 -2 -3 -4\n",
-        "expectedRaw": "-1"
-      },
-      {
-        "stdin": "4\n0 -3 1 1\n",
-        "expectedRaw": "2"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "143": {
     "id": 143,
@@ -4703,20 +4237,15 @@
         "expectedRaw": "0"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "maxProduct",
+    "parameters": [
       {
-        "stdin": "3\n-2 3 -4\n",
-        "expectedRaw": "24"
-      },
-      {
-        "stdin": "2\n0 -2\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "1\n-2\n",
-        "expectedRaw": "-2"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "144": {
     "id": 144,
@@ -4736,20 +4265,27 @@
         "expectedRaw": "-1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "shortestPath",
+    "parameters": [
       {
-        "stdin": "1\n0 2\n\n0\n0\n",
-        "expectedRaw": "0"
+        "name": "n",
+        "type": "int"
       },
       {
-        "stdin": "5\n5 2\n0 1 0 2 1 3 2 3 3 4\n0\n4\n",
-        "expectedRaw": "3"
+        "name": "edges",
+        "type": "vector<vector<int>>"
       },
       {
-        "stdin": "3\n3 2\n0 1 1 2 0 2\n0\n2\n",
-        "expectedRaw": "1"
+        "name": "src",
+        "type": "int"
+      },
+      {
+        "name": "dest",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "145": {
     "id": 145,
@@ -4769,20 +4305,15 @@
         "expectedRaw": "1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "pacificAtlantic",
+    "parameters": [
       {
-        "stdin": "2 2\n1 2\n4 3\n",
-        "expectedRaw": "3"
-      },
-      {
-        "stdin": "3 3\n3 3 3\n3 1 3\n0 2 4\n",
-        "expectedRaw": "8"
-      },
-      {
-        "stdin": "2 2\n1 1\n1 1\n",
-        "expectedRaw": "4"
+        "name": "heights",
+        "type": "vector<vector<int>>"
       }
-    ]
+    ],
+    "returnType": "count:vector<vector<int>>"
   },
   "146": {
     "id": 146,
@@ -4802,20 +4333,15 @@
         "expectedRaw": "-1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "wallsAndGates",
+    "parameters": [
       {
-        "stdin": "1 1\n0\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "1 1\n2147483647\n",
-        "expectedRaw": "2147483647"
-      },
-      {
-        "stdin": "2 2\n0 2147483647\n-1 2147483647\n",
-        "expectedRaw": "0 1\n-1 2"
+        "name": "rooms",
+        "type": "vector<vector<int>>"
       }
-    ]
+    ],
+    "returnType": "void"
   },
   "147": {
     "id": 147,
@@ -4835,20 +4361,15 @@
         "expectedRaw": "-1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "orangesRotting",
+    "parameters": [
       {
-        "stdin": "1 2\n0 2\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "1 1\n1\n",
-        "expectedRaw": "-1"
-      },
-      {
-        "stdin": "3 3\n2 1 1\n1 1 1\n0 1 2\n",
-        "expectedRaw": "2"
+        "name": "grid",
+        "type": "vector<vector<int>>"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "148": {
     "id": 148,
@@ -4868,20 +4389,23 @@
         "expectedRaw": "0"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "ladderLength",
+    "parameters": [
       {
-        "stdin": "a\nb\n1\nb\n",
-        "expectedRaw": "2"
+        "name": "beginWord",
+        "type": "string"
       },
       {
-        "stdin": "hot\ndog\n3\nhot\ndog\ndot\n",
-        "expectedRaw": "3"
+        "name": "endWord",
+        "type": "string"
       },
       {
-        "stdin": "abc\nxyz\n3\nabd\nabz\nxyz\n",
-        "expectedRaw": "0"
+        "name": "wordList",
+        "type": "vector<string>"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "149": {
     "id": 149,
@@ -4901,20 +4425,23 @@
         "expectedRaw": "0 1 2"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "dijkstra",
+    "parameters": [
       {
-        "stdin": "1\n0 3\n\n0\n",
-        "expectedRaw": "0"
+        "name": "n",
+        "type": "int"
       },
       {
-        "stdin": "2\n1 3\n0 1 5\n0\n",
-        "expectedRaw": "0 5"
+        "name": "edges",
+        "type": "vector<vector<int>>"
       },
       {
-        "stdin": "3\n3 3\n0 1 3 0 2 7 1 2 2\n0\n",
-        "expectedRaw": "0 3 5"
+        "name": "src",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "vector<int>"
   },
   "150": {
     "id": 150,
@@ -4934,20 +4461,15 @@
         "expectedRaw": "3"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "numIslands",
+    "parameters": [
       {
-        "stdin": "1 1\n49\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "1 1\n48\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "2 2\n49 48\n48 49\n",
-        "expectedRaw": "2"
+        "name": "grid",
+        "type": "vector<vector<char>>"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "151": {
     "id": 151,
@@ -4967,20 +4489,15 @@
         "expectedRaw": "1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "cloneGraph",
+    "parameters": [
       {
-        "stdin": "0\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "2\n1 2\n1 1\n",
-        "expectedRaw": "2"
-      },
-      {
-        "stdin": "3\n2 2 3\n2 1 3\n2 1 2\n",
-        "expectedRaw": "3"
+        "name": "node",
+        "type": "Node*"
       }
-    ]
+    ],
+    "returnType": "int:cloneGraph"
   },
   "152": {
     "id": 152,
@@ -5000,20 +4517,19 @@
         "expectedRaw": "0"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "canFinish",
+    "parameters": [
       {
-        "stdin": "1\n0 2\n\n",
-        "expectedRaw": "1"
+        "name": "numCourses",
+        "type": "int"
       },
       {
-        "stdin": "3\n2 2\n1 0 2 1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "4\n4 2\n1 0 2 0 3 1 3 2\n",
-        "expectedRaw": "1"
+        "name": "prerequisites",
+        "type": "vector<vector<int>>"
       }
-    ]
+    ],
+    "returnType": "bool"
   },
   "153": {
     "id": 153,
@@ -5033,20 +4549,19 @@
         "expectedRaw": "0"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "isCyclic",
+    "parameters": [
       {
-        "stdin": "1\n0 2\n\n",
-        "expectedRaw": "0"
+        "name": "V",
+        "type": "int"
       },
       {
-        "stdin": "2\n2 2\n0 1 1 0\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "3\n2 2\n0 1 0 2\n",
-        "expectedRaw": "0"
+        "name": "adj",
+        "type": "vector<vector<int>>"
       }
-    ]
+    ],
+    "returnType": "bool"
   },
   "154": {
     "id": 154,
@@ -5066,20 +4581,27 @@
         "expectedRaw": "0 0 0\n0 0 0"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "floodFill",
+    "parameters": [
       {
-        "stdin": "1 1\n0\n0\n0\n2\n",
-        "expectedRaw": "2"
+        "name": "image",
+        "type": "vector<vector<int>>"
       },
       {
-        "stdin": "2 2\n0 1\n1 1\n1\n1\n3\n",
-        "expectedRaw": "0 3\n3 3"
+        "name": "sr",
+        "type": "int"
       },
       {
-        "stdin": "2 2\n1 0\n0 1\n0\n1\n4\n",
-        "expectedRaw": "1 4\n0 1"
+        "name": "sc",
+        "type": "int"
+      },
+      {
+        "name": "color",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "vector<vector<int>>"
   },
   "155": {
     "id": 155,
@@ -5099,20 +4621,19 @@
         "expectedRaw": "1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "exist",
+    "parameters": [
       {
-        "stdin": "3 4\n65 66 67 69\n83 70 67 83\n65 68 69 69\nABCB\n",
-        "expectedRaw": "0"
+        "name": "board",
+        "type": "vector<vector<char>>"
       },
       {
-        "stdin": "1 1\n65\nA\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "1 1\n65\nB\n",
-        "expectedRaw": "0"
+        "name": "word",
+        "type": "string"
       }
-    ]
+    ],
+    "returnType": "bool"
   },
   "156": {
     "id": 156,
@@ -5132,25 +4653,20 @@
         "expectedRaw": "zx"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "alienOrder",
+    "parameters": [
       {
-        "stdin": "3\nz\nx\nz\n",
-        "expectedRaw": ""
-      },
-      {
-        "stdin": "2\na\nab\n",
-        "expectedRaw": "ab"
-      },
-      {
-        "stdin": "2\nwrt\nwrf\n",
-        "expectedRaw": "wrtf"
+        "name": "words",
+        "type": "vector<string>"
       }
-    ]
+    ],
+    "returnType": "string"
   },
   "157": {
     "id": 157,
     "name": "Course Schedule II",
-    "compareMode": "unordered",
+    "compareMode": "any_of",
     "sampleTests": [
       {
         "input": "numCourses = 2, prerequisites = [[1,0]]",
@@ -5162,23 +4678,22 @@
         "input": "numCourses = 4, prerequisites = [[1,0],[2,0],[3,1],[3,2]]",
         "expected": "[0,2,1,3]",
         "stdin": "4\n4 2\n1 0 2 0 3 1 3 2\n",
-        "expectedRaw": "0 2 1 3"
+        "expectedRaw": "0 2 1 3 | 0 1 2 3"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "findOrder",
+    "parameters": [
       {
-        "stdin": "2\n2 2\n0 1 1 0\n",
-        "expectedRaw": ""
+        "name": "numCourses",
+        "type": "int"
       },
       {
-        "stdin": "1\n0 2\n\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "3\n2 2\n1 0 2 1\n",
-        "expectedRaw": "0 1 2"
+        "name": "prerequisites",
+        "type": "vector<vector<int>>"
       }
-    ]
+    ],
+    "returnType": "vector<int>"
   },
   "158": {
     "id": 158,
@@ -5198,20 +4713,19 @@
         "expectedRaw": "1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "countComponents",
+    "parameters": [
       {
-        "stdin": "5\n0 2\n\n",
-        "expectedRaw": "5"
+        "name": "n",
+        "type": "int"
       },
       {
-        "stdin": "1\n0 2\n\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "4\n3 2\n2 3 1 2 0 3\n",
-        "expectedRaw": "1"
+        "name": "edges",
+        "type": "vector<vector<int>>"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "159": {
     "id": 159,
@@ -5231,20 +4745,15 @@
         "expectedRaw": "1 4"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "findRedundantConnection",
+    "parameters": [
       {
-        "stdin": "3 2\n1 2 2 3 1 3\n",
-        "expectedRaw": "1 3"
-      },
-      {
-        "stdin": "4 2\n1 3 3 4 1 4 1 2\n",
-        "expectedRaw": "1 4"
-      },
-      {
-        "stdin": "5 2\n1 2 2 3 3 4 4 5 1 5\n",
-        "expectedRaw": "1 5"
+        "name": "edges",
+        "type": "vector<vector<int>>"
       }
-    ]
+    ],
+    "returnType": "vector<int>"
   },
   "160": {
     "id": 160,
@@ -5264,20 +4773,15 @@
         "expectedRaw": "2"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "fib",
+    "parameters": [
       {
-        "stdin": "0\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "10\n",
-        "expectedRaw": "55"
+        "name": "n",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "161": {
     "id": 161,
@@ -5297,20 +4801,15 @@
         "expectedRaw": "6"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "factorial",
+    "parameters": [
       {
-        "stdin": "0\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "10\n",
-        "expectedRaw": "3628800"
+        "name": "n",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "162": {
     "id": 162,
@@ -5330,20 +4829,15 @@
         "expectedRaw": "22"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "sumOfDigits",
+    "parameters": [
       {
-        "stdin": "0\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "9\n",
-        "expectedRaw": "9"
-      },
-      {
-        "stdin": "99999\n",
-        "expectedRaw": "45"
+        "name": "n",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "163": {
     "id": 163,
@@ -5363,20 +4857,19 @@
         "expectedRaw": "9.26100"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "myPow",
+    "parameters": [
       {
-        "stdin": "2\n-2\n",
-        "expectedRaw": "0.25000"
+        "name": "x",
+        "type": "double"
       },
       {
-        "stdin": "1\n1000000000\n",
-        "expectedRaw": "1.00000"
-      },
-      {
-        "stdin": "0\n5\n",
-        "expectedRaw": "0.00000"
+        "name": "n",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "double"
   },
   "164": {
     "id": 164,
@@ -5396,20 +4889,15 @@
         "expectedRaw": "15"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "toh",
+    "parameters": [
       {
-        "stdin": "1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "2\n",
-        "expectedRaw": "3"
-      },
-      {
-        "stdin": "5\n",
-        "expectedRaw": "31"
+        "name": "n",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "165": {
     "id": 165,
@@ -5429,20 +4917,15 @@
         "expectedRaw": "2"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "subsets",
+    "parameters": [
       {
-        "stdin": "0\n\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "2\n1 2\n",
-        "expectedRaw": "4"
-      },
-      {
-        "stdin": "4\n9 0 3 5\n",
-        "expectedRaw": "16"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "count:vector<vector<int>>"
   },
   "166": {
     "id": 166,
@@ -5462,20 +4945,15 @@
         "expectedRaw": "2"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "permute",
+    "parameters": [
       {
-        "stdin": "1\n1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "4\n3 2 1 4\n",
-        "expectedRaw": "24"
-      },
-      {
-        "stdin": "2\n5 6\n",
-        "expectedRaw": "2"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "count:vector<vector<int>>"
   },
   "167": {
     "id": 167,
@@ -5495,20 +4973,19 @@
         "expectedRaw": "3"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "combinationSum",
+    "parameters": [
       {
-        "stdin": "1\n2\n1\n",
-        "expectedRaw": "0"
+        "name": "candidates",
+        "type": "vector<int>"
       },
       {
-        "stdin": "1\n1\n1\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "1\n1\n2\n",
-        "expectedRaw": "1"
+        "name": "target",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "count:vector<vector<int>>"
   },
   "168": {
     "id": 168,
@@ -5528,16 +5005,15 @@
         "expectedRaw": "3"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "letterCombinations",
+    "parameters": [
       {
-        "stdin": "7\n",
-        "expectedRaw": "4"
-      },
-      {
-        "stdin": "234\n",
-        "expectedRaw": "27"
+        "name": "digits",
+        "type": "string"
       }
-    ]
+    ],
+    "returnType": "count:vector<string>"
   },
   "169": {
     "id": 169,
@@ -5557,20 +5033,15 @@
         "expectedRaw": "1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "solveNQueens",
+    "parameters": [
       {
-        "stdin": "2\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "3\n",
-        "expectedRaw": "0"
-      },
-      {
-        "stdin": "5\n",
-        "expectedRaw": "10"
+        "name": "n",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "count:vector<vector<string>>"
   },
   "170": {
     "id": 170,
@@ -5590,20 +5061,19 @@
         "expectedRaw": "1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "exist",
+    "parameters": [
       {
-        "stdin": "3 4\n65 66 67 69\n83 70 67 83\n65 68 69 69\nABCB\n",
-        "expectedRaw": "0"
+        "name": "board",
+        "type": "vector<vector<char>>"
       },
       {
-        "stdin": "1 1\n65\nA\n",
-        "expectedRaw": "1"
-      },
-      {
-        "stdin": "1 1\n65\nB\n",
-        "expectedRaw": "0"
+        "name": "word",
+        "type": "string"
       }
-    ]
+    ],
+    "returnType": "bool"
   },
   "171": {
     "id": 171,
@@ -5623,20 +5093,19 @@
         "expectedRaw": "4"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "findKthLargest",
+    "parameters": [
       {
-        "stdin": "1\n1\n1\n",
-        "expectedRaw": "1"
+        "name": "nums",
+        "type": "vector<int>"
       },
       {
-        "stdin": "2\n2 1\n1\n",
-        "expectedRaw": "2"
-      },
-      {
-        "stdin": "6\n3 2 1 5 6 4\n6\n",
-        "expectedRaw": "1"
+        "name": "k",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "int"
   },
   "172": {
     "id": 172,
@@ -5656,20 +5125,15 @@
         "expectedRaw": "5.0"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "findMedian",
+    "parameters": [
       {
-        "stdin": "3\n6 10 2\n",
-        "expectedRaw": "6.0"
-      },
-      {
-        "stdin": "2\n1 2\n",
-        "expectedRaw": "1.5"
-      },
-      {
-        "stdin": "3\n3 1 2\n",
-        "expectedRaw": "2.0"
+        "name": "nums",
+        "type": "vector<int>"
       }
-    ]
+    ],
+    "returnType": "design:MedianFinder"
   },
   "173": {
     "id": 173,
@@ -5689,20 +5153,15 @@
         "expectedRaw": ""
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "mergeKLists",
+    "parameters": [
       {
-        "stdin": "1\n0\n",
-        "expectedRaw": ""
-      },
-      {
-        "stdin": "3\n1\n1\n1\n2\n1\n3\n",
-        "expectedRaw": "1 2 3"
-      },
-      {
-        "stdin": "2\n2\n1 2\n2\n1 2\n",
-        "expectedRaw": "1 1 2 2"
+        "name": "lists",
+        "type": "vector<ListNode*>"
       }
-    ]
+    ],
+    "returnType": "ListNode*"
   },
   "174": {
     "id": 174,
@@ -5722,19 +5181,18 @@
         "expectedRaw": "1"
       }
     ],
-    "hiddenTests": [
+    "hiddenTests": [],
+    "functionName": "topKFrequent",
+    "parameters": [
       {
-        "stdin": "9\n4 4 4 4 2 2 2 1 3\n2\n",
-        "expectedRaw": "4 2"
+        "name": "nums",
+        "type": "vector<int>"
       },
       {
-        "stdin": "2\n1 2\n2\n",
-        "expectedRaw": "1 2"
-      },
-      {
-        "stdin": "6\n1 1 1 2 2 3\n1\n",
-        "expectedRaw": "1"
+        "name": "k",
+        "type": "int"
       }
-    ]
+    ],
+    "returnType": "vector<int>"
   }
 }

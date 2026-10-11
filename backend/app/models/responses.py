@@ -13,7 +13,7 @@ class TestCaseResult(BaseModel):
 
     index: int = Field(..., description="1-indexed test case number.")
     passed: bool = Field(..., description="True if actual output matches expected.")
-    actual: str = Field("", description="Raw actual output from the program.")
+    actual: Optional[str] = Field(None, description="Raw actual output from the program. None for hidden tests.")
     is_hidden: bool = Field(..., description="True for hidden test cases.")
 
     # Only present when is_hidden=False (sample tests)

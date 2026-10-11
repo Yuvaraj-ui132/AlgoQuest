@@ -40,3 +40,9 @@ backend/data/*.dump
 # Local PostgreSQL portable binaries and data directories
 .pgsql/
 backend/.pgsql/
+
+# Private hidden test cases & generator tools (NEVER commit)
+backend/data/hidden_test_cases.json
+data/hidden_test_cases.json
+backend/scripts/private_*
+private_*

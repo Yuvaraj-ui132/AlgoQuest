@@ -35,6 +35,8 @@ import re
 import json
 import os
 import time
+import base64
+import secrets
 import threading
 import logging
 from collections import defaultdict
@@ -57,6 +59,7 @@ from app.models.responses import (
 )
 from app.services import judge0_service, db_service
 from app.services.submission_queue import submission_queue
+from app.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -104,34 +107,149 @@ def _check_rate_limit(uid: str) -> None:
 
 # ── Load test case data (server-side only) ────────────────────────────────────
 
-_TEST_DATA_PATH = os.path.join(
+_DATA_DIR = os.path.join(
     os.path.dirname(__file__),   # routes/
     "..",                        # app/
     "..",                        # backend/
     "data",
-    "test_cases.json",
 )
+_SAMPLE_TEST_DATA_PATH = os.path.join(_DATA_DIR, "sample_test_cases.json")
+_LEGACY_TEST_DATA_PATH = os.path.join(_DATA_DIR, "test_cases.json")
 
-_test_data_cache: Optional[Dict[str, Any]] = None
+_sample_data_cache: Optional[Dict[str, Any]] = None
+_hidden_data_cache: Optional[Dict[str, Any]] = None
+_hidden_data_error: Optional[str] = None
+_sample_only_active: bool = False
 
 
-def _load_test_data() -> Dict[str, Any]:
-    global _test_data_cache
-    if _test_data_cache is None:
-        path = os.path.abspath(_TEST_DATA_PATH)
+def reset_test_data_cache() -> None:
+    """Reset cached test data for test isolation."""
+    global _sample_data_cache, _hidden_data_cache, _hidden_data_error, _sample_only_active
+    _sample_data_cache = None
+    _hidden_data_cache = None
+    _hidden_data_error = None
+    _sample_only_active = False
+
+
+def _locate_hidden_tests_file() -> Optional[str]:
+    """
+    Locates the private hidden test cases file in priority order:
+      1. settings.hidden_tests_path (explicit env var HIDDEN_TESTS_PATH)
+      2. /etc/secrets/hidden_test_cases.json (Render Secret File standard path)
+      3. backend/data/hidden_test_cases.json (untracked local development file)
+    """
+    if settings.hidden_tests_path:
+        return os.path.abspath(settings.hidden_tests_path)
+
+    render_secret_path = "/etc/secrets/hidden_test_cases.json"
+    if os.path.isfile(render_secret_path):
+        return render_secret_path
+
+    local_path = os.path.join(_DATA_DIR, "hidden_test_cases.json")
+    if os.path.isfile(local_path):
+        return os.path.abspath(local_path)
+
+    return None
+
+
+def _load_sample_data() -> Dict[str, Any]:
+    global _sample_data_cache
+    if _sample_data_cache is None:
+        path = os.path.abspath(_SAMPLE_TEST_DATA_PATH)
+        if not os.path.isfile(path):
+            path = os.path.abspath(_LEGACY_TEST_DATA_PATH)
         if not os.path.isfile(path):
             raise RuntimeError(
-                f"test_cases.json not found at {path}. "
-                "Run: node backend/scripts/extract_test_data.js"
+                f"Sample test data not found at {_SAMPLE_TEST_DATA_PATH} or {_LEGACY_TEST_DATA_PATH}."
             )
         with open(path, "r", encoding="utf-8") as f:
-            _test_data_cache = json.load(f)
-    return _test_data_cache
+            _sample_data_cache = json.load(f)
+    return _sample_data_cache
 
 
-def _get_question_test_data(question_id: int) -> Optional[Dict]:
-    data = _load_test_data()
-    return data.get(str(question_id))
+def _load_hidden_data() -> None:
+    global _hidden_data_cache, _hidden_data_error, _sample_only_active
+    if _hidden_data_cache is not None or _hidden_data_error is not None or _sample_only_active:
+        return
+
+    path = _locate_hidden_tests_file()
+    if path is None or not os.path.isfile(path):
+        if settings.allow_sample_only_grading:
+            logger.warning("[GRADING] Running in explicit local sample-only development mode.")
+            _sample_only_active = True
+            _hidden_data_cache = {}
+        else:
+            _hidden_data_error = "Private hidden test suite is not configured or missing."
+            logger.error("[GRADING] Fail-closed: %s", _hidden_data_error)
+        return
+
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        if not isinstance(data, dict):
+            _hidden_data_error = f"Malformed private hidden test file at {path}: expected JSON object."
+            logger.error("[GRADING] Fail-closed: %s", _hidden_data_error)
+            return
+        _hidden_data_cache = data
+    except Exception as exc:
+        _hidden_data_error = f"Malformed private hidden test file at {path}: {exc}"
+        logger.error("[GRADING] Fail-closed: %s", _hidden_data_error)
+
+
+def _get_question_test_data(question_id: int) -> Optional[Dict[str, Any]]:
+    """
+    Returns public problem metadata and sample test cases only.
+    Safe for public endpoints (GET /api/questions/{id}/sample-tests) and Run executions.
+    Guarantees hidden tests are never accessed or returned.
+    """
+    data = _load_sample_data()
+    q = data.get(str(question_id))
+    if q is None:
+        return None
+    # Ensure hiddenTests is empty on public data
+    q_copy = dict(q)
+    q_copy["hiddenTests"] = []
+    return q_copy
+
+
+def get_question_submission_data(
+    question_id: int,
+) -> Tuple[Optional[Dict[str, Any]], Optional[str], bool]:
+    """
+    Returns (q_data, error_message, is_sample_only).
+    Used exclusively by submission grading.
+
+    Enforces fail-closed semantics in production:
+      - If private test suite is missing or malformed -> error_message returned.
+      - If question has no hidden tests -> error_message returned.
+      - If settings.allow_sample_only_grading is True -> is_sample_only=True returned,
+        which forbids producing an official Accepted verdict.
+    """
+    base_data = _load_sample_data()
+    q = base_data.get(str(question_id))
+    if q is None:
+        return None, f"Question {question_id} not found in catalogue", False
+
+    _load_hidden_data()
+
+    if _sample_only_active:
+        q_copy = dict(q)
+        q_copy["hiddenTests"] = []
+        return q_copy, None, True
+
+    if _hidden_data_error:
+        return None, f"Grading configuration error: {_hidden_data_error}", False
+
+    if _hidden_data_cache is None:
+        return None, "Grading configuration error: private hidden test suite unavailable.", False
+
+    q_hidden = _hidden_data_cache.get(str(question_id), [])
+    if not q_hidden:
+        return None, f"Grading configuration error: private hidden tests missing for question {question_id}", False
+
+    q_copy = dict(q)
+    q_copy["hiddenTests"] = q_hidden
+    return q_copy, None, False
 
 
 # ── Output comparison (mirrors compiler.js normalizeAndCompare) ───────────────
@@ -187,31 +305,125 @@ def _build_stdin(test_cases: List[Dict]) -> str:
     return "\n".join(parts)
 
 
+from app.services.driver_generator import build_backend_driver, clean_user_code
+
+
+def _decode_source(raw: str) -> str:
+    try:
+        return base64.b64decode(raw.encode("utf-8")).decode("utf-8")
+    except Exception:
+        return raw
+
+
+def _lang_from_id(language_id: int) -> str:
+    if language_id in (76, 50, 54):
+        return "cpp"
+    if language_id == 62:
+        return "java"
+    if language_id == 71:
+        return "python"
+    if language_id == 63:
+        return "js"
+    return "python"
+
+
+def prepare_dsa_source(
+    source_code: str,
+    q_data: Dict[str, Any],
+    language_id: int,
+    nonce: str,
+) -> Tuple[str, bool]:
+    """
+    Synthesizes the authoritative backend-controlled driver around user code
+    using server-side question signature metadata and the session nonce.
+    Detects if user code contains marker tampering.
+    """
+    raw_user_code = _decode_source(source_code)
+    lang = _lang_from_id(language_id)
+    cleaned = clean_user_code(raw_user_code, lang)
+
+    # Check for marker tampering in user's algorithm code
+    if "__AQ_" in cleaned:
+        logger.warning("prepare_dsa_source: user code attempted marker injection")
+        return source_code, False
+
+    secured_code = build_backend_driver(
+        user_code=cleaned,
+        q_meta=q_data,
+        lang=lang,
+        nonce=nonce,
+    )
+    encoded = base64.b64encode(secured_code.encode("utf-8")).decode("utf-8")
+    return encoded, True
+
+
 # ── Structured execution output parsing ───────────────────────────────────────
 
-def parse_test_outputs(stdout: str, expected_count: int) -> List[str]:
+def parse_test_outputs(
+    stdout: str,
+    expected_count: int,
+    nonce: Optional[str] = None,
+) -> List[str]:
     """
     Structured test case output parser.
-    Extracts output for each test case using indexed boundary markers
-    `__AQ_TC_START_{i}__` ... `__AQ_TC_END_{i}__`.
-
-    Security & Framing Architecture:
-    - Because execution runs via a combined stdout stream in Judge0, static in-band
-      markers cannot guarantee cryptographic collision immunity if untrusted user code
-      deliberately prints driver markers to stdout.
-    - This parser mitigates common collision and ordering issues:
-      1. Enforces sequential cursor-based index scanning (0 .. expected_count - 1).
-      2. Uses reverse-lookup for end markers before the next test case boundary
-         to resist user output that prints premature end markers.
-      3. Detects duplicate marker occurrences and flags marker injection anomalies.
-      4. Preserves multiline outputs and exact empty outputs without index shifting.
-      5. Safely ignores legacy `---END_TC---` strings inside user output.
-      6. Provides a deprecated transition path for unmigrated legacy streams.
+    Extracts output for each test case using indexed boundary markers.
+    When `nonce` is provided, enforces session-specific dynamic markers
+    `__AQ_{nonce}_START_{i}__` ... `__AQ_{nonce}_END_{i}__`, preventing marker
+    spoofing from user code and disallowing unauthenticated fallback delimiters.
     """
     if not stdout:
         return ["" for _ in range(expected_count)] if expected_count > 0 else []
 
-    # Check for structured protocol
+    # Dynamic nonce protocol (authenticated)
+    if nonce:
+        start_prefix = f"__AQ_{nonce}_START_"
+        end_prefix = f"__AQ_{nonce}_END_"
+
+        if start_prefix not in stdout or end_prefix not in stdout:
+            logger.warning("parse_test_outputs: Session nonce markers missing from stdout.")
+            return ["" for _ in range(expected_count)] if expected_count > 0 else []
+
+        results: List[str] = []
+        cursor = 0
+        for i in range(expected_count):
+            start_tag = f"{start_prefix}{i}__"
+            end_tag = f"{end_prefix}{i}__"
+            next_start_tag = f"{start_prefix}{i+1}__" if i + 1 < expected_count else None
+
+            # Anomaly check: each tag should appear exactly once in authentic output
+            if stdout.count(start_tag) != 1 or stdout.count(end_tag) != 1:
+                logger.warning("parse_test_outputs: marker anomaly for test case %d (spoofing attempt)", i)
+                results.append("")
+                continue
+
+            s_idx = stdout.find(start_tag, cursor)
+            if s_idx == -1:
+                results.append("")
+                continue
+
+            content_start = s_idx + len(start_tag)
+            upper_bound = len(stdout)
+            if next_start_tag:
+                next_s_idx = stdout.find(next_start_tag, content_start)
+                if next_s_idx != -1:
+                    upper_bound = next_s_idx
+
+            e_idx = stdout.rfind(end_tag, content_start, upper_bound)
+            if e_idx == -1:
+                e_idx = stdout.find(end_tag, content_start)
+
+            if e_idx != -1 and e_idx >= content_start:
+                raw_content = stdout[content_start:e_idx]
+                cleaned = re.sub(r"\n?---END_TC---\s*$", "", raw_content)
+                results.append(cleaned.strip())
+                cursor = e_idx + len(end_tag)
+            else:
+                results.append("")
+                cursor = content_start
+
+        return results
+
+    # Legacy protocol fallback (only when nonce is not provided)
     if "__AQ_TC_START_" in stdout and "__AQ_TC_END_" in stdout:
         results: List[str] = []
         cursor = 0
@@ -222,40 +434,32 @@ def parse_test_outputs(stdout: str, expected_count: int) -> List[str]:
 
             s_idx = stdout.find(start_tag, cursor)
             if s_idx == -1:
-                # Driver start marker missing (e.g. process terminated early)
                 results.append("")
                 continue
 
             content_start = s_idx + len(start_tag)
-
-            # Determine upper search bound (start of next test case or end of stdout)
             upper_bound = len(stdout)
             if next_start_tag:
                 next_s_idx = stdout.find(next_start_tag, content_start)
                 if next_s_idx != -1:
                     upper_bound = next_s_idx
 
-            # Find the driver's end marker. In case user output contains end_tag,
-            # find the last occurrence before the next test case boundary.
             e_idx = stdout.rfind(end_tag, content_start, upper_bound)
             if e_idx == -1:
-                # If rfind within bound failed, check standard find
                 e_idx = stdout.find(end_tag, content_start)
 
             if e_idx != -1 and e_idx >= content_start:
                 raw_content = stdout[content_start:e_idx]
-                # Strip harness-level legacy markers if present at boundary
                 cleaned = re.sub(r"\n?---END_TC---\s*$", "", raw_content)
                 results.append(cleaned.strip())
                 cursor = e_idx + len(end_tag)
             else:
-                # Missing end marker
                 results.append("")
                 cursor = content_start
 
         return results
 
-    # Legacy delimiter transition fallback (deprecated)
+    # Legacy delimiter transition fallback (deprecated, strictly unauthenticated)
     logger.warning("parse_test_outputs: Stream missing structured markers; using legacy delimiter fallback.")
     parts = stdout.split("---END_TC---")
     if parts and not parts[-1].strip():
@@ -375,44 +579,58 @@ async def create_submission(
         )
 
     # ── DSA mode (run / submit) ───────────────────────────────────────────────
-    q_data = _get_question_test_data(body.question_id)
-    if q_data is None:
-        # Fall back to general mode if question not in registry
-        result = await judge0_service.execute(
-            source_code=body.source_code,
-            language_id=body.language_id,
-            stdin="",
-            compiler_options=compiler_options,
-        )
-        return SubmissionResponse(
-            verdict=result["verdict"],
-            status_id=result["status_id"],
-            runtime=_fmt_time(result["time"]),
-            memory=_fmt_memory(result["memory"]),
-            stdout=result["stdout"] or None,
-            compile_output=result["compile_output"] or None,
-            stderr=result["stderr"] or None,
-        )
-
-    sample_tests: List[Dict] = q_data.get("sampleTests", [])
-    hidden_tests: List[Dict] = q_data.get("hiddenTests", [])
-    compare_mode: str = q_data.get("compareMode", "ordered")
-
-    # RUN = all visible sample test cases
-    # SUBMIT = full test suite (sample + hidden)
+    is_sample_only = False
     if body.execution_type == "run":
+        q_data = _get_question_test_data(body.question_id)
+        if q_data is None:
+            # Fall back to general mode if question not in registry
+            result = await judge0_service.execute(
+                source_code=body.source_code,
+                language_id=body.language_id,
+                stdin="",
+                compiler_options=compiler_options,
+            )
+            return SubmissionResponse(
+                verdict=result["verdict"],
+                status_id=result["status_id"],
+                runtime=_fmt_time(result["time"]),
+                memory=_fmt_memory(result["memory"]),
+                stdout=result["stdout"] or None,
+                compile_output=result["compile_output"] or None,
+                stderr=result["stderr"] or None,
+            )
+        sample_tests: List[Dict] = q_data.get("sampleTests", [])
         active_tests = sample_tests
         n_sample = len(sample_tests)
+        compare_mode: str = q_data.get("compareMode", "ordered")
     else:  # submit
+        q_data, load_err, is_sample_only = get_question_submission_data(body.question_id)
+        if load_err or q_data is None:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=load_err or f"Question {body.question_id} not found in catalogue",
+            )
+        sample_tests = q_data.get("sampleTests", [])
+        hidden_tests: List[Dict] = q_data.get("hiddenTests", [])
         active_tests = sample_tests + hidden_tests
         n_sample = len(sample_tests)
+        compare_mode = q_data.get("compareMode", "ordered")
 
     # Build combined stdin
     combined_stdin = _build_stdin(active_tests)
 
+    # Dynamic backend nonce injection & marker anti-spoofing
+    nonce = secrets.token_hex(16)
+    secured_code, is_clean = prepare_dsa_source(
+        source_code=body.source_code,
+        q_data=q_data,
+        language_id=body.language_id,
+        nonce=nonce,
+    )
+
     # Execute on Judge0
     result = await judge0_service.execute(
-        source_code=body.source_code,
+        source_code=secured_code,
         language_id=body.language_id,
         stdin=combined_stdin,
         compiler_options=compiler_options,
@@ -421,8 +639,11 @@ async def create_submission(
     status_id: int = result["status_id"]
     stdout: str = result["stdout"] or ""
 
-    # ── Parse per-test-case outputs (structured or fallback) ──────────────────
-    output_lines = parse_test_outputs(stdout, len(active_tests))
+    # ── Parse per-test-case outputs (authenticated with session nonce) ────────
+    if not is_clean:
+        output_lines = ["" for _ in range(len(active_tests))]
+    else:
+        output_lines = parse_test_outputs(stdout, len(active_tests), nonce=nonce)
 
     passed_count = 0
     tc_results: List[TestCaseResult] = []
@@ -431,9 +652,10 @@ async def create_submission(
         actual_raw = output_lines[i] if i < len(output_lines) else ""
         is_hidden = i >= n_sample
 
-        # Compare only when Judge0 itself succeeded
+        # Compare only when Judge0 succeeded and code has not tampered with harness
         passed = (
-            status_id == 3
+            is_clean
+            and status_id == 3
             and _compare(actual_raw, tc.get("expectedRaw", ""), compare_mode)
         )
         if passed:
@@ -442,7 +664,7 @@ async def create_submission(
         item = TestCaseResult(
             index=i + 1,
             passed=passed,
-            actual=actual_raw,
+            actual=None if is_hidden else actual_raw,
             is_hidden=is_hidden,
         )
 
@@ -450,19 +672,17 @@ async def create_submission(
             # Sample tests: include human-readable display fields
             item.input = tc.get("input", "")
             item.expected = tc.get("expected", "")
-        # Hidden tests: input and expected remain None — never sent to browser
+        # Hidden tests: input, expected, and actual remain None — never sent to browser
 
         tc_results.append(item)
 
     # ── Determine final verdict ───────────────────────────────────────────────
     all_passed = passed_count == len(active_tests) and status_id == 3
 
-    if all_passed:
-        final_verdict = "Accepted"
-    elif status_id == 3:
-        final_verdict = "Wrong Answer"
+    if is_sample_only:
+        final_verdict = "Sample Accepted (Dev Only)" if all_passed else ("Wrong Answer" if status_id == 3 else result["verdict"])
     else:
-        final_verdict = result["verdict"]
+        final_verdict = "Accepted" if all_passed else ("Wrong Answer" if status_id == 3 else result["verdict"])
 
     # ── For 'run': return result directly (RUN is always synchronous) ─────────
     # No Firestore history write, no progress update, no queue.
@@ -473,8 +693,8 @@ async def create_submission(
         memory=_fmt_memory(result["memory"]),
         passed_count=passed_count,
         total_count=len(active_tests),
-        compile_output=result["compile_output"] or None,
-        stderr=result["stderr"] or None,
+        compile_output=(result["compile_output"] or None) if (status_id == 6 or body.execution_type == "run") else None,
+        stderr=(result["stderr"] or None) if body.execution_type == "run" else None,
         test_cases=tc_results,
     )
 

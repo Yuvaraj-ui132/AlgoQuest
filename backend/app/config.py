@@ -105,5 +105,29 @@ class Settings(BaseSettings):
     Override via SUBMISSION_WORKERS env var.
     """
 
+    # ── Private Test Suite & Grading Isolation ─────────────────────────────────
+    hidden_tests_path: str = Field(
+        default="",
+        validation_alias=AliasChoices("HIDDEN_TESTS_PATH", "HIDDEN_TEST_CASES_PATH"),
+    )
+    """
+    Path to the private hidden test suite JSON file.
+    In production (Render), typically mounted as a Secret File at /etc/secrets/hidden_test_cases.json.
+    If left empty, the application checks /etc/secrets/hidden_test_cases.json,
+    then backend/data/hidden_test_cases.json.
+    """
+
+    allow_sample_only_grading: bool = Field(
+        default=False,
+        validation_alias=AliasChoices("ALLOW_SAMPLE_ONLY_GRADING"),
+    )
+    """
+    Explicit switch for local development ONLY.
+    When False (default / production), submissions fail closed if private test data is missing,
+    malformed, or does not cover the question.
+    When True, local development allows grading with sample tests, but results in a distinct
+    'Sample Accepted (Dev Only)' verdict and NEVER updates user progress or records an official Accepted submission.
+    """
+
 
 settings = Settings()
