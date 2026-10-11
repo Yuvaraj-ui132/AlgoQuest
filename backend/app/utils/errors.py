@@ -83,3 +83,60 @@ def not_found(resource: str, id_: int | str) -> None:
         status_code=status.HTTP_404_NOT_FOUND,
         detail=f"{resource} '{id_}' not found.",
     )
+
+
+def sanitize_db_error(exc: Exception) -> dict:
+    """
+    Sanitize database exceptions to extract actionable diagnostic details
+    (exception class, driver class, SQLSTATE pgcode, and sanitized message)
+    without leaking credentials, tokens, query parameters, or source code.
+
+    Returns:
+        {
+            "exception_class": str,     # e.g. "ProgrammingError:DatatypeMismatch"
+            "driver_class": str | None, # e.g. "DatatypeMismatch"
+            "pgcode": str | None,       # PostgreSQL SQLSTATE code, e.g. "42804"
+            "sanitized_message": str,   # Cleaned error description without credentials or parameters
+        }
+    """
+    import re
+
+    exc_class = exc.__class__.__name__
+    driver_class = None
+    pgcode = None
+
+    orig = getattr(exc, "orig", None)
+    if orig is not None:
+        driver_class = orig.__class__.__name__
+        pgcode = getattr(orig, "pgcode", None)
+        # orig contains the raw DB driver message without SQLAlchemy query parameters
+        raw_msg = str(orig)
+    else:
+        raw_msg = str(exc)
+
+    # Strip SQLAlchemy parameter and statement dumps if present in the message
+    raw_msg = re.sub(r"\[SQL:.*?\]", "", raw_msg, flags=re.DOTALL)
+    raw_msg = re.sub(r"\[parameters:.*?\]", "", raw_msg, flags=re.DOTALL)
+    raw_msg = re.sub(r"\(Background on this error at:.*?\)", "", raw_msg, flags=re.DOTALL)
+
+    # Sanitize credentials, passwords, and tokens
+    # 1. Database URLs with user:password@host
+    raw_msg = re.sub(r"://([^:@\s]+):([^@\s]+)@", r"://\1:[REDACTED]@", raw_msg)
+    # 2. Key-value secrets (password=..., token=..., secret=...)
+    raw_msg = re.sub(r"(?i)(password|pwd|secret|api_key|token)\s*=\s*[^\s,;&'\"]+", r"\1=[REDACTED]", raw_msg)
+    # 3. Bearer authentication tokens
+    raw_msg = re.sub(r"Bearer\s+[A-Za-z0-9_\-\.]+", "Bearer [REDACTED]", raw_msg)
+
+    # Flatten extra whitespace and newlines to a single clean line
+    sanitized_msg = " ".join(raw_msg.split()).strip()
+    if not sanitized_msg:
+        sanitized_msg = f"{exc_class} (no message details)"
+
+    full_class = f"{exc_class}:{driver_class}" if driver_class else exc_class
+
+    return {
+        "exception_class": full_class,
+        "driver_class": driver_class,
+        "pgcode": pgcode,
+        "sanitized_message": sanitized_msg,
+    }

@@ -385,8 +385,18 @@ def update_progress_sync(uid: str, question_id: int) -> None:
             record.updated_at = now
 
         session.commit()
-    except Exception:
+    except Exception as exc:
         session.rollback()
+        from app.utils.errors import sanitize_db_error
+        err_info = sanitize_db_error(exc)
+        logger.error(
+            "[SUPABASE_UPDATE_PROGRESS_FAILED] uid=%.8s... question_id=%s exc_class=%s pgcode=%s error=%s",
+            uid,
+            question_id,
+            err_info["exception_class"],
+            err_info["pgcode"] or "NONE",
+            err_info["sanitized_message"],
+        )
         raise
     finally:
         session.close()
@@ -718,8 +728,18 @@ def record_submission_sync(
         )
         session.add(sub)
         session.commit()
-    except Exception:
+    except Exception as exc:
         session.rollback()
+        from app.utils.errors import sanitize_db_error
+        err_info = sanitize_db_error(exc)
+        logger.error(
+            "[SUPABASE_RECORD_SUBMISSION_FAILED] uid=%.8s... question_id=%s exc_class=%s pgcode=%s error=%s",
+            uid,
+            question_id,
+            err_info["exception_class"],
+            err_info["pgcode"] or "NONE",
+            err_info["sanitized_message"],
+        )
         raise
     finally:
         session.close()

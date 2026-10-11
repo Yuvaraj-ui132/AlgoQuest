@@ -325,13 +325,17 @@ class SubmissionQueue:
                 _compile_err,
             )
         except Exception as exc:
+            from app.utils.errors import sanitize_db_error
+            err_info = sanitize_db_error(exc)
             logger.error(
-                "[SUBMISSION_PERSISTENCE_FAILED] job_id=%s question_id=%s verdict=%s error=%s",
+                "[SUBMISSION_PERSISTENCE_FAILED] job_id=%s question_id=%s verdict=%s "
+                "exc_class=%s pgcode=%s error=%s",
                 job.job_id,
                 job.question_id,
                 final_verdict,
-                exc,
-                exc_info=True,
+                err_info["exception_class"],
+                err_info["pgcode"] or "NONE",
+                err_info["sanitized_message"],
             )
             # Non-fatal: execution result is still returned to the user
 
@@ -344,12 +348,16 @@ class SubmissionQueue:
                     job.question_id,
                 )
             except Exception as exc:
+                from app.utils.errors import sanitize_db_error
+                err_info = sanitize_db_error(exc)
                 logger.error(
-                    "[PROGRESS_PERSISTENCE_FAILED] job_id=%s question_id=%s error=%s",
+                    "[PROGRESS_PERSISTENCE_FAILED] job_id=%s question_id=%s "
+                    "exc_class=%s pgcode=%s error=%s",
                     job.job_id,
                     job.question_id,
-                    exc,
-                    exc_info=True,
+                    err_info["exception_class"],
+                    err_info["pgcode"] or "NONE",
+                    err_info["sanitized_message"],
                 )
 
         # ── Build safe result (no hidden test data) ───────────────────────────
