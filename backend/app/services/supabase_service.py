@@ -29,11 +29,13 @@ from sqlalchemy import (
     ForeignKey,
     UniqueConstraint,
     Index,
+    TypeDecorator,
     func,
     select,
     desc,
     or_,
 )
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
 from sqlalchemy.pool import StaticPool, QueuePool
 
@@ -136,10 +138,60 @@ class UserCompilerDraft(Base):
     )
 
 
+class GUID(TypeDecorator):
+    """
+    Platform-independent GUID / UUID type.
+    Uses PostgreSQL's native UUID(as_uuid=True) on PostgreSQL,
+    and falls back to String(36) on SQLite.
+    Properly adapts Python uuid.UUID and string representations.
+    """
+    impl = PG_UUID(as_uuid=True)
+    cache_ok = True
+
+    def load_dialect_impl(self, dialect):
+        if dialect.name == "postgresql":
+            return dialect.type_descriptor(PG_UUID(as_uuid=True))
+        else:
+            return dialect.type_descriptor(String(36))
+
+    def process_bind_param(self, value, dialect):
+        if value is None:
+            return None
+        if dialect.name == "postgresql":
+            if isinstance(value, uuid.UUID):
+                return value
+            return uuid.UUID(str(value))
+        else:
+            return str(value)
+
+    def process_result_value(self, value, dialect):
+        if value is None:
+            return None
+        if isinstance(value, uuid.UUID):
+            return value
+        if isinstance(value, str):
+            try:
+                return uuid.UUID(value)
+            except ValueError:
+                # Safely return raw non-UUID string (e.g. legacy identifiers) without raising
+                return value
+        if isinstance(value, bytes):
+            if len(value) == 16:
+                try:
+                    return uuid.UUID(bytes=value)
+                except ValueError:
+                    return value
+            try:
+                return uuid.UUID(value.decode("utf-8", errors="replace"))
+            except ValueError:
+                return value
+        return value
+
+
 class Submission(Base):
     __tablename__ = "submissions"
 
-    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
     user_id = Column(String(128), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     question_id = Column(Integer, nullable=False)
     execution_type = Column(String(32), default="submit", nullable=False)
@@ -710,7 +762,7 @@ def record_submission_sync(
             init_user_document(uid, session=session)
 
         sub = Submission(
-            id=str(uuid.uuid4()),
+            id=uuid.uuid4(),
             user_id=uid,
             question_id=question_id,
             execution_type="submit",
@@ -763,14 +815,15 @@ async def get_submission_history(
             # PostgreSQL UUID column throws DataError if compared against non-UUID string.
             # Safely check whether after_doc_id is a valid UUID or a legacy Firestore document ID.
             is_uuid = False
+            cursor_uuid = None
             try:
-                uuid.UUID(str(after_doc_id))
+                cursor_uuid = uuid.UUID(str(after_doc_id))
                 is_uuid = True
             except ValueError:
                 is_uuid = False
 
             cursor_filter = (
-                or_(Submission.id == after_doc_id, Submission.legacy_firestore_id == after_doc_id)
+                or_(Submission.id == (cursor_uuid if is_uuid else after_doc_id), Submission.legacy_firestore_id == after_doc_id)
                 if is_uuid
                 else (Submission.legacy_firestore_id == after_doc_id)
             )
