@@ -909,13 +909,21 @@ const SyncQueueManager = {
   },
 
   // Defect 2: Remove pending mutation when a direct mutation succeeds to prevent stale replay
-  removePending(uid, entityType, questionId, beforeTs = Infinity) {
+  removePending(uid, entityType, questionId, beforeTs = Infinity, fields = null) {
     const q = this.getQueue(uid);
     const item = q[entityType]?.[questionId];
     if (item) {
       const itemTs = typeof item === 'object' && item !== null ? (item._ts || 0) : 0;
       if (itemTs <= beforeTs) {
-        delete q[entityType][questionId];
+        if (Array.isArray(fields) && typeof item === 'object' && item !== null) {
+          fields.forEach(f => { delete item[f]; });
+          const remainingKeys = Object.keys(item).filter(k => k !== '_ts');
+          if (remainingKeys.length === 0) {
+            delete q[entityType][questionId];
+          }
+        } else {
+          delete q[entityType][questionId];
+        }
         this.saveQueue(uid, q);
       }
     }
@@ -1071,7 +1079,7 @@ window.syncProgressToCloud = async function (questionId, solved) {
     await window.ApiClient.updateProgress(questionId, { solved });
     // Successful direct mutation: remove older pending mutations to prevent stale replay
     if (window.SyncQueueManager) {
-      window.SyncQueueManager.removePending(uid, 'progress', questionId, callTs);
+      window.SyncQueueManager.removePending(uid, 'progress', questionId, callTs, ['solved']);
     }
   } catch (error) {
     console.warn('[BACKEND] Individual progress update failed, queuing for reliable sync:', error);
@@ -1090,7 +1098,7 @@ window.syncRevisionToCloud = async function (questionId, revNum, active) {
   try {
     await window.ApiClient.updateProgress(questionId, update);
     if (window.SyncQueueManager) {
-      window.SyncQueueManager.removePending(uid, 'progress', questionId, callTs);
+      window.SyncQueueManager.removePending(uid, 'progress', questionId, callTs, [`rev${revNum}`]);
     }
   } catch (error) {
     console.warn('[BACKEND] Individual revision update failed, queuing for reliable sync:', error);
