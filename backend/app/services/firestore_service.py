@@ -326,6 +326,7 @@ async def get_all_user_data(uid: str) -> Dict[str, Any]:
 # Maps Judge0 language_id → human-readable language name for history records.
 _LANGUAGE_NAMES: Dict[int, str] = {
     50:  "c",
+    54:  "cpp",
     62:  "java",
     63:  "javascript",
     71:  "python",

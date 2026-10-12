@@ -706,6 +706,7 @@ async def get_all_user_data(uid: str) -> Dict[str, Any]:
 
 _LANGUAGE_NAMES: Dict[int, str] = {
     50: "c",
+    54: "cpp",
     62: "java",
     63: "javascript",
     71: "python",

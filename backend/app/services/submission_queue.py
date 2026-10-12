@@ -598,7 +598,7 @@ def _record_submission_sync(
     from google.cloud.firestore_v1 import SERVER_TIMESTAMP
 
     _LANGUAGE_NAMES: Dict[int, str] = {
-        50: "c", 62: "java", 63: "javascript", 71: "python", 76: "cpp"
+        50: "c", 54: "cpp", 62: "java", 63: "javascript", 71: "python", 76: "cpp"
     }
 
     doc = {
