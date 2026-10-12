@@ -13,7 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
 from app.config import settings
-from app.routes import submissions, progress, bookmarks, notes, editor, user
+from app.routes import submissions, progress, bookmarks, notes, editor, user, sync
 from app.utils.errors import add_exception_handlers
 
 
@@ -84,6 +84,7 @@ app.include_router(bookmarks.router,   prefix="/api", tags=["Bookmarks"])
 app.include_router(notes.router,       prefix="/api", tags=["Notes"])
 app.include_router(editor.router,      prefix="/api", tags=["Editor Code"])
 app.include_router(user.router,        prefix="/api", tags=["User"])
+app.include_router(sync.router,        prefix="/api", tags=["Sync"])
 
 
 @app.get("/health", tags=["Health"], summary="Health check")

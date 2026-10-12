@@ -483,3 +483,51 @@ async def get_submission_history(
         "hasMore":    has_more,
         "nextCursor": next_cursor,
     }
+
+
+# ── Batch Sync ────────────────────────────────────────────────────────────────
+
+async def batch_sync(
+    uid: str,
+    progress_items: Optional[List[Dict[str, Any]]] = None,
+    bookmark_items: Optional[List[Dict[str, Any]]] = None,
+    note_items: Optional[List[Dict[str, Any]]] = None,
+) -> Dict[str, Any]:
+    """Batch synchronize progress, bookmarks, and notes in Firestore."""
+    db = _db()
+    user_ref = _user_ref(uid)
+    batch = db.batch()
+
+    if progress_items:
+        for item in progress_items:
+            qid = str(item.get("question_id"))
+            doc_ref = user_ref.collection("progress").document(qid)
+            updates = {"lastModified": SERVER_TIMESTAMP}
+            if item.get("solved") is not None:
+                updates["solved"] = bool(item["solved"])
+                if item["solved"]:
+                    updates["lastSolved"] = SERVER_TIMESTAMP
+            if item.get("rev1") is not None:
+                updates["rev1"] = bool(item["rev1"])
+            if item.get("rev2") is not None:
+                updates["rev2"] = bool(item["rev2"])
+            batch.set(doc_ref, updates, merge=True)
+
+    if bookmark_items:
+        for item in bookmark_items:
+            qid = str(item.get("question_id"))
+            doc_ref = user_ref.collection("bookmarks").document(qid)
+            if item.get("bookmarked", False):
+                batch.set(doc_ref, {"bookmarked": True, "createdAt": SERVER_TIMESTAMP})
+            else:
+                batch.delete(doc_ref)
+
+    if note_items:
+        for item in note_items:
+            qid = str(item.get("question_id"))
+            doc_ref = user_ref.collection("notes").document(qid)
+            batch.set(doc_ref, {"content": item.get("content", ""), "updatedAt": SERVER_TIMESTAMP})
+
+    batch.commit()
+    return await get_all_user_data(uid)
+

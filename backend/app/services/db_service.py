@@ -172,3 +172,15 @@ async def get_user_analytics(uid: str) -> Dict[str, Any]:
     if hasattr(backend, "get_user_analytics"):
         return await backend.get_user_analytics(uid)
     return {"solved_count": 0, "total_submissions": 0, "acceptance_rate": 0.0}
+
+
+# ── Batch Sync ────────────────────────────────────────────────────────────────
+
+async def batch_sync(
+    uid: str,
+    progress_items: Optional[List[Dict[str, Any]]] = None,
+    bookmark_items: Optional[List[Dict[str, Any]]] = None,
+    note_items: Optional[List[Dict[str, Any]]] = None,
+) -> Dict[str, Any]:
+    return await get_backend().batch_sync(uid, progress_items, bookmark_items, note_items)
+

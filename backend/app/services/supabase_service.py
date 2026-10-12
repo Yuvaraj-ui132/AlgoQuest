@@ -920,3 +920,103 @@ async def get_user_analytics(uid: str) -> Dict[str, Any]:
         }
     finally:
         session.close()
+
+
+# ── Batch Sync (Reliable Cloud-Synced State) ───────────────────────────────────
+
+async def batch_sync(
+    uid: str,
+    progress_items: Optional[List[Dict[str, Any]]] = None,
+    bookmark_items: Optional[List[Dict[str, Any]]] = None,
+    note_items: Optional[List[Dict[str, Any]]] = None,
+) -> Dict[str, Any]:
+    """
+    Atomically synchronizes batches of progress, bookmark, and note updates.
+    Returns the full updated user data dictionary for instant client state reconciliation.
+    """
+    session = get_db_session()
+    now = datetime.now(timezone.utc)
+    try:
+        if not session.query(User).filter(User.id == uid).first():
+            init_user_document(uid, session=session)
+
+        # 1. Progress updates
+        if progress_items:
+            for item in progress_items:
+                qid = item.get("question_id")
+                if not qid:
+                    continue
+                record = (
+                    session.query(UserProgress)
+                    .filter(UserProgress.user_id == uid, UserProgress.question_id == qid)
+                    .first()
+                )
+                if not record:
+                    record = UserProgress(
+                        user_id=uid,
+                        question_id=qid,
+                        solved=bool(item.get("solved", False)) if item.get("solved") is not None else False,
+                        rev1=bool(item.get("rev1", False)) if item.get("rev1") is not None else False,
+                        rev2=bool(item.get("rev2", False)) if item.get("rev2") is not None else False,
+                        last_solved_at=now if item.get("solved") else None,
+                        updated_at=now,
+                    )
+                    session.add(record)
+                else:
+                    if item.get("solved") is not None:
+                        record.solved = bool(item["solved"])
+                        if item["solved"] and not record.last_solved_at:
+                            record.last_solved_at = now
+                    if item.get("rev1") is not None:
+                        record.rev1 = bool(item["rev1"])
+                    if item.get("rev2") is not None:
+                        record.rev2 = bool(item["rev2"])
+                    record.updated_at = now
+
+        # 2. Bookmark updates
+        if bookmark_items:
+            for item in bookmark_items:
+                qid = item.get("question_id")
+                if not qid:
+                    continue
+                bookmarked = item.get("bookmarked", False)
+                if bookmarked:
+                    existing = (
+                        session.query(UserBookmark)
+                        .filter(UserBookmark.user_id == uid, UserBookmark.question_id == qid)
+                        .first()
+                    )
+                    if not existing:
+                        session.add(UserBookmark(user_id=uid, question_id=qid, created_at=now))
+                else:
+                    session.query(UserBookmark).filter(
+                        UserBookmark.user_id == uid, UserBookmark.question_id == qid
+                    ).delete()
+
+        # 3. Note updates
+        if note_items:
+            for item in note_items:
+                qid = item.get("question_id")
+                if not qid:
+                    continue
+                content = item.get("content", "")
+                existing_note = (
+                    session.query(UserNote)
+                    .filter(UserNote.user_id == uid, UserNote.question_id == qid)
+                    .first()
+                )
+                if not existing_note:
+                    session.add(UserNote(user_id=uid, question_id=qid, content=content, updated_at=now))
+                else:
+                    existing_note.content = content
+                    existing_note.updated_at = now
+
+        session.commit()
+    except Exception:
+        session.rollback()
+        raise
+    finally:
+        session.close()
+
+    return await get_all_user_data(uid)
+

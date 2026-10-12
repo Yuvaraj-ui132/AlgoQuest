@@ -262,6 +262,21 @@
       return request('/api/user/all');
     },
 
+    // ── Batch Sync (Reliable Cloud-Synced State) ───────────────────────────
+
+    /**
+     * Atomically sync pending/offline progress, bookmarks, and notes.
+     * @param {{ progress?: Array, bookmarks?: Array, notes?: Array }} payload
+     * @returns {Promise<UserAllDataResponse>}
+     */
+    async batchSync(payload) {
+      return request('/api/sync/batch', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+    },
+
+
 
     // ── Progress ─────────────────────────────────────────────────────────────
 

@@ -2181,10 +2181,10 @@ function saveCurrentNote() {
 
   updateNotesStatus('saving');
 
-  // Save to localStorage
+  // Save to localStorage (namespaced per UID)
   const notes = lsGetObj(LS.NOTES);
   notes[qId] = content;
-  localStorage.setItem(LS.NOTES, JSON.stringify(notes));
+  lsSet(LS.NOTES, notes);
 
   // Sync to Firestore
   if (typeof syncNoteToCloud === 'function' && isFirebaseConfigured && firebase.auth().currentUser) {

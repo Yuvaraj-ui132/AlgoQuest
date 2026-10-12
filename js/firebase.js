@@ -707,11 +707,32 @@ async function fetchUserDataFromCloud(uid, sessionId) {
   }
 
   let data;
+
+  // Flush any pending offline queue items first so local mutations are not overwritten
   try {
-    data = await window.ApiClient.getAllUserData();
-  } catch (err) {
-    console.error('[FIREBASE] Failed to fetch user data from backend:', err);
-    return;
+    if (window.SyncQueueManager) {
+      const queue = window.SyncQueueManager.getQueue(uid);
+      const hasPending = Object.keys(queue.progress || {}).length > 0 ||
+                         Object.keys(queue.bookmarks || {}).length > 0 ||
+                         Object.keys(queue.notes || {}).length > 0;
+      if (hasPending) {
+        const syncResp = await window.SyncQueueManager.flush(uid);
+        if (syncResp) {
+          data = syncResp;
+        }
+      }
+    }
+  } catch (syncErr) {
+    console.warn('[FIREBASE] Error flushing pending sync queue before load:', syncErr);
+  }
+
+  if (!data) {
+    try {
+      data = await window.ApiClient.getAllUserData();
+    } catch (err) {
+      console.error('[FIREBASE] Failed to fetch user data from backend:', err);
+      return;
+    }
   }
 
   // Session guard: if user logged out or switched while fetch was in-flight, discard!
@@ -776,31 +797,139 @@ async function fetchUserDataFromCloud(uid, sessionId) {
 }
 
 // ─────────────────────────────────────────────────────────────
+// RELIABLE CLOUD SYNC & OFFLINE QUEUE MANAGER
+// ─────────────────────────────────────────────────────────────
+
+const SyncQueueManager = {
+  getQueueKey(uid) {
+    return `dsa_pending_sync_${uid}`;
+  },
+
+  getQueue(uid) {
+    try {
+      const raw = localStorage.getItem(this.getQueueKey(uid));
+      return raw ? JSON.parse(raw) : { progress: {}, bookmarks: {}, notes: {} };
+    } catch {
+      return { progress: {}, bookmarks: {}, notes: {} };
+    }
+  },
+
+  saveQueue(uid, q) {
+    try {
+      localStorage.setItem(this.getQueueKey(uid), JSON.stringify(q));
+    } catch (e) {
+      console.warn('[SyncQueueManager] Failed to persist queue:', e);
+    }
+  },
+
+  enqueueProgress(uid, questionId, updates) {
+    const q = this.getQueue(uid);
+    q.progress[questionId] = { ...(q.progress[questionId] || {}), ...updates };
+    this.saveQueue(uid, q);
+    this.debouncedFlush(uid);
+  },
+
+  enqueueBookmark(uid, questionId, bookmarked) {
+    const q = this.getQueue(uid);
+    q.bookmarks[questionId] = bookmarked;
+    this.saveQueue(uid, q);
+    this.debouncedFlush(uid);
+  },
+
+  enqueueNote(uid, questionId, content) {
+    const q = this.getQueue(uid);
+    q.notes[questionId] = content;
+    this.saveQueue(uid, q);
+    this.debouncedFlush(uid);
+  },
+
+  _timer: null,
+  debouncedFlush(uid) {
+    if (this._timer) clearTimeout(this._timer);
+    this._timer = setTimeout(() => {
+      this.flush(uid);
+    }, 1500);
+  },
+
+  async flush(uid) {
+    if (!window.ApiClient || !auth || !auth.currentUser || auth.currentUser.uid !== uid) return null;
+    if (typeof navigator !== 'undefined' && !navigator.onLine) return null;
+
+    const q = this.getQueue(uid);
+    const progressList = Object.entries(q.progress || {}).map(([qid, val]) => ({
+      question_id: parseInt(qid, 10),
+      ...val,
+    }));
+    const bookmarkList = Object.entries(q.bookmarks || {}).map(([qid, val]) => ({
+      question_id: parseInt(qid, 10),
+      bookmarked: Boolean(val),
+    }));
+    const noteList = Object.entries(q.notes || {}).map(([qid, val]) => ({
+      question_id: parseInt(qid, 10),
+      content: String(val),
+    }));
+
+    if (progressList.length === 0 && bookmarkList.length === 0 && noteList.length === 0) {
+      return null;
+    }
+
+    try {
+      const resp = await window.ApiClient.batchSync({
+        progress: progressList,
+        bookmarks: bookmarkList,
+        notes: noteList,
+      });
+      // Clear queue upon successful server commit
+      this.saveQueue(uid, { progress: {}, bookmarks: {}, notes: {} });
+      console.info('[SyncQueueManager] Atomic batch sync succeeded.');
+      return resp;
+    } catch (err) {
+      console.warn('[SyncQueueManager] Batch sync failed (retained in offline queue):', err);
+      return null;
+    }
+  },
+};
+window.SyncQueueManager = SyncQueueManager;
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('online', () => {
+    if (typeof auth !== 'undefined' && auth && auth.currentUser) {
+      SyncQueueManager.flush(auth.currentUser.uid);
+    }
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
 // CLOUD SYNC ACTIONS (via FastAPI backend)
 // ─────────────────────────────────────────────────────────────
 
 window.syncProgressToCloud = async function (questionId, solved) {
   if (!isFirebaseConfigured || !auth.currentUser || !window.ApiClient) return;
+  const uid = auth.currentUser.uid;
   try {
     await window.ApiClient.updateProgress(questionId, { solved });
   } catch (error) {
-    console.error('[BACKEND] Failed to sync progress:', error);
+    console.warn('[BACKEND] Individual progress update failed, queuing for reliable sync:', error);
+    SyncQueueManager.enqueueProgress(uid, questionId, { solved });
   }
 };
 
 window.syncRevisionToCloud = async function (questionId, revNum, active) {
   if (!isFirebaseConfigured || !auth.currentUser || !window.ApiClient) return;
+  const uid = auth.currentUser.uid;
+  const update = {};
+  update[`rev${revNum}`] = active;
   try {
-    const update = {};
-    update[`rev${revNum}`] = active;
     await window.ApiClient.updateProgress(questionId, update);
   } catch (error) {
-    console.error('[BACKEND] Failed to sync revision:', error);
+    console.warn('[BACKEND] Individual revision update failed, queuing for reliable sync:', error);
+    SyncQueueManager.enqueueProgress(uid, questionId, update);
   }
 };
 
 window.syncBookmarkToCloud = async function (questionId, bookmarked) {
   if (!isFirebaseConfigured || !auth.currentUser || !window.ApiClient) return;
+  const uid = auth.currentUser.uid;
   try {
     if (bookmarked) {
       await window.ApiClient.addBookmark(questionId);
@@ -808,16 +937,20 @@ window.syncBookmarkToCloud = async function (questionId, bookmarked) {
       await window.ApiClient.removeBookmark(questionId);
     }
   } catch (error) {
-    console.error('[BACKEND] Failed to sync bookmark:', error);
+    console.warn('[BACKEND] Individual bookmark update failed, queuing for reliable sync:', error);
+    SyncQueueManager.enqueueBookmark(uid, questionId, bookmarked);
   }
 };
 
 window.syncNoteToCloud = async function (questionId, content) {
   if (!isFirebaseConfigured || !auth.currentUser || !window.ApiClient) return;
+  const uid = auth.currentUser.uid;
   try {
     await window.ApiClient.saveNote(questionId, content);
   } catch (error) {
-    console.error('[BACKEND] Failed to sync note:', error);
+    console.warn('[BACKEND] Individual note save failed, queuing for reliable sync:', error);
+    SyncQueueManager.enqueueNote(uid, questionId, content);
+    throw error;
   }
 };
 

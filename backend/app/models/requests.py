@@ -3,7 +3,7 @@ Pydantic request models — all inputs validated by FastAPI before reaching rout
 """
 
 from pydantic import BaseModel, Field, field_validator
-from typing import Optional, Literal
+from typing import Optional, Literal, List
 
 
 class SubmissionRequest(BaseModel):
@@ -140,4 +140,42 @@ class UserInitRequest(BaseModel):
         description="Profile photo URL (Google Sign-In or user-supplied).",
         max_length=2048,
     )
+
+
+class ProgressSyncItem(BaseModel):
+    """Progress item for batch sync."""
+    question_id: int = Field(..., ge=1, le=10000, description="Question ID.")
+    solved: Optional[bool] = Field(None, description="Whether question is solved.")
+    rev1: Optional[bool] = Field(None, description="Whether question is in Revision 1.")
+    rev2: Optional[bool] = Field(None, description="Whether question is in Revision 2.")
+
+
+class BookmarkSyncItem(BaseModel):
+    """Bookmark item for batch sync."""
+    question_id: int = Field(..., ge=1, le=10000, description="Question ID.")
+    bookmarked: bool = Field(..., description="True to bookmark, False to unbookmark.")
+
+
+class NoteSyncItem(BaseModel):
+    """Note item for batch sync."""
+    question_id: int = Field(..., ge=1, le=10000, description="Question ID.")
+    content: str = Field(..., max_length=10000, description="Note text content.")
+
+
+class BatchSyncRequest(BaseModel):
+    """
+    Request body for POST /api/sync/batch.
+    Allows frontend to synchronize offline or pending state in one atomic request.
+    """
+    progress: Optional[List[ProgressSyncItem]] = Field(default_factory=list)
+    bookmarks: Optional[List[BookmarkSyncItem]] = Field(default_factory=list)
+    notes: Optional[List[NoteSyncItem]] = Field(default_factory=list)
+
+    @field_validator("progress", "bookmarks", "notes")
+    @classmethod
+    def validate_batch_size(cls, v):
+        if v and len(v) > 200:
+            raise ValueError("Batch size exceeds maximum limit of 200 items.")
+        return v
+
 
