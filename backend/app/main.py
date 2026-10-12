@@ -38,6 +38,12 @@ async def lifespan(app: FastAPI):
     from app.config import settings
 
     initialize_firebase()
+    if settings.database_backend == "supabase":
+        try:
+            from app.services.supabase_service import repair_historical_languages
+            repair_historical_languages()
+        except Exception:
+            pass
     submission_queue.start_workers(count=settings.submission_workers)
     yield
     submission_queue.stop_workers()

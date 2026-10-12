@@ -714,6 +714,46 @@ _LANGUAGE_NAMES: Dict[int, str] = {
 }
 
 
+def repair_historical_languages(session: Optional[Session] = None) -> int:
+    """
+    Safely repairs historical submission records where language is 'unknown' or NULL,
+    mapping it from authoritative language_id (e.g. 54 -> cpp).
+    Does NOT guess for records with missing or unrecognized language_id.
+    Returns the total number of records corrected.
+    """
+    should_close = False
+    if session is None:
+        try:
+            session = get_db_session()
+            should_close = True
+        except Exception as exc:
+            logger.warning("[REPAIR_LANGUAGES] Could not obtain DB session: %s", exc)
+            return 0
+    try:
+        total_repaired = 0
+        for lang_id, lang_name in _LANGUAGE_NAMES.items():
+            updated = (
+                session.query(Submission)
+                .filter(
+                    (Submission.language == "unknown") | (Submission.language.is_(None)),
+                    Submission.language_id == lang_id,
+                )
+                .update({Submission.language: lang_name}, synchronize_session=False)
+            )
+            total_repaired += updated
+        if total_repaired > 0:
+            session.commit()
+            logger.info("[REPAIR_LANGUAGES] Safely repaired %d submission records with authoritative languages.", total_repaired)
+        return total_repaired
+    except Exception as exc:
+        session.rollback()
+        logger.warning("[REPAIR_LANGUAGES] Failed to repair historical languages: %s", exc)
+        return 0
+    finally:
+        if should_close:
+            session.close()
+
+
 async def record_submission(
     uid: str,
     question_id: int,
@@ -865,13 +905,17 @@ async def get_submission_history(
             # Use legacy ID if present for perfect backward compatibility, else UUID string
             item_id = str(r.legacy_firestore_id or r.id)
 
+            resolved_lang = r.language
+            if (not resolved_lang or resolved_lang == "unknown") and r.language_id in _LANGUAGE_NAMES:
+                resolved_lang = _LANGUAGE_NAMES[r.language_id]
+
             items.append({
                 "id": item_id,
                 "questionId": r.question_id,
                 "executionType": r.execution_type,
                 "verdict": r.verdict,
                 "statusId": r.status_id,
-                "language": r.language,
+                "language": resolved_lang or "unknown",
                 "languageId": r.language_id,
                 "passedCount": r.passed_count,
                 "totalCount": r.total_count,

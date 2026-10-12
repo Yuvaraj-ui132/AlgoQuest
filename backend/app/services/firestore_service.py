@@ -460,14 +460,19 @@ async def get_submission_history(
         else:
             submitted_at = None
 
+        lang = data.get("language")
+        lang_id = data.get("languageId")
+        if (not lang or lang == "unknown") and lang_id in _LANGUAGE_NAMES:
+            lang = _LANGUAGE_NAMES[lang_id]
+
         items.append({
             "id":            doc.id,
             "questionId":    data.get("questionId"),
             "executionType": data.get("executionType", "submit"),
             "verdict":       data.get("verdict"),
             "statusId":      data.get("statusId"),
-            "language":      data.get("language"),
-            "languageId":    data.get("languageId"),
+            "language":      lang or "unknown",
+            "languageId":    lang_id,
             "passedCount":   data.get("passedCount"),
             "totalCount":    data.get("totalCount"),
             "runtime":       data.get("runtime"),
