@@ -61,7 +61,25 @@ class Settings(BaseSettings):
     Example: postgresql://algoquest_app:secret@db.project.supabase.co:6543/postgres
     """
 
-    # ── Server ────────────────────────────────────────────────────────────────
+    # ── Server & Environment ──────────────────────────────────────────────────
+    app_env: str = Field(
+        default="production",
+        validation_alias=AliasChoices("APP_ENV", "ENVIRONMENT", "ENV"),
+    )
+    """
+    Application runtime environment: 'production', 'development', 'staging', 'test'.
+    Defaults securely to 'production' so diagnostics and database details fail-safe
+    and are never leaked if the variable is omitted.
+    """
+
+    @property
+    def is_production(self) -> bool:
+        return self.app_env.strip().lower() in ("production", "prod")
+
+    @property
+    def is_development(self) -> bool:
+        return self.app_env.strip().lower() in ("development", "dev", "local")
+
     backend_port: int = Field(default=8000, validation_alias=AliasChoices("BACKEND_PORT", "PORT"))
     backend_host: str = "0.0.0.0"
 

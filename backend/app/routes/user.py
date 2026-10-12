@@ -69,6 +69,6 @@ async def init_user(
         logger.error("[user/init] uid=%s — FAILED: %s", uid, exc, exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to initialize user profile: {exc}",
+            detail="Failed to initialize user profile.",
         )
 

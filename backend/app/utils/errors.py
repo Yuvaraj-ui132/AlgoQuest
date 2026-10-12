@@ -10,9 +10,12 @@ from fastapi.exceptions import RequestValidationError
 
 logger = logging.getLogger(__name__)
 
-# In development mode, include the raw exception message in the 500 response
-# so the browser DevTools Network tab shows the real error, not just "An internal server error occurred."
-_DEV_MODE = os.environ.get("APP_ENV", "development").lower() != "production"
+def _is_dev_mode() -> bool:
+    try:
+        from app.config import settings
+        return settings.is_development
+    except Exception:
+        return False
 
 
 def _cors_headers(request: Request) -> dict:
@@ -56,18 +59,26 @@ def add_exception_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(Exception)
     async def generic_error_handler(request: Request, exc: Exception):
-        """Catch-all: always log the full traceback, return 500."""
+        """Catch-all: log traceback, return 500 without leaking credentials or database internals."""
+        err_str = str(exc)
+        is_sensitive = hasattr(exc, "orig") or any(k in err_str.lower() for k in ("password", "token", "key", "secret"))
+        sanitized_diag = sanitize_db_error(exc) if is_sensitive else None
+
         logger.error(
             "Unhandled exception on %s %s: %s",
             request.method,
             request.url.path,
-            exc,
-            exc_info=True,   # prints full traceback to Uvicorn console
+            sanitized_diag["sanitized_message"] if sanitized_diag else exc,
+            exc_info=True,
         )
+
         detail = "An internal server error occurred."
-        if _DEV_MODE:
-            # Show the real error in DevTools Network tab during development
-            detail = f"{type(exc).__name__}: {exc}"
+        if _is_dev_mode():
+            if sanitized_diag:
+                detail = f"{sanitized_diag['exception_class']}: {sanitized_diag['sanitized_message']}"
+            else:
+                detail = f"{type(exc).__name__}: {exc}"
+
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={"detail": detail},

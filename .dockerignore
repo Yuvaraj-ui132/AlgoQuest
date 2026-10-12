@@ -26,3 +26,8 @@ scratch/
 backend/data/*_export*.json
 .pgsql/
 backend/.pgsql/
+backend/data/hidden_test_cases.json
+data/hidden_test_cases.json
+backend/scripts/private_*
+scripts/private_*
+private_*

@@ -39,6 +39,7 @@ class SubmissionRequest(BaseModel):
     question_id: Optional[int] = Field(
         None,
         description="Question ID from questions.json. Required for 'run' and 'submit' modes.",
+        ge=1,
     )
     stdin: Optional[str] = Field(
         None,
@@ -67,7 +68,7 @@ class SubmissionRequest(BaseModel):
     @field_validator("language_id")
     @classmethod
     def validate_language_id(cls, v):
-        supported = {50, 62, 63, 71, 76}  # C, Java, JS, Python, C++17
+        supported = {50, 54, 62, 63, 71, 76}  # C, C++14, Java, JS, Python, C++17
         if v not in supported:
             raise ValueError(
                 f"Unsupported language_id {v}. Supported: {sorted(supported)}"
