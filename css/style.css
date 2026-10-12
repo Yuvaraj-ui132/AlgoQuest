@@ -3443,6 +3443,17 @@ table.questions-table td.name-col {
   background: rgba(227, 179, 65, 0.08);
 }
 
+.notes-status.pending,
+.notes-status.queued {
+  color: var(--accent-blue-light);
+  background: rgba(56, 139, 253, 0.12);
+}
+
+.notes-status.failed {
+  color: var(--accent-red);
+  background: rgba(248, 81, 73, 0.12);
+}
+
 .notes-textarea {
   flex: 1;
   background: transparent;

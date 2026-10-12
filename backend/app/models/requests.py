@@ -159,7 +159,7 @@ class BookmarkSyncItem(BaseModel):
 class NoteSyncItem(BaseModel):
     """Note item for batch sync."""
     question_id: int = Field(..., ge=1, le=10000, description="Question ID.")
-    content: str = Field(..., max_length=10000, description="Note text content.")
+    content: str = Field(..., max_length=50_000, description="Note text content.")
 
 
 class BatchSyncRequest(BaseModel):

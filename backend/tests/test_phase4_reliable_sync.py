@@ -318,3 +318,34 @@ async def test_firestore_service_batch_sync_parity():
         assert mock_batch.set.call_count >= 3
         mock_batch.commit.assert_called_once()
         assert 99 in res["progress"]["solved"]
+
+
+@pytest.mark.anyio
+async def test_batch_sync_50k_note_accepted():
+    """Batch sync accepts note with exactly 50,000 characters."""
+    uid = "test_sync_user_50k"
+    large_note = "A" * 50_000
+
+    with patch("app.dependencies.firebase_auth.verify_id_token", return_value={"uid": uid}):
+        res = client.post(
+            "/api/sync/batch",
+            headers={"Authorization": "Bearer valid_token"},
+            json={"notes": [{"question_id": 99, "content": large_note}]},
+        )
+        assert res.status_code == 200
+        data = res.json()
+        assert len(data["notes"]["99"]) == 50_000
+
+
+def test_batch_sync_oversized_note_rejected():
+    """Batch sync rejects note exceeding 50,000 characters with HTTP 422."""
+    uid = "test_sync_user_oversized"
+    oversized_note = "A" * 50_001
+
+    with patch("app.dependencies.firebase_auth.verify_id_token", return_value={"uid": uid}):
+        res = client.post(
+            "/api/sync/batch",
+            headers={"Authorization": "Bearer valid_token"},
+            json={"notes": [{"question_id": 99, "content": oversized_note}]},
+        )
+        assert res.status_code == 422

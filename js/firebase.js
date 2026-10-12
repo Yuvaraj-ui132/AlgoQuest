@@ -751,22 +751,67 @@ async function fetchUserDataFromCloud(uid, sessionId) {
     }
   }
 
-  // 1. Progress (solved)
-  const solvedList = data.progress?.solved || [];
-  localStorage.setItem(`dsa_solved_${uid}`, JSON.stringify(solvedList));
+  // Defect 4 Fix: If flush did not succeed, do NOT overwrite local unsynchronized data with stale server state!
+  const uncommittedQueue = window.SyncQueueManager ? window.SyncQueueManager.getQueue(uid) : null;
+  const hasUncommitted = uncommittedQueue && (
+    Object.keys(uncommittedQueue.progress || {}).length > 0 ||
+    Object.keys(uncommittedQueue.bookmarks || {}).length > 0 ||
+    Object.keys(uncommittedQueue.notes || {}).length > 0
+  );
 
-  // 2. Revisions
-  const rev1List = data.progress?.rev1 || [];
-  const rev2List = data.progress?.rev2 || [];
+  // 1. Progress (solved, rev1, rev2)
+  let solvedList = Array.isArray(data.progress?.solved) ? [...data.progress.solved] : [];
+  let rev1List = Array.isArray(data.progress?.rev1) ? [...data.progress.rev1] : [];
+  let rev2List = Array.isArray(data.progress?.rev2) ? [...data.progress.rev2] : [];
+
+  if (hasUncommitted && uncommittedQueue.progress) {
+    const solvedSet = new Set(solvedList);
+    const rev1Set = new Set(rev1List);
+    const rev2Set = new Set(rev2List);
+
+    for (const [qidStr, prog] of Object.entries(uncommittedQueue.progress)) {
+      const qid = parseInt(qidStr, 10);
+      if (prog.solved === true) solvedSet.add(qid);
+      else if (prog.solved === false) solvedSet.delete(qid);
+
+      if (prog.rev1 === true) rev1Set.add(qid);
+      else if (prog.rev1 === false) rev1Set.delete(qid);
+
+      if (prog.rev2 === true) rev2Set.add(qid);
+      else if (prog.rev2 === false) rev2Set.delete(qid);
+    }
+
+    solvedList = Array.from(solvedSet);
+    rev1List = Array.from(rev1Set);
+    rev2List = Array.from(rev2Set);
+  }
+
+  localStorage.setItem(`dsa_solved_${uid}`, JSON.stringify(solvedList));
   localStorage.setItem(`dsa_rev1_${uid}`, JSON.stringify(rev1List));
   localStorage.setItem(`dsa_rev2_${uid}`, JSON.stringify(rev2List));
 
   // 3. Bookmarks
-  const bookmarksList = data.bookmarks?.bookmarks || [];
+  let bookmarksList = Array.isArray(data.bookmarks?.bookmarks) ? [...data.bookmarks.bookmarks] : [];
+  if (hasUncommitted && uncommittedQueue.bookmarks) {
+    const bmSet = new Set(bookmarksList);
+    for (const [qidStr, bmVal] of Object.entries(uncommittedQueue.bookmarks)) {
+      const qid = parseInt(qidStr, 10);
+      const isBookmarked = typeof bmVal === 'object' && bmVal !== null ? bmVal.bookmarked : Boolean(bmVal);
+      if (isBookmarked) bmSet.add(qid);
+      else bmSet.delete(qid);
+    }
+    bookmarksList = Array.from(bmSet);
+  }
   localStorage.setItem(`dsa_bookmarks_${uid}`, JSON.stringify(bookmarksList));
 
   // 4. Notes
-  const notesObj = data.notes || {};
+  const notesObj = { ...(data.notes || {}) };
+  if (hasUncommitted && uncommittedQueue.notes) {
+    for (const [qidStr, noteVal] of Object.entries(uncommittedQueue.notes)) {
+      const content = typeof noteVal === 'object' && noteVal !== null ? noteVal.content : String(noteVal);
+      notesObj[qidStr] = content;
+    }
+  }
   localStorage.setItem(`dsa_notes_${uid}`, JSON.stringify(notesObj));
 
   // 5. Editor code
@@ -824,23 +869,56 @@ const SyncQueueManager = {
 
   enqueueProgress(uid, questionId, updates) {
     const q = this.getQueue(uid);
-    q.progress[questionId] = { ...(q.progress[questionId] || {}), ...updates };
+    if (!q.progress) q.progress = {};
+    const existing = q.progress[questionId] || {};
+    q.progress[questionId] = {
+      ...existing,
+      ...updates,
+      _ts: Date.now(),
+    };
     this.saveQueue(uid, q);
     this.debouncedFlush(uid);
   },
 
   enqueueBookmark(uid, questionId, bookmarked) {
     const q = this.getQueue(uid);
-    q.bookmarks[questionId] = bookmarked;
+    if (!q.bookmarks) q.bookmarks = {};
+    q.bookmarks[questionId] = {
+      bookmarked: Boolean(bookmarked),
+      _ts: Date.now(),
+    };
     this.saveQueue(uid, q);
     this.debouncedFlush(uid);
   },
 
   enqueueNote(uid, questionId, content) {
     const q = this.getQueue(uid);
-    q.notes[questionId] = content;
+    if (!q.notes) q.notes = {};
+    // Defect 3: Reject oversized note from queue
+    if (content && content.length > 50000) {
+      console.warn('[SyncQueueManager] Note exceeds 50,000 character limit, rejected from sync queue.');
+      return false;
+    }
+    q.notes[questionId] = {
+      content: String(content),
+      _ts: Date.now(),
+    };
     this.saveQueue(uid, q);
     this.debouncedFlush(uid);
+    return true;
+  },
+
+  // Defect 2: Remove pending mutation when a direct mutation succeeds to prevent stale replay
+  removePending(uid, entityType, questionId, beforeTs = Infinity) {
+    const q = this.getQueue(uid);
+    const item = q[entityType]?.[questionId];
+    if (item) {
+      const itemTs = typeof item === 'object' && item !== null ? (item._ts || 0) : 0;
+      if (itemTs <= beforeTs) {
+        delete q[entityType][questionId];
+        this.saveQueue(uid, q);
+      }
+    }
   },
 
   _timer: null,
@@ -853,21 +931,55 @@ const SyncQueueManager = {
 
   async flush(uid) {
     if (!window.ApiClient || !auth || !auth.currentUser || auth.currentUser.uid !== uid) return null;
-    if (typeof navigator !== 'undefined' && !navigator.onLine) return null;
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) return null;
 
     const q = this.getQueue(uid);
-    const progressList = Object.entries(q.progress || {}).map(([qid, val]) => ({
-      question_id: parseInt(qid, 10),
-      ...val,
-    }));
-    const bookmarkList = Object.entries(q.bookmarks || {}).map(([qid, val]) => ({
-      question_id: parseInt(qid, 10),
-      bookmarked: Boolean(val),
-    }));
-    const noteList = Object.entries(q.notes || {}).map(([qid, val]) => ({
-      question_id: parseInt(qid, 10),
-      content: String(val),
-    }));
+
+    // Defect 3: Prune any invalid oversized notes so they never block unrelated queued items
+    let queueModified = false;
+    if (q.notes) {
+      for (const [qid, noteVal] of Object.entries(q.notes)) {
+        const text = typeof noteVal === 'object' && noteVal !== null ? noteVal.content : String(noteVal);
+        if (text && text.length > 50000) {
+          console.warn(`[SyncQueueManager] Pruning oversized note (${text.length} chars) for Q${qid} from sync queue.`);
+          delete q.notes[qid];
+          queueModified = true;
+        }
+      }
+    }
+    if (queueModified) {
+      this.saveQueue(uid, q);
+    }
+
+    const progressList = [];
+    const sentProgressTs = {};
+    for (const [qid, val] of Object.entries(q.progress || {})) {
+      const qNum = parseInt(qid, 10);
+      const ts = typeof val === 'object' && val !== null ? (val._ts || 0) : 0;
+      const { _ts, ...cleanFields } = typeof val === 'object' && val !== null ? val : {};
+      progressList.push({ question_id: qNum, ...cleanFields });
+      sentProgressTs[qid] = ts;
+    }
+
+    const bookmarkList = [];
+    const sentBookmarksTs = {};
+    for (const [qid, val] of Object.entries(q.bookmarks || {})) {
+      const qNum = parseInt(qid, 10);
+      const isBm = typeof val === 'object' && val !== null ? val.bookmarked : Boolean(val);
+      const ts = typeof val === 'object' && val !== null ? (val._ts || 0) : 0;
+      bookmarkList.push({ question_id: qNum, bookmarked: isBm });
+      sentBookmarksTs[qid] = ts;
+    }
+
+    const noteList = [];
+    const sentNotesTs = {};
+    for (const [qid, val] of Object.entries(q.notes || {})) {
+      const qNum = parseInt(qid, 10);
+      const text = typeof val === 'object' && val !== null ? val.content : String(val);
+      const ts = typeof val === 'object' && val !== null ? (val._ts || 0) : 0;
+      noteList.push({ question_id: qNum, content: text });
+      sentNotesTs[qid] = ts;
+    }
 
     if (progressList.length === 0 && bookmarkList.length === 0 && noteList.length === 0) {
       return null;
@@ -879,9 +991,57 @@ const SyncQueueManager = {
         bookmarks: bookmarkList,
         notes: noteList,
       });
-      // Clear queue upon successful server commit
-      this.saveQueue(uid, { progress: {}, bookmarks: {}, notes: {} });
-      console.info('[SyncQueueManager] Atomic batch sync succeeded.');
+
+      // Defect 1 Fix: Remove ONLY the exact items sent whose timestamps were NOT updated in flight
+      const freshQ = this.getQueue(uid);
+
+      if (freshQ.progress) {
+        for (const [qid, sentTs] of Object.entries(sentProgressTs)) {
+          const cur = freshQ.progress[qid];
+          if (cur) {
+            const curTs = typeof cur === 'object' && cur !== null ? (cur._ts || 0) : 0;
+            if (curTs <= sentTs) {
+              delete freshQ.progress[qid];
+            }
+          }
+        }
+      }
+
+      if (freshQ.bookmarks) {
+        for (const [qid, sentTs] of Object.entries(sentBookmarksTs)) {
+          const cur = freshQ.bookmarks[qid];
+          if (cur) {
+            const curTs = typeof cur === 'object' && cur !== null ? (cur._ts || 0) : 0;
+            if (curTs <= sentTs) {
+              delete freshQ.bookmarks[qid];
+            }
+          }
+        }
+      }
+
+      if (freshQ.notes) {
+        for (const [qid, sentTs] of Object.entries(sentNotesTs)) {
+          const cur = freshQ.notes[qid];
+          if (cur) {
+            const curTs = typeof cur === 'object' && cur !== null ? (cur._ts || 0) : 0;
+            if (curTs <= sentTs) {
+              delete freshQ.notes[qid];
+            }
+          }
+        }
+      }
+
+      this.saveQueue(uid, freshQ);
+      console.info('[SyncQueueManager] Atomic batch sync succeeded; in-flight mutations preserved.');
+
+      // Notify UI for active question if note was synced
+      if (typeof updateNotesStatus === 'function' && typeof App !== 'undefined' && App.currentQuestion) {
+        const curQidStr = String(App.currentQuestion.id);
+        if (sentNotesTs[curQidStr] && !freshQ.notes?.[curQidStr]) {
+          updateNotesStatus('saved');
+        }
+      }
+
       return resp;
     } catch (err) {
       console.warn('[SyncQueueManager] Batch sync failed (retained in offline queue):', err);
@@ -906,51 +1066,83 @@ if (typeof window !== 'undefined') {
 window.syncProgressToCloud = async function (questionId, solved) {
   if (!isFirebaseConfigured || !auth.currentUser || !window.ApiClient) return;
   const uid = auth.currentUser.uid;
+  const callTs = Date.now();
   try {
     await window.ApiClient.updateProgress(questionId, { solved });
+    // Successful direct mutation: remove older pending mutations to prevent stale replay
+    if (window.SyncQueueManager) {
+      window.SyncQueueManager.removePending(uid, 'progress', questionId, callTs);
+    }
   } catch (error) {
     console.warn('[BACKEND] Individual progress update failed, queuing for reliable sync:', error);
-    SyncQueueManager.enqueueProgress(uid, questionId, { solved });
+    if (window.SyncQueueManager) {
+      SyncQueueManager.enqueueProgress(uid, questionId, { solved });
+    }
   }
 };
 
 window.syncRevisionToCloud = async function (questionId, revNum, active) {
   if (!isFirebaseConfigured || !auth.currentUser || !window.ApiClient) return;
   const uid = auth.currentUser.uid;
+  const callTs = Date.now();
   const update = {};
   update[`rev${revNum}`] = active;
   try {
     await window.ApiClient.updateProgress(questionId, update);
+    if (window.SyncQueueManager) {
+      window.SyncQueueManager.removePending(uid, 'progress', questionId, callTs);
+    }
   } catch (error) {
     console.warn('[BACKEND] Individual revision update failed, queuing for reliable sync:', error);
-    SyncQueueManager.enqueueProgress(uid, questionId, update);
+    if (window.SyncQueueManager) {
+      SyncQueueManager.enqueueProgress(uid, questionId, update);
+    }
   }
 };
 
 window.syncBookmarkToCloud = async function (questionId, bookmarked) {
   if (!isFirebaseConfigured || !auth.currentUser || !window.ApiClient) return;
   const uid = auth.currentUser.uid;
+  const callTs = Date.now();
   try {
     if (bookmarked) {
       await window.ApiClient.addBookmark(questionId);
     } else {
       await window.ApiClient.removeBookmark(questionId);
     }
+    if (window.SyncQueueManager) {
+      window.SyncQueueManager.removePending(uid, 'bookmarks', questionId, callTs);
+    }
   } catch (error) {
     console.warn('[BACKEND] Individual bookmark update failed, queuing for reliable sync:', error);
-    SyncQueueManager.enqueueBookmark(uid, questionId, bookmarked);
+    if (window.SyncQueueManager) {
+      SyncQueueManager.enqueueBookmark(uid, questionId, bookmarked);
+    }
   }
 };
 
 window.syncNoteToCloud = async function (questionId, content) {
-  if (!isFirebaseConfigured || !auth.currentUser || !window.ApiClient) return;
+  if (!isFirebaseConfigured || !auth.currentUser || !window.ApiClient) return { ok: true };
   const uid = auth.currentUser.uid;
+  const callTs = Date.now();
+
+  if (content && content.length > 50000) {
+    console.warn('[BACKEND] Note exceeds 50,000 character limit, cannot sync.');
+    throw { permanent: true, message: 'Note exceeds 50,000 character limit' };
+  }
+
   try {
     await window.ApiClient.saveNote(questionId, content);
+    if (window.SyncQueueManager) {
+      window.SyncQueueManager.removePending(uid, 'notes', questionId, callTs);
+    }
+    return { ok: true, queued: false };
   } catch (error) {
     console.warn('[BACKEND] Individual note save failed, queuing for reliable sync:', error);
-    SyncQueueManager.enqueueNote(uid, questionId, content);
-    throw error;
+    if (window.SyncQueueManager) {
+      window.SyncQueueManager.enqueueNote(uid, questionId, content);
+    }
+    return { ok: false, queued: true, error };
   }
 };
 

@@ -1077,6 +1077,7 @@ def build_backend_driver(
             f"{print_code}"
             f'            cout<<"\\n__AQ_{nonce}_END_"<<_tc<<"__\\n";\n'
             f"        }}\n"
+            f'        cout<<"__AQ_{nonce}_COMPLETED__\\n";\n'
             f"    }}\n"
             f"    return 0;\n"
             f"}}"
@@ -1122,6 +1123,7 @@ def build_backend_driver(
             f"{print_code}"
             f'                System.out.println("\\n__AQ_{nonce}_END_" + _tc + "__");\n'
             f"            }}\n"
+            f'            System.out.println("__AQ_{nonce}_COMPLETED__");\n'
             f"        }}\n"
             f"    }}\n"
             f"}}"
@@ -1175,7 +1177,8 @@ def build_backend_driver(
             f"{solver_decl}"
             f"{print_code}"
             f'            print(f"\\n__AQ_{nonce}_END_{{_tc}}__")\n'
-            f"        except StopIteration:break\n\n"
+            f"        except StopIteration:return\n"
+            f'    print(f"__AQ_{nonce}_COMPLETED__")\n\n'
             f"if __name__=='__main__':\n"
             f"    {runner_fn}()\n"
         )
@@ -1223,6 +1226,7 @@ def build_backend_driver(
             f"{print_code}"
             f'        console.log(`\\n__AQ_{nonce}_END_${{_tc}}__`);\n'
             f"    }}\n"
+            f'    console.log(`__AQ_{nonce}_COMPLETED__`);\n'
             f"}}\n\n{runner_fn}();"
         )
 

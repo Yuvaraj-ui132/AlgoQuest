@@ -254,6 +254,26 @@ def get_question_submission_data(
 
 # ── Output comparison (mirrors compiler.js normalizeAndCompare) ───────────────
 
+_CRASH_PATTERNS = [
+    "traceback (most recent call last)",
+    "segmentation fault",
+    "core dumped",
+    "fatal error:",
+    "exception in thread",
+    "uncaught exception",
+    "sigsegv",
+    "sigabrt",
+    "sigfpe",
+]
+
+
+def _is_crash_output(text: str) -> bool:
+    if not text:
+        return False
+    lower = text.lower()
+    return any(p in lower for p in _CRASH_PATTERNS)
+
+
 def _normalize(text: str) -> str:
     return re.sub(r"\s+", " ", text.strip())
 
@@ -262,13 +282,28 @@ def _compare(actual: str, expected_raw: str, compare_mode: str) -> bool:
     if actual is None or expected_raw is None:
         return False
 
+    if _is_crash_output(actual):
+        return False
+
     norm_actual = _normalize(actual)
     norm_expected = _normalize(expected_raw)
 
+    if not norm_actual and norm_expected:
+        return False
+    if not norm_expected and norm_actual:
+        return False
+    if not norm_actual and not norm_expected:
+        return True
+
     if compare_mode == "unordered":
-        a_ints = sorted(int(x) for x in re.findall(r"-?\d+", norm_actual))
-        e_ints = sorted(int(x) for x in re.findall(r"-?\d+", norm_expected))
-        return a_ints == e_ints
+        a_ints = [int(x) for x in re.findall(r"-?\d+", norm_actual)]
+        e_ints = [int(x) for x in re.findall(r"-?\d+", norm_expected)]
+        if e_ints:
+            if not a_ints:
+                return False
+            return sorted(a_ints) == sorted(e_ints)
+        else:
+            return norm_actual == norm_expected
 
     elif compare_mode == "any_of":
         valid = [s.strip() for s in norm_expected.split("|")]
@@ -277,7 +312,7 @@ def _compare(actual: str, expected_raw: str, compare_mode: str) -> bool:
     elif compare_mode == "float":
         try:
             return abs(float(norm_actual) - float(norm_expected)) < 1e-4
-        except ValueError:
+        except (ValueError, TypeError):
             return False
 
     else:  # "ordered" (default)
@@ -336,15 +371,22 @@ def prepare_dsa_source(
     """
     Synthesizes the authoritative backend-controlled driver around user code
     using server-side question signature metadata and the session nonce.
-    Detects if user code contains marker tampering.
+    Detects if user code contains marker tampering or harness manipulation.
     """
     raw_user_code = _decode_source(source_code)
     lang = _lang_from_id(language_id)
     cleaned = clean_user_code(raw_user_code, lang)
 
-    # Check for marker tampering in user's algorithm code
-    if "__AQ_" in cleaned:
-        logger.warning("prepare_dsa_source: user code attempted marker injection")
+    # Check for marker tampering or harness spoofing in user's algorithm code
+    tamper_patterns = [
+        "__AQ_",
+        "__AQ",
+        "AQ_",
+        "---END_TC---",
+        "_aq_runner",
+    ]
+    if any(pat in cleaned for pat in tamper_patterns):
+        logger.warning("prepare_dsa_source: user code attempted marker or harness tampering")
         return source_code, False
 
     secured_code = build_backend_driver(
@@ -374,13 +416,22 @@ def parse_test_outputs(
     if not stdout:
         return ["" for _ in range(expected_count)] if expected_count > 0 else []
 
+    # Clean malformed/binary streams
+    clean_stdout = stdout.replace("\r\n", "\n").replace("\r", "\n").replace("\x00", "")
+
     # Dynamic nonce protocol (authenticated)
     if nonce:
         start_prefix = f"__AQ_{nonce}_START_"
         end_prefix = f"__AQ_{nonce}_END_"
+        completed_tag = f"__AQ_{nonce}_COMPLETED__"
 
-        if start_prefix not in stdout or end_prefix not in stdout:
+        if start_prefix not in clean_stdout or end_prefix not in clean_stdout:
             logger.warning("parse_test_outputs: Session nonce markers missing from stdout.")
+            return ["" for _ in range(expected_count)] if expected_count > 0 else []
+
+        # If completed tag is present in stdout, verify it appears exactly once
+        if completed_tag in clean_stdout and clean_stdout.count(completed_tag) != 1:
+            logger.warning("parse_test_outputs: Completed marker anomaly (multiple injections).")
             return ["" for _ in range(expected_count)] if expected_count > 0 else []
 
         results: List[str] = []
@@ -391,80 +442,89 @@ def parse_test_outputs(
             next_start_tag = f"{start_prefix}{i+1}__" if i + 1 < expected_count else None
 
             # Anomaly check: each tag should appear exactly once in authentic output
-            if stdout.count(start_tag) != 1 or stdout.count(end_tag) != 1:
+            if clean_stdout.count(start_tag) != 1 or clean_stdout.count(end_tag) != 1:
                 logger.warning("parse_test_outputs: marker anomaly for test case %d (spoofing attempt)", i)
                 results.append("")
                 continue
 
-            s_idx = stdout.find(start_tag, cursor)
+            s_idx = clean_stdout.find(start_tag, cursor)
             if s_idx == -1:
                 results.append("")
                 continue
 
             content_start = s_idx + len(start_tag)
-            upper_bound = len(stdout)
+            upper_bound = len(clean_stdout)
             if next_start_tag:
-                next_s_idx = stdout.find(next_start_tag, content_start)
+                next_s_idx = clean_stdout.find(next_start_tag, content_start)
                 if next_s_idx != -1:
                     upper_bound = next_s_idx
 
-            e_idx = stdout.rfind(end_tag, content_start, upper_bound)
-            if e_idx == -1:
-                e_idx = stdout.find(end_tag, content_start)
-
-            if e_idx != -1 and e_idx >= content_start:
-                raw_content = stdout[content_start:e_idx]
-                cleaned = re.sub(r"\n?---END_TC---\s*$", "", raw_content)
-                results.append(cleaned.strip())
-                cursor = e_idx + len(end_tag)
-            else:
+            e_idx = clean_stdout.find(end_tag, content_start)
+            if e_idx == -1 or e_idx > upper_bound:
+                logger.warning("parse_test_outputs: end marker missing or out of bounds for test case %d", i)
                 results.append("")
                 cursor = content_start
+                continue
 
-        return results
+            raw_content = clean_stdout[content_start:e_idx]
+            # Anti-spoofing: test case content must never contain internal marker fragments
+            if "__AQ_" in raw_content:
+                logger.warning("parse_test_outputs: internal marker fragment detected inside test case %d", i)
+                results.append("")
+            else:
+                cleaned = re.sub(r"\n?---END_TC---\s*$", "", raw_content)
+                results.append(cleaned.strip())
+            cursor = e_idx + len(end_tag)
+
+        while len(results) < expected_count:
+            results.append("")
+        return results[:expected_count]
 
     # Legacy protocol fallback (only when nonce is not provided)
-    if "__AQ_TC_START_" in stdout and "__AQ_TC_END_" in stdout:
-        results: List[str] = []
+    if "__AQ_TC_START_" in clean_stdout and "__AQ_TC_END_" in clean_stdout:
+        results = []
         cursor = 0
         for i in range(expected_count):
             start_tag = f"__AQ_TC_START_{i}__"
             end_tag = f"__AQ_TC_END_{i}__"
             next_start_tag = f"__AQ_TC_START_{i+1}__" if i + 1 < expected_count else None
 
-            s_idx = stdout.find(start_tag, cursor)
+            s_idx = clean_stdout.find(start_tag, cursor)
             if s_idx == -1:
                 results.append("")
                 continue
 
             content_start = s_idx + len(start_tag)
-            upper_bound = len(stdout)
+            upper_bound = len(clean_stdout)
             if next_start_tag:
-                next_s_idx = stdout.find(next_start_tag, content_start)
+                next_s_idx = clean_stdout.find(next_start_tag, content_start)
                 if next_s_idx != -1:
                     upper_bound = next_s_idx
 
-            e_idx = stdout.rfind(end_tag, content_start, upper_bound)
-            if e_idx == -1:
-                e_idx = stdout.find(end_tag, content_start)
-
-            if e_idx != -1 and e_idx >= content_start:
-                raw_content = stdout[content_start:e_idx]
-                cleaned = re.sub(r"\n?---END_TC---\s*$", "", raw_content)
-                results.append(cleaned.strip())
-                cursor = e_idx + len(end_tag)
-            else:
+            e_idx = clean_stdout.find(end_tag, content_start)
+            if e_idx == -1 or e_idx > upper_bound:
                 results.append("")
                 cursor = content_start
+                continue
 
-        return results
+            raw_content = clean_stdout[content_start:e_idx]
+            cleaned = re.sub(r"\n?---END_TC---\s*$", "", raw_content)
+            results.append(cleaned.strip())
+            cursor = e_idx + len(end_tag)
+
+        while len(results) < expected_count:
+            results.append("")
+        return results[:expected_count]
 
     # Legacy delimiter transition fallback (deprecated, strictly unauthenticated)
     logger.warning("parse_test_outputs: Stream missing structured markers; using legacy delimiter fallback.")
-    parts = stdout.split("---END_TC---")
+    parts = clean_stdout.split("---END_TC---")
     if parts and not parts[-1].strip():
         parts = parts[:-1]
-    return [p.strip() for p in parts]
+    cleaned_parts = [p.strip() for p in parts]
+    while len(cleaned_parts) < expected_count:
+        cleaned_parts.append("")
+    return cleaned_parts[:expected_count]
 
 
 # ── Runtime / memory formatting ───────────────────────────────────────────────
@@ -849,10 +909,10 @@ async def get_job_status(
                 TestCaseResult(
                     index=tc["index"],
                     passed=tc["passed"],
-                    actual=tc.get("actual", ""),
+                    actual=None if tc.get("is_hidden") else tc.get("actual"),
                     is_hidden=tc["is_hidden"],
-                    input=tc.get("input"),       # None for hidden tests
-                    expected=tc.get("expected"), # None for hidden tests
+                    input=None if tc.get("is_hidden") else tc.get("input"),
+                    expected=None if tc.get("is_hidden") else tc.get("expected"),
                 )
                 for tc in (job.result.get("test_cases") or [])
             ] or None,

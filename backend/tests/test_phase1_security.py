@@ -190,16 +190,57 @@ def test_build_backend_driver_javascript():
 
 
 def test_all_174_questions_coverage_across_all_four_languages():
-    """Verify that none of the 174 questions produce [unsupported] markers in any of the 4 languages."""
+    """Verify schema integrity, hidden tests, and backend driver generation for all 174 catalog questions across Python, C++, Java, and JS."""
     import json
+    from app.routes.submissions import _build_stdin
+
     tc_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data", "test_cases.json"))
+    htc_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data", "hidden_test_cases.json"))
     with open(tc_path, "r", encoding="utf-8") as f:
         tc_data = json.load(f)
+    with open(htc_path, "r", encoding="utf-8") as f:
+        htc_data = json.load(f)
 
-    for qid, q in tc_data.items():
-        for lang in ["cpp", "java", "python", "js"]:
+    assert len(tc_data) == 174, f"Expected 174 questions in test_cases.json, found {len(tc_data)}"
+    assert len(htc_data) == 174, f"Expected 174 questions in hidden_test_cases.json, found {len(htc_data)}"
+
+    for qid_str, q in tc_data.items():
+        qid = int(qid_str)
+        # 1. Validate problem definition
+        assert q.get("functionName"), f"Q{qid} missing functionName"
+        assert q.get("returnType"), f"Q{qid} missing returnType"
+        assert q.get("compareMode") in ("ordered", "unordered", "float", "any_of"), f"Q{qid} invalid compareMode: {q.get('compareMode')}"
+
+        # 2. Validate sample tests
+        samples = q.get("sampleTests", [])
+        assert len(samples) > 0, f"Q{qid} has no sampleTests"
+        for idx, stc in enumerate(samples):
+            assert "stdin" in stc, f"Q{qid} sampleTest[{idx}] missing stdin"
+            assert "expectedRaw" in stc, f"Q{qid} sampleTest[{idx}] missing expectedRaw"
+
+        # 3. Validate hidden tests
+        hiddens = htc_data.get(qid_str, [])
+        assert len(hiddens) > 0, f"Q{qid} has no hiddenTests in hidden_test_cases.json"
+        for idx, htc in enumerate(hiddens):
+            assert "stdin" in htc, f"Q{qid} hiddenTest[{idx}] missing stdin"
+            assert "expectedRaw" in htc, f"Q{qid} hiddenTest[{idx}] missing expectedRaw"
+
+        # 4. Validate combined stdin generation
+        all_tests = samples + hiddens
+        combined_stdin = _build_stdin(all_tests)
+        assert combined_stdin.startswith(str(len(all_tests))), f"Q{qid} stdin header mismatch"
+
+        # 5. Validate driver synthesis & preparation across all 4 languages
+        for lang, lang_id in [("cpp", 54), ("cpp", 76), ("java", 62), ("python", 71), ("js", 63)]:
             driver = build_backend_driver("// user solution", q, lang, "secnonce999")
             assert "[unsupported" not in driver, f"Unsupported marker found in Q{qid} ({q.get('name')}) for {lang}"
+            assert "secnonce999" in driver, f"Session nonce missing in Q{qid} driver for {lang}"
+            assert f"__AQ_secnonce999_COMPLETED__" in driver, f"Completion marker missing in Q{qid} driver for {lang}"
+
+            # Verify prepare_dsa_source returns clean payload
+            b64_code, is_clean = prepare_dsa_source("class Solution:\n    pass", q, lang_id, "secnonce999")
+            assert is_clean is True, f"prepare_dsa_source marked Q{qid} {lang} as unclean"
+            assert len(b64_code) > 0, f"prepare_dsa_source returned empty payload for Q{qid} {lang}"
 
 
 def test_complex_structures_driver_generation():
@@ -629,5 +670,75 @@ def test_clean_user_code_strips_legacy_client_wrappers_all_languages():
     assert "class Solution" in cleaned_js
     assert "function ListNode" not in cleaned_js
     assert "function main()" not in cleaned_js
+
+
+def test_malformed_output_handling_and_crash_detection():
+    """Verify parse_test_outputs and _compare handle binary NUL bytes, malformed bounds, and crashes safely."""
+    nonce = "malformnonce1"
+
+    # 1. Binary NUL bytes and carriage returns sanitized cleanly
+    raw_stdout = f"__AQ_{nonce}_START_0__\r\nhello\x00world\r\n__AQ_{nonce}_END_0__\r\n__AQ_{nonce}_COMPLETED__\r\n"
+    parsed = parse_test_outputs(raw_stdout, 1, nonce=nonce)
+    assert parsed == ["helloworld"]
+
+    # 2. Inverted bounds or missing end tag returns empty result without unhandled exception
+    bad_bounds = f"__AQ_{nonce}_START_0__\ncontent_without_end\n__AQ_{nonce}_COMPLETED__\n"
+    parsed_bad = parse_test_outputs(bad_bounds, 1, nonce=nonce)
+    assert parsed_bad == [""]
+
+    # 3. Malicious internal marker injection within test case output is detected and rejected
+    injected_body = (
+        f"__AQ_{nonce}_START_0__\n"
+        f"__AQ_malicious_marker__\n"
+        f"__AQ_{nonce}_END_0__\n"
+        f"__AQ_{nonce}_COMPLETED__\n"
+    )
+    parsed_inj = parse_test_outputs(injected_body, 1, nonce=nonce)
+    assert parsed_inj == [""]
+
+    # 4. _compare strictly rejects crash outputs
+    assert _compare("Segmentation fault (core dumped)", "0 1", "ordered") is False
+    assert _compare("Traceback (most recent call last):\n  File 'run.py', line 1", "0 1", "ordered") is False
+    assert _compare("Fatal error: memory exhausted", "0 1", "unordered") is False
+    assert _compare("Exception in thread 'main' java.lang.NullPointerException", "0 1", "any_of") is False
+
+    # 5. _compare rejects empty string when non-empty is expected
+    assert _compare("", "0 1", "ordered") is False
+    assert _compare("", "0 1", "unordered") is False
+    assert _compare("   ", "[1, 2]", "unordered") is False
+
+    # 6. _compare in unordered mode when actual has no digits but expected has digits
+    assert _compare("No digits at all", "1 2 3", "unordered") is False
+
+
+def test_hidden_test_exposure_fail_safes():
+    """Verify TestCaseResult model validator strictly suppresses input, expected, and actual when is_hidden=True."""
+    model = TestCaseResult(
+        index=5,
+        passed=True,
+        actual="secret_actual_output",
+        is_hidden=True,
+        input="secret_hidden_input",
+        expected="secret_hidden_expected",
+    )
+    dumped = model.model_dump()
+    assert dumped["is_hidden"] is True
+    assert dumped["actual"] is None
+    assert dumped["input"] is None
+    assert dumped["expected"] is None
+
+
+def test_forged_verdict_tamper_patterns_rejected():
+    """Verify prepare_dsa_source detects all marker and harness tamper patterns and marks is_clean=False."""
+    tamper_examples = [
+        "class Solution:\n    def solve(self): print('__AQ_')\n",
+        "class Solution:\n    def solve(self): print('AQ_TC_START')\n",
+        "class Solution:\n    def solve(self): print('---END_TC---')\n",
+        "class Solution:\n    def solve(self): return _aq_runner()\n",
+    ]
+    for code in tamper_examples:
+        _, is_clean = prepare_dsa_source(code, MOCK_Q_META, 71, "secnonce")
+        assert is_clean is False, f"Failed to reject tamper pattern in: {code}"
+
 
 

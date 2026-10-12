@@ -2158,7 +2158,7 @@ function initNotes() {
   }
 }
 
-function updateNotesStatus(status) {
+function updateNotesStatus(status, message) {
   const badge = document.getElementById('notes-status-badge');
   if (!badge) return;
 
@@ -2167,8 +2167,12 @@ function updateNotesStatus(status) {
     badge.innerHTML = `<i class="fas fa-check-circle"></i> Saved`;
   } else if (status === 'saving') {
     badge.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Saving...`;
+  } else if (status === 'queued' || status === 'pending') {
+    badge.innerHTML = `<i class="fas fa-clock"></i> ${message || 'Saved locally (queued for sync)'}`;
+  } else if (status === 'failed') {
+    badge.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message || 'Save failed'}`;
   } else {
-    badge.innerHTML = `<i class="fas fa-exclamation-circle"></i> Unsaved`;
+    badge.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message || 'Unsaved'}`;
   }
 }
 
@@ -2179,6 +2183,15 @@ function saveCurrentNote() {
   if (!textarea) return;
   const content = textarea.value;
 
+  const MAX_NOTE_LENGTH = 50000;
+  if (content.length > MAX_NOTE_LENGTH) {
+    updateNotesStatus('failed', `Limit exceeded (${content.length.toLocaleString()}/${MAX_NOTE_LENGTH.toLocaleString()})`);
+    if (typeof showToast === 'function') {
+      showToast(`Note exceeds 50,000 character limit (${content.length.toLocaleString()} chars). Please shorten.`, 'error');
+    }
+    return;
+  }
+
   updateNotesStatus('saving');
 
   // Save to localStorage (namespaced per UID)
@@ -2186,15 +2199,25 @@ function saveCurrentNote() {
   notes[qId] = content;
   lsSet(LS.NOTES, notes);
 
-  // Sync to Firestore
+  // Sync to Cloud
   if (typeof syncNoteToCloud === 'function' && isFirebaseConfigured && firebase.auth().currentUser) {
-    syncNoteToCloud(qId, content).then(() => {
+    syncNoteToCloud(qId, content).then((res) => {
       if (App.currentQuestion && App.currentQuestion.id === qId) {
-        updateNotesStatus('saved');
+        if (res && res.queued) {
+          updateNotesStatus('queued', 'Saved locally (queued for sync)');
+        } else {
+          updateNotesStatus('saved');
+        }
       }
-    }).catch(() => {
+    }).catch((err) => {
       if (App.currentQuestion && App.currentQuestion.id === qId) {
-        updateNotesStatus('unsaved');
+        if (err && err.queued) {
+          updateNotesStatus('queued', 'Saved locally (queued for sync)');
+        } else if (err && err.permanent) {
+          updateNotesStatus('failed', err.message || 'Save rejected');
+        } else {
+          updateNotesStatus('queued', 'Saved locally (queued for sync)');
+        }
       }
     });
   } else {

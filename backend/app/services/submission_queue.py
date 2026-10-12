@@ -513,30 +513,65 @@ def _build_stdin_sync(test_cases: list) -> str:
     return "\n".join(parts)
 
 
+_CRASH_PATTERNS = [
+    "traceback (most recent call last)",
+    "segmentation fault",
+    "core dumped",
+    "fatal error:",
+    "exception in thread",
+    "uncaught exception",
+    "sigsegv",
+    "sigabrt",
+    "sigfpe",
+]
+
+
+def _is_crash_output(text: str) -> bool:
+    if not text:
+        return False
+    lower = text.lower()
+    return any(p in lower for p in _CRASH_PATTERNS)
+
+
 def _compare_sync(actual: str, expected_raw: str, compare_mode: str) -> bool:
     """Mirror of the route handler's _compare() — self-contained for the worker."""
     import re
 
-    def normalize(text: str) -> str:
-        return re.sub(r"\s+", " ", text.strip())
-
     if actual is None or expected_raw is None:
         return False
+
+    if _is_crash_output(actual):
+        return False
+
+    def normalize(text: str) -> str:
+        return re.sub(r"\s+", " ", text.strip())
 
     norm_actual   = normalize(actual)
     norm_expected = normalize(expected_raw)
 
+    if not norm_actual and norm_expected:
+        return False
+    if not norm_expected and norm_actual:
+        return False
+    if not norm_actual and not norm_expected:
+        return True
+
     if compare_mode == "unordered":
-        a_ints = sorted(int(x) for x in re.findall(r"-?\d+", norm_actual))
-        e_ints = sorted(int(x) for x in re.findall(r"-?\d+", norm_expected))
-        return a_ints == e_ints
+        a_ints = [int(x) for x in re.findall(r"-?\d+", norm_actual)]
+        e_ints = [int(x) for x in re.findall(r"-?\d+", norm_expected)]
+        if e_ints:
+            if not a_ints:
+                return False
+            return sorted(a_ints) == sorted(e_ints)
+        else:
+            return norm_actual == norm_expected
     elif compare_mode == "any_of":
         valid = [s.strip() for s in norm_expected.split("|")]
         return norm_actual in valid
     elif compare_mode == "float":
         try:
             return abs(float(norm_actual) - float(norm_expected)) < 1e-4
-        except ValueError:
+        except (ValueError, TypeError):
             return False
     else:  # "ordered" (default)
         return norm_actual == norm_expected
