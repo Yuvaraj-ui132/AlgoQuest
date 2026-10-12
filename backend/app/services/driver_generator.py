@@ -123,38 +123,79 @@ JS_GRAPH_NODE = """function Node(val, neighbors) {
 }"""
 
 
+def _strip_curly_block(code: str, pattern: str) -> str:
+    """Finds pattern (e.g. struct/class ListNode) and cleanly removes it up to its matching closing brace and optional semicolon."""
+    while True:
+        match = re.search(pattern, code)
+        if not match:
+            break
+        start_idx = match.start()
+        brace_pos = code.find('{', match.start())
+        if brace_pos == -1:
+            break
+        depth = 0
+        end_idx = None
+        for i in range(brace_pos, len(code)):
+            if code[i] == '{':
+                depth += 1
+            elif code[i] == '}':
+                depth -= 1
+                if depth == 0:
+                    semi = code.find(';', i)
+                    if semi != -1 and not code[i+1:semi].strip():
+                        end_idx = semi + 1
+                    else:
+                        end_idx = i + 1
+                    break
+        if end_idx is not None:
+            code = code[:start_idx] + code[end_idx:]
+        else:
+            break
+    return code
+
+
 def clean_user_code(user_code: str, lang: str) -> str:
     """
     Extracts raw user solution code if the client submitted legacy wrapped code,
     or returns user_code directly.
     """
-    code = user_code.strip()
+    code = user_code.replace("\r\n", "\n").strip()
     if not code:
         return ""
 
     if lang == "python":
-        if "def main():" in code and "__AQ_TC_START_" in code:
+        if "def main():" in code and ("__AQ_TC_START_" in code or "__AQ_" in code):
             parts = code.split("def main():")[0]
-            parts = re.sub(r"^import sys\s*\nfrom typing import List, Optional\s*\n*", "", parts)
+            parts = re.sub(r"^import\s+[^\n]+\n*", "", parts, flags=re.MULTILINE)
+            parts = re.sub(r"^from\s+[^\n]+\n*", "", parts, flags=re.MULTILINE)
+            parts = re.sub(r"class ListNode\b.*?(?=\n(?:class|def|\Z))", "", parts, flags=re.DOTALL)
+            parts = re.sub(r"class TreeNode\b.*?(?=\n(?:class|def|\Z))", "", parts, flags=re.DOTALL)
+            parts = re.sub(r"class Node\b.*?(?=\n(?:class|def|\Z))", "", parts, flags=re.DOTALL)
             return parts.strip()
     elif lang == "cpp":
-        if "int main()" in code and "__AQ_TC_START_" in code:
+        if "int main()" in code and ("__AQ_TC_START_" in code or "__AQ_" in code):
             parts = code.split("int main()")[0]
-            # Strip standard headers and structs if prepended
-            parts = parts.replace(CPP_HEADERS, "")
-            parts = parts.replace(CPP_LIST_NODE, "")
-            parts = parts.replace(CPP_TREE_NODE, "")
-            parts = parts.replace(CPP_GRAPH_NODE, "")
+            parts = re.sub(r"#include\s*<[^>]+>\s*", "", parts)
+            parts = re.sub(r"using\s+namespace\s+std\s*;\s*", "", parts)
+            parts = _strip_curly_block(parts, r"(struct|class)\s+ListNode\b")
+            parts = _strip_curly_block(parts, r"(struct|class)\s+TreeNode\b")
+            parts = _strip_curly_block(parts, r"(struct|class)\s+Node\b")
             return parts.strip()
     elif lang == "java":
-        if "public class Main" in code and "__AQ_TC_START_" in code:
+        if "public class Main" in code and ("__AQ_TC_START_" in code or "__AQ_" in code):
             parts = code.split("public class Main")[0]
-            parts = re.sub(r"^import java\.util\.\*;\s*\nimport java\.io\.\*;\s*\n*", "", parts)
+            parts = re.sub(r"^import\s+[^\n]+;\s*", "", parts, flags=re.MULTILINE)
+            parts = _strip_curly_block(parts, r"class\s+ListNode\b")
+            parts = _strip_curly_block(parts, r"class\s+TreeNode\b")
+            parts = _strip_curly_block(parts, r"class\s+Node\b")
             return parts.strip()
     elif lang == "js":
-        if "function main()" in code and "__AQ_TC_START_" in code:
+        if "function main()" in code and ("__AQ_TC_START_" in code or "__AQ_" in code):
             parts = code.split("function main()")[0]
-            parts = re.sub(r"^const fs=require\('fs'\);\s*\n*", "", parts)
+            parts = re.sub(r"^const\s+fs\s*=\s*require\([^\)]+\);\s*", "", parts, flags=re.MULTILINE)
+            parts = _strip_curly_block(parts, r"function\s+ListNode\b")
+            parts = _strip_curly_block(parts, r"function\s+TreeNode\b")
+            parts = _strip_curly_block(parts, r"function\s+Node\b")
             return parts.strip()
 
     return code

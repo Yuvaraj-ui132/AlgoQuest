@@ -548,3 +548,86 @@ def test_incorrect_solution_rejected_by_judge():
     matched = _compare(wrong_output, q["sampleTests"][0]["expectedRaw"], q.get("compareMode", "unordered"))
     assert matched is False
 
+
+def test_clean_user_code_strips_legacy_client_wrappers_all_languages():
+    """Verify that legacy client wrappers with CRLF, headers, and structs are cleanly stripped across all 4 languages."""
+    from app.services.driver_generator import clean_user_code
+
+    # C++ legacy wrapped code with CRLF
+    cpp_legacy = (
+        "#include <algorithm>\r\n"
+        "#include <vector>\r\n"
+        "using namespace std;\r\n"
+        "struct ListNode { int val; };\r\n"
+        "struct TreeNode { int val; TreeNode* left; };\r\n"
+        "class Solution {\r\n"
+        "public:\r\n"
+        "    vector<int> twoSum(vector<int>& nums, int target) { return {0, 1}; }\r\n"
+        "};\r\n"
+        "int main() {\r\n"
+        "    cout << \"__AQ_TC_START_0__\\n\";\r\n"
+        "    return 0;\r\n"
+        "}\r\n"
+    )
+    cleaned_cpp = clean_user_code(cpp_legacy, "cpp")
+    assert "class Solution" in cleaned_cpp
+    assert "struct ListNode" not in cleaned_cpp
+    assert "struct TreeNode" not in cleaned_cpp
+    assert "#include" not in cleaned_cpp
+    assert "int main()" not in cleaned_cpp
+
+    # Java legacy wrapped code
+    java_legacy = (
+        "import java.util.*;\nimport java.io.*;\n\n"
+        "class ListNode { int val; }\n"
+        "class TreeNode { int val; }\n"
+        "class Solution {\n"
+        "    public int[] twoSum(int[] nums, int target) { return new int[]{0, 1}; }\n"
+        "}\n\n"
+        "public class Main {\n"
+        "    public static void main(String[] args) {\n"
+        "        System.out.println(\"__AQ_TC_START_0__\");\n"
+        "    }\n"
+        "}\n"
+    )
+    cleaned_java = clean_user_code(java_legacy, "java")
+    assert "class Solution" in cleaned_java
+    assert "class ListNode" not in cleaned_java
+    assert "class TreeNode" not in cleaned_java
+    assert "public class Main" not in cleaned_java
+
+    # Python legacy wrapped code
+    py_legacy = (
+        "import sys\nfrom typing import List, Optional\n\n"
+        "class ListNode: val: int\n"
+        "class TreeNode: val: int\n"
+        "class Solution:\n"
+        "    def twoSum(self, nums: List[int], target: int) -> List[int]: return [0, 1]\n\n"
+        "def main():\n"
+        "    print('__AQ_TC_START_0__')\n"
+        "main()\n"
+    )
+    cleaned_py = clean_user_code(py_legacy, "python")
+    assert "class Solution:" in cleaned_py
+    assert "class ListNode" not in cleaned_py
+    assert "class TreeNode" not in cleaned_py
+    assert "def main():" not in cleaned_py
+
+    # JS legacy wrapped code
+    js_legacy = (
+        "const fs=require('fs');\n"
+        "function ListNode(v) { this.val = v; };\n"
+        "class Solution {\n"
+        "    twoSum(nums, target) { return [0, 1]; }\n"
+        "}\n"
+        "function main() {\n"
+        "    console.log('__AQ_TC_START_0__');\n"
+        "}\n"
+        "main();\n"
+    )
+    cleaned_js = clean_user_code(js_legacy, "js")
+    assert "class Solution" in cleaned_js
+    assert "function ListNode" not in cleaned_js
+    assert "function main()" not in cleaned_js
+
+
