@@ -1,0 +1,86 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend-tests:
+    name: Backend Tests (Python 3.11)
+    runs-on: ubuntu-latest
+
+    env:
+      APP_ENV: test
+      DATABASE_BACKEND: firestore
+      ALLOW_SAMPLE_ONLY_GRADING: "false"
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt pytest
+
+      - name: Prepare test data fixture
+        env:
+          HIDDEN_TESTS_SECRET: ${{ secrets.HIDDEN_TEST_CASES_JSON }}
+        run: |
+          if [ -n "$HIDDEN_TESTS_SECRET" ]; then
+            echo "Using private hidden test suite provided via GitHub Secrets."
+            echo "$HIDDEN_TESTS_SECRET" > backend/data/hidden_test_cases.json
+          elif [ ! -f backend/data/hidden_test_cases.json ]; then
+            echo "Secret not set. Generating non-sensitive CI test fixture (174 problems, 4318 cases)..."
+            python -c "import json; data = {str(q): [{'stdin': f'ci_in_{q}_{i}\n', 'expectedRaw': '0'} for i in range(11 if q == 161 else (7 if q == 169 else 25))] for q in range(1, 175)}; open('backend/data/hidden_test_cases.json', 'w', encoding='utf-8').write(json.dumps(data))"
+          fi
+
+      - name: Run backend tests
+        run: pytest backend/tests/ -v
+
+  frontend-syntax:
+    name: Frontend JavaScript Syntax
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate frontend JavaScript syntax
+        run: |
+          echo "Validating JavaScript syntax for all frontend files in js/..."
+          failed=0
+          for file in js/*.js; do
+            if [ -f "$file" ]; then
+              echo "Checking syntax: $file"
+              if ! node --check "$file"; then
+                echo "SYNTAX ERROR in $file"
+                failed=1
+              fi
+            fi
+          done
+          if [ $failed -ne 0 ]; then
+            echo "Frontend JavaScript syntax check failed."
+            exit 1
+          fi
+          echo "All frontend JavaScript files passed syntax validation."
