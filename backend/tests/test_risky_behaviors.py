@@ -406,3 +406,16 @@ def test_stale_worker_heartbeat_fencing():
     # Verify job in DB is still held by Worker B
     job_db = get_queue_job_sync(jid, uid="u_fence")
     assert job_db["worker_id"] == "worker_B"
+
+
+# ── 7. Defensive Security Headers ─────────────────────────────────────────────
+
+
+def test_security_headers_present_on_responses():
+    """Verify that OWASP-recommended defensive security headers are returned on API responses."""
+    res = client.get("/health")
+    assert res.status_code == 200
+    assert res.headers.get("x-content-type-options") == "nosniff"
+    assert res.headers.get("x-frame-options") == "DENY"
+    assert res.headers.get("referrer-policy") == "strict-origin-when-cross-origin"
+    assert "geolocation=()" in res.headers.get("permissions-policy", "")

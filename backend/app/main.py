@@ -80,6 +80,9 @@ app = FastAPI(
 
 # ── Middleware ────────────────────────────────────────────────────────────────
 from app.utils.logging import RequestLoggingMiddleware
+from app.utils.security import SecurityHeadersMiddleware
+
+app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(RequestLoggingMiddleware)
 
 # ── CORS ──────────────────────────────────────────────────────────────────────

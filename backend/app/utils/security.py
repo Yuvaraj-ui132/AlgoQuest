@@ -108,3 +108,23 @@ def initialize_firebase() -> None:
     )
     firebase_admin.initialize_app(options=options)
     _firebase_initialized = True
+
+
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+from starlette.responses import Response
+
+
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    """
+    Attach standard OWASP defensive headers to every HTTP response.
+    Protects against MIME sniffing, clickjacking, and referrer leakage.
+    """
+
+    async def dispatch(self, request: Request, call_next):
+        response: Response = await call_next(request)
+        response.headers.setdefault("X-Content-Type-Options", "nosniff")
+        response.headers.setdefault("X-Frame-Options", "DENY")
+        response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+        response.headers.setdefault("Permissions-Policy", "geolocation=(), camera=(), microphone=()")
+        return response
