@@ -16,7 +16,7 @@ import uuid
 import logging
 import asyncio
 from datetime import datetime, timezone
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Union
 
 from sqlalchemy import (
     create_engine,
@@ -34,8 +34,10 @@ from sqlalchemy import (
     func,
     case,
     select,
+    text,
     desc,
     or_,
+    and_,
 )
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
@@ -211,6 +213,47 @@ class Submission(Base):
 
     __table_args__ = (
         Index("idx_submissions_user_submitted", "user_id", "submitted_at", "id"),
+    )
+
+
+class QueueJob(Base):
+    """
+    Persistent durable queue job row.
+
+    Lifecycle:  pending → running → completed | failed
+    Workers atomically claim pending rows using SELECT … FOR UPDATE SKIP LOCKED.
+    A heartbeat UPDATE keeps the lease alive while the job is running.
+    Expired leases are recovered by any worker on the next claim sweep.
+
+    Security:
+      - source_code is cleared (set to '') on completion or permanent failure.
+      - result_json contains only the safe SubmissionResponse — no hidden test data.
+      - error_message NEVER contains hidden test inputs or expected outputs.
+    """
+    __tablename__ = "queue_jobs"
+
+    id               = Column(GUID(), primary_key=True, default=uuid.uuid4)
+    uid              = Column(String(128), nullable=False)    # verified Firebase UID
+    question_id      = Column(Integer, nullable=False)
+    language_id      = Column(Integer, nullable=False)
+    source_code      = Column(Text, nullable=False, default="")  # transient; cleared after execution
+    compiler_options = Column(Text, nullable=False, default="")
+    request_id       = Column(String(64), nullable=True)
+    status           = Column(String(16), nullable=False, default="pending")
+    retries          = Column(Integer, nullable=False, default=0)
+    max_retries      = Column(Integer, nullable=False, default=3)
+    worker_id        = Column(String(64), nullable=True)
+    locked_at        = Column(DateTime(timezone=True), nullable=True)
+    lease_seconds    = Column(Integer, nullable=False, default=120)
+    result_json      = Column(Text, nullable=True)
+    error_message    = Column(Text, nullable=True)
+    enqueued_at      = Column(DateTime(timezone=True), nullable=False,
+                              default=lambda: datetime.now(timezone.utc))
+    started_at       = Column(DateTime(timezone=True), nullable=True)
+    completed_at     = Column(DateTime(timezone=True), nullable=True)
+
+    __table_args__ = (
+        Index("idx_queue_jobs_uid", "uid", "enqueued_at"),
     )
 
 
@@ -814,6 +857,7 @@ def record_submission_sync(
     memory: str,
     compile_error: Optional[str] = None,
     legacy_firestore_id: Optional[str] = None,
+    submission_id: Optional[Union[str, uuid.UUID]] = None,
 ) -> None:
     """Write submission record synchronously (called from worker thread)."""
     session = get_db_session()
@@ -821,8 +865,21 @@ def record_submission_sync(
         if not session.query(User).filter(User.id == uid).first():
             init_user_document(uid, session=session)
 
+        # Idempotent deduplication if submission_id is provided
+        if submission_id:
+            try:
+                sub_uuid = uuid.UUID(str(submission_id))
+            except (ValueError, TypeError):
+                sub_uuid = uuid.uuid4()
+            existing = session.query(Submission).filter(Submission.id == sub_uuid).first()
+            if existing:
+                logger.info("[SUBMISSION_IDEMPOTENT] Submission %s already recorded; skipping duplicate.", sub_uuid)
+                return
+        else:
+            sub_uuid = uuid.uuid4()
+
         sub = Submission(
-            id=uuid.uuid4(),
+            id=sub_uuid,
             user_id=uid,
             question_id=question_id,
             execution_type="submit",
@@ -1113,4 +1170,356 @@ async def batch_sync(
     """
     await asyncio.to_thread(_batch_sync_sync, uid, progress_items, bookmark_items, note_items)
     return await get_all_user_data(uid)
+
+
+# ── Durable Queue CRUD Helpers ────────────────────────────────────────────────
+#
+# All functions are SYNCHRONOUS and designed to be called via asyncio.to_thread()
+# from the async SubmissionQueue worker.
+#
+# Security invariants maintained throughout:
+#   - source_code is cleared to '' on every terminal state (completed/failed).
+#   - result_json never contains hidden test inputs or expected outputs.
+#   - error_message never contains hidden test data.
+
+import json as _json
+
+
+def enqueue_job_sync(
+    *,
+    uid: str,
+    question_id: int,
+    language_id: int,
+    source_code: str,
+    compiler_options: str = "",
+    request_id: Optional[str] = None,
+    max_retries: int = 3,
+    lease_seconds: int = 120,
+) -> str:
+    """
+    Insert a new pending job row and return its UUID string.
+    Raises on database error — the caller should propagate as HTTP 500.
+    """
+    session = get_db_session()
+    try:
+        job = QueueJob(
+            id=uuid.uuid4(),
+            uid=uid,
+            question_id=question_id,
+            language_id=language_id,
+            source_code=source_code,
+            compiler_options=compiler_options,
+            request_id=request_id,
+            status="pending",
+            retries=0,
+            max_retries=max_retries,
+            lease_seconds=lease_seconds,
+            enqueued_at=datetime.now(timezone.utc),
+        )
+        session.add(job)
+        session.commit()
+        return str(job.id)
+    except Exception:
+        session.rollback()
+        raise
+    finally:
+        session.close()
+
+
+def claim_next_job_sync(worker_id: str) -> Optional[Dict[str, Any]]:
+    """
+    Atomically claim the oldest pending job (FIFO) using FOR UPDATE SKIP LOCKED.
+    Returns a dict with job fields, or None if no pending job is available.
+
+    This is the core of the durable queue: multiple workers can call this
+    simultaneously without double-claiming the same job.
+    """
+    session = get_db_session()
+    try:
+        now = datetime.now(timezone.utc)
+
+        # PostgreSQL: FOR UPDATE SKIP LOCKED
+        # SQLite fallback for tests uses a simple UPDATE (no SKIP LOCKED support)
+        dialect = session.get_bind().dialect.name
+
+        if dialect == "postgresql":
+            # SELECT the oldest pending row exclusively and skip any locked by peers
+            row = (
+                session.query(QueueJob)
+                .filter(QueueJob.status == "pending")
+                .order_by(QueueJob.enqueued_at.asc())
+                .with_for_update(skip_locked=True)
+                .first()
+            )
+        else:
+            # SQLite: simple first-come claim (acceptable for tests only)
+            row = (
+                session.query(QueueJob)
+                .filter(QueueJob.status == "pending")
+                .order_by(QueueJob.enqueued_at.asc())
+                .first()
+            )
+
+        if row is None:
+            return None
+
+        row.status = "running"
+        row.worker_id = worker_id
+        row.locked_at = now
+        row.started_at = now
+        row.retries = (row.retries or 0) + 1
+        session.commit()
+        return _job_to_dict(row)
+    except Exception:
+        session.rollback()
+        raise
+    finally:
+        session.close()
+
+
+def heartbeat_job_sync(job_id: str, worker_id: str) -> bool:
+    """
+    Refresh the locked_at timestamp so the lease does not expire while running.
+    Returns True if the job was found and updated, False otherwise.
+    """
+    session = get_db_session()
+    try:
+        row = (
+            session.query(QueueJob)
+            .filter(
+                QueueJob.id == uuid.UUID(job_id),
+                QueueJob.worker_id == worker_id,
+                QueueJob.status == "running",
+            )
+            .first()
+        )
+        if row is None:
+            return False
+        row.locked_at = datetime.now(timezone.utc)
+        session.commit()
+        return True
+    except Exception:
+        session.rollback()
+        return False
+    finally:
+        session.close()
+
+
+def complete_job_sync(job_id: str, worker_id: str, result: Dict[str, Any]) -> bool:
+    """
+    Mark a job as completed. Serialises the safe result dict to JSON.
+    Clears source_code to '' (transient data no longer needed).
+    Returns True on success, False if job not found or not owned by worker.
+    """
+    session = get_db_session()
+    try:
+        row = (
+            session.query(QueueJob)
+            .filter(
+                QueueJob.id == uuid.UUID(job_id),
+                QueueJob.worker_id == worker_id,
+                QueueJob.status == "running",
+            )
+            .first()
+        )
+        if row is None:
+            return False
+        row.status = "completed"
+        row.result_json = _json.dumps(result)
+        row.error_message = None
+        row.source_code = ""   # clear transient sensitive data
+        row.completed_at = datetime.now(timezone.utc)
+        session.commit()
+        return True
+    except Exception:
+        session.rollback()
+        raise
+    finally:
+        session.close()
+
+
+def fail_job_sync(job_id: str, worker_id: str, error: str, *, permanent: bool = False) -> Dict[str, Any]:
+    """
+    Record a job failure.
+    - If retries < max_retries and not permanent: reset to 'pending' for retry.
+    - Otherwise: set to 'failed' permanently and clear source_code.
+    Returns dict: {"retried": bool, "status": str, "retries": int}
+    """
+    session = get_db_session()
+    try:
+        row = (
+            session.query(QueueJob)
+            .filter(
+                QueueJob.id == uuid.UUID(job_id),
+                QueueJob.worker_id == worker_id,
+                QueueJob.status == "running",
+            )
+            .first()
+        )
+        if row is None:
+            return {"retried": False, "status": "not_found", "retries": 0}
+
+        retries_count = row.retries or 0
+        max_retries_count = row.max_retries or 3
+
+        if not permanent and retries_count < max_retries_count:
+            # Retry: reset to pending so another worker can pick it up
+            row.status = "pending"
+            row.worker_id = None
+            row.locked_at = None
+            row.error_message = error
+            session.commit()
+            return {"retried": True, "status": "pending", "retries": retries_count}
+        else:
+            # Permanently failed
+            row.status = "failed"
+            row.error_message = error
+            row.source_code = ""  # clear transient data
+            row.completed_at = datetime.now(timezone.utc)
+            session.commit()
+            return {"retried": False, "status": "failed", "retries": retries_count}
+    except Exception:
+        session.rollback()
+        raise
+    finally:
+        session.close()
+
+
+def recover_orphan_jobs_sync() -> int:
+    """
+    Reset running jobs whose lease has expired back to 'pending' so they can
+    be retried by any available worker.
+    Returns the count of jobs recovered.
+    Should be called periodically (e.g. every 60 seconds) by each worker.
+    """
+    session = get_db_session()
+    try:
+        now = datetime.now(timezone.utc)
+        rows = (
+            session.query(QueueJob)
+            .filter(QueueJob.status == "running")
+            .all()
+        )
+        recovered = 0
+        for row in rows:
+            is_orphan = False
+            if row.locked_at is None:
+                is_orphan = True
+            else:
+                locked_ts = row.locked_at
+                if locked_ts.tzinfo is None:
+                    locked_ts = locked_ts.replace(tzinfo=timezone.utc)
+                elapsed = (now - locked_ts).total_seconds()
+                if elapsed > (row.lease_seconds or 120):
+                    is_orphan = True
+
+            if is_orphan:
+                if (row.retries or 0) < (row.max_retries or 3):
+                    row.status = "pending"
+                    row.worker_id = None
+                    row.locked_at = None
+                else:
+                    row.status = "failed"
+                    row.error_message = "Job exceeded max retries after lease expiry."
+                    row.source_code = ""
+                    row.completed_at = now
+                recovered += 1
+        if recovered:
+            session.commit()
+        return recovered
+    except Exception:
+        session.rollback()
+        logger.warning("[QUEUE_RECOVER] Failed to recover orphan jobs: %s", exc_info=True)
+        return 0
+    finally:
+        session.close()
+
+
+def count_pending_jobs_sync() -> int:
+    """
+    Return count of active (pending + running) queue jobs.
+    Used for bounded backpressure check and queue metrics.
+    """
+    session = get_db_session()
+    try:
+        return session.query(QueueJob).filter(QueueJob.status.in_(["pending", "running"])).count()
+    finally:
+        session.close()
+
+
+def get_queue_job_sync(job_id: str, uid: str) -> Optional[Dict[str, Any]]:
+    """
+    Fetch a single queue job by ID, verifying UID ownership.
+    Returns the job dict, or None if not found.
+    Raises PermissionError if the job exists but belongs to a different UID.
+    """
+    session = get_db_session()
+    try:
+        try:
+            job_uuid = uuid.UUID(job_id)
+        except (ValueError, AttributeError):
+            return None
+
+        row = session.query(QueueJob).filter(QueueJob.id == job_uuid).first()
+        if row is None:
+            return None
+        if row.uid != uid:
+            raise PermissionError(f"Job {job_id!r} not accessible to this user")
+        return _job_to_dict(row)
+    finally:
+        session.close()
+
+
+def delete_old_jobs_sync(older_than_seconds: int = 1800) -> int:
+    """
+    Delete completed/failed jobs older than `older_than_seconds` seconds.
+    Returns the number of deleted rows.
+    """
+    session = get_db_session()
+    try:
+        cutoff = datetime.now(timezone.utc)
+        from datetime import timedelta
+        cutoff = cutoff - timedelta(seconds=older_than_seconds)
+        deleted = (
+            session.query(QueueJob)
+            .filter(
+                QueueJob.status.in_(["completed", "failed"]),
+                QueueJob.enqueued_at < cutoff,
+            )
+            .delete(synchronize_session=False)
+        )
+        if deleted:
+            session.commit()
+        return deleted
+    except Exception:
+        session.rollback()
+        return 0
+    finally:
+        session.close()
+
+
+def _job_to_dict(row: "QueueJob") -> Dict[str, Any]:
+    """Convert a QueueJob ORM row to a plain dict for in-memory cache use."""
+    result = None
+    if row.result_json:
+        try:
+            result = _json.loads(row.result_json)
+        except Exception:
+            result = None
+    return {
+        "job_id":           str(row.id),
+        "uid":              row.uid,
+        "question_id":      row.question_id,
+        "language_id":      row.language_id,
+        "source_code":      row.source_code,
+        "compiler_options": row.compiler_options,
+        "request_id":       row.request_id,
+        "status":           row.status,
+        "retries":          row.retries,
+        "max_retries":      row.max_retries,
+        "worker_id":        row.worker_id,
+        "result":           result,
+        "error":            row.error_message,
+        "enqueued_at":      row.enqueued_at,
+    }
 

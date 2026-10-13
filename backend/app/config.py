@@ -175,5 +175,57 @@ class Settings(BaseSettings):
     'Sample Accepted (Dev Only)' verdict and NEVER updates user progress or records an official Accepted submission.
     """
 
+    # ── Durable PostgreSQL-Backed Queue (Phase Ten) ───────────────────────────
+    queue_enable_pg_backend: bool = Field(
+        default=False,
+        validation_alias=AliasChoices("QUEUE_ENABLE_PG_BACKEND"),
+    )
+    """
+    When True, the submission queue persists jobs in PostgreSQL (queue_jobs table)
+    so queued jobs survive backend restarts.
+    Requires database_backend='supabase' and a valid supabase_db_url.
+    When False (default), uses the legacy in-memory asyncio.Queue.
+    """
+
+    queue_max_retries: int = Field(
+        default=3,
+        validation_alias=AliasChoices("QUEUE_MAX_RETRIES"),
+    )
+    """Maximum number of execution attempts for a single submission before dead-lettering."""
+
+    queue_worker_lease_seconds: int = Field(
+        default=120,
+        validation_alias=AliasChoices("QUEUE_WORKER_LEASE_SECONDS"),
+    )
+    """
+    Worker lease TTL in seconds.
+    If a worker holds a job for longer than this without a heartbeat,
+    the job is eligible for orphan recovery by any other worker.
+    """
+
+    queue_poll_interval_seconds: float = Field(
+        default=1.0,
+        validation_alias=AliasChoices("QUEUE_POLL_INTERVAL_SECONDS"),
+    )
+    """Seconds between DB polls when the PG queue is idle (no pending jobs)."""
+
+    queue_heartbeat_interval_seconds: float = Field(
+        default=30.0,
+        validation_alias=AliasChoices("QUEUE_HEARTBEAT_INTERVAL_SECONDS"),
+    )
+    """Seconds between heartbeat UPDATEs while a job is running."""
+
+    queue_orphan_recovery_interval_seconds: float = Field(
+        default=60.0,
+        validation_alias=AliasChoices("QUEUE_ORPHAN_RECOVERY_INTERVAL_SECONDS"),
+    )
+    """Seconds between orphan-recovery sweeps."""
+
+    queue_cleanup_older_than_seconds: int = Field(
+        default=1800,
+        validation_alias=AliasChoices("QUEUE_CLEANUP_OLDER_THAN_SECONDS"),
+    )
+    """Delete completed/failed job rows older than this many seconds (default 30 min)."""
+
 
 settings = Settings()
