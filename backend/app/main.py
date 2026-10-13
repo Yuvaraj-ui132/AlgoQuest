@@ -23,21 +23,21 @@ async def lifespan(app: FastAPI):
     FastAPI application lifespan — startup and shutdown logic.
 
     Startup:
-      1. Initialize Firebase Admin SDK.
-      2. Start async submission worker(s) via asyncio.Queue.
+      1. Initialize structured logging with redacting filter.
+      2. Initialize Firebase Admin SDK.
+      3. Validate hidden test cases dataset.
+      4. Start async submission worker(s) via asyncio.Queue.
 
     Shutdown:
       1. Gracefully cancel all submission worker tasks.
-
-    NOTE: The submission queue is in-memory. If the process restarts,
-    queued/running jobs are lost. Completed Firestore records are permanent.
-    This is an intentional design decision — no external queue infrastructure required.
     """
+    from app.utils.logging import setup_logging
     from app.utils.security import initialize_firebase
     from app.services.submission_queue import submission_queue
     from app.routes.submissions import validate_hidden_tests_on_startup
     from app.config import settings
 
+    setup_logging(log_level=settings.log_level, log_format=settings.effective_log_format)
     initialize_firebase()
     validate_hidden_tests_on_startup()
     if settings.database_backend == "supabase":
@@ -64,7 +64,7 @@ app = FastAPI(
         "## Architecture\n"
         "- **Firebase Auth** handles login/signup (client-side)\n"
         "- **FastAPI** verifies ID tokens and proxies Firestore + Judge0 calls\n"
-        "- **Firestore** stores user data (progress, bookmarks, notes, editor code)\n"
+        "- **Firestore / Supabase** stores user data (progress, bookmarks, notes, editor code)\n"
         "- **Judge0 CE** executes submitted code in isolated containers"
     ),
     version="1.0.0",
@@ -73,6 +73,10 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# ── Middleware ────────────────────────────────────────────────────────────────
+from app.utils.logging import RequestLoggingMiddleware
+app.add_middleware(RequestLoggingMiddleware)
+
 # ── CORS ──────────────────────────────────────────────────────────────────────
 app.add_middleware(
     CORSMiddleware,
@@ -80,6 +84,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
+    expose_headers=["X-Request-ID"],
 )
 
 # ── Exception handlers ────────────────────────────────────────────────────────
@@ -95,7 +100,58 @@ app.include_router(user.router,        prefix="/api", tags=["User"])
 app.include_router(sync.router,        prefix="/api", tags=["Sync"])
 
 
-@app.get("/health", tags=["Health"], summary="Health check")
+@app.get("/health", tags=["Health"], summary="Liveness probe")
 async def health_check():
     """Returns OK when the backend is running. No authentication required."""
-    return {"status": "ok", "service": "algoquest-api"}
+    return {
+        "status": "ok",
+        "service": "algoquest-api",
+        "environment": settings.app_env,
+    }
+
+
+@app.get("/health/ready", tags=["Health"], summary="Readiness probe")
+async def readiness_check():
+    """
+    Deep readiness probe checking database, hidden tests dataset, and submission queue.
+    Returns 200 OK when operational, or 503 Service Unavailable when degraded.
+    Never exposes credentials or private hidden test data.
+    """
+    from fastapi.responses import JSONResponse
+    from fastapi import status
+    from app.services import db_service
+    from app.services.submission_queue import submission_queue
+    from app.routes.submissions import get_hidden_tests_status
+
+    db_ok = db_service.check_health()
+    hidden_status = get_hidden_tests_status()
+    queue_stats = submission_queue.get_queue_stats()
+
+    hidden_ok = hidden_status.get("dataset_available", False) or hidden_status.get("sample_only_mode", False)
+    workers_ok = queue_stats.get("active_workers", 0) > 0 or queue_stats.get("total_workers", 0) == 0
+
+    is_ready = db_ok and hidden_ok and workers_ok
+    status_code = status.HTTP_200_OK if is_ready else status.HTTP_503_SERVICE_UNAVAILABLE
+
+    return JSONResponse(
+        status_code=status_code,
+        content={
+            "status": "ready" if is_ready else "degraded",
+            "service": "algoquest-api",
+            "environment": settings.app_env,
+            "database": {
+                "backend": settings.database_backend,
+                "status": "connected" if db_ok else "error",
+            },
+            "hidden_tests": {
+                "status": "loaded" if hidden_status.get("dataset_available") else (
+                    "sample_only" if hidden_status.get("sample_only_mode") else "missing"
+                ),
+            },
+            "submission_queue": {
+                "status": "healthy" if workers_ok else "degraded",
+                "active_workers": queue_stats.get("active_workers", 0),
+                "queue_size": queue_stats.get("queue_size", 0),
+            },
+        },
+    )

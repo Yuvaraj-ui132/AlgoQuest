@@ -73,6 +73,7 @@ class SubmissionJob:
     compiler_options: str = ""
     created_at:       float = field(default_factory=time.monotonic)
     status:           JobStatus = JobStatus.QUEUED
+    request_id:       Optional[str] = None
 
     # Populated after worker finishes (None while QUEUED/RUNNING)
     result: Optional[Dict[str, Any]] = None  # safe SubmissionResponse dict
@@ -107,12 +108,16 @@ class SubmissionQueue:
         language_id: int,
         source_code: str,
         compiler_options: str = "",
+        request_id: Optional[str] = None,
     ) -> SubmissionJob:
         """
         Create a QUEUED job and place it on the asyncio queue.
         Rate limiting must happen BEFORE calling this method.
         Returns the job so the route handler can return job_id to the client.
         """
+        from app.utils.logging import request_id_ctx
+        clean_req_id = request_id or request_id_ctx.get() or None
+
         job_id = str(uuid.uuid4())
         job = SubmissionJob(
             job_id=job_id,
@@ -122,12 +127,21 @@ class SubmissionQueue:
             execution_type="submit",
             source_code=source_code,
             compiler_options=compiler_options,
+            request_id=clean_req_id,
         )
         self._jobs[job_id] = job
         self._queue.put_nowait(job)
         logger.info(
-            "[SUBMISSION] job=%s uid=%.8s... status=QUEUED question=%s lang=%s",
-            job_id, uid, question_id, language_id,
+            "[SUBMISSION_QUEUED] job=%s request_id=%s uid=%.8s... status=QUEUED question=%s lang=%s",
+            job_id, clean_req_id or "-", uid, question_id, language_id,
+            extra={
+                "event": "SUBMISSION_QUEUED",
+                "job_id": job_id,
+                "request_id": clean_req_id,
+                "question_id": question_id,
+                "language_id": language_id,
+                "uid": f"{uid[:8]}...",
+            },
         )
         return job
 
@@ -149,6 +163,16 @@ class SubmissionQueue:
             raise PermissionError(f"Job {job_id!r} not accessible to this user")
         return job
 
+    def get_queue_stats(self) -> Dict[str, Any]:
+        """Return non-sensitive queue metrics for monitoring and readiness probes."""
+        active_workers = sum(1 for w in self._workers if not w.done())
+        return {
+            "active_workers": active_workers,
+            "total_workers": len(self._workers),
+            "queue_size": self._queue.qsize(),
+            "tracked_jobs": len(self._jobs),
+        }
+
     # ── Internal state transitions ────────────────────────────────────────────
 
     def _mark_running(self, job: SubmissionJob) -> None:
@@ -166,7 +190,16 @@ class SubmissionQueue:
     def _mark_failed(self, job: SubmissionJob, error: str) -> None:
         job.error = error
         job.status = JobStatus.FAILED
-        logger.error("[SUBMISSION] job=%s status=FAILED error=%s", job.job_id, error)
+        logger.error(
+            "[SUBMISSION_FAILED] job=%s request_id=%s status=FAILED error=%s",
+            job.job_id, job.request_id or "-", error,
+            extra={
+                "event": "SUBMISSION_FAILED",
+                "job_id": job.job_id,
+                "request_id": job.request_id,
+                "error": error,
+            },
+        )
 
     # ── Background worker loop ────────────────────────────────────────────────
 
@@ -215,189 +248,223 @@ class SubmissionQueue:
         """
         import re
         from app.services import judge0_service
+        from app.utils.logging import request_id_ctx, job_id_ctx
+
+        start_mono = time.monotonic()
+        queue_wait_ms = round((start_mono - job.created_at) * 1000, 2)
+
+        req_tok = request_id_ctx.set(job.request_id or "")
+        job_tok = job_id_ctx.set(job.job_id)
 
         self._mark_running(job)
         logger.info(
-            "[SUBMISSION] job=%s question=%s language=%s",
-            job.job_id, job.question_id, job.language_id,
+            "[SUBMISSION_STARTED] job=%s request_id=%s queue_wait_ms=%.2f question=%s language=%s",
+            job.job_id, job.request_id or "-", queue_wait_ms, job.question_id, job.language_id,
+            extra={
+                "event": "SUBMISSION_STARTED",
+                "job_id": job.job_id,
+                "request_id": job.request_id,
+                "queue_wait_ms": queue_wait_ms,
+                "question_id": job.question_id,
+                "language_id": job.language_id,
+            },
         )
 
-        # ── Load test data ────────────────────────────────────────────────────
-        # _get_question_submission_data_sync is synchronous;
-        # run it in a thread to keep event loop free.
-        q_data, load_err, is_sample_only = await asyncio.to_thread(
-            _get_question_submission_data_sync, job.question_id
-        )
-        if load_err or q_data is None:
-            self._mark_failed(
-                job, load_err or f"Question {job.question_id} not found in catalogue"
-            )
-            return
-
-        sample_tests: list = q_data.get("sampleTests", [])
-        hidden_tests: list = q_data.get("hiddenTests", [])
-        compare_mode: str  = q_data.get("compareMode", "ordered")
-        n_sample           = len(sample_tests)
-        active_tests       = sample_tests + hidden_tests  # NEVER sent to browser
-
-        # ── Build combined stdin ──────────────────────────────────────────────
-        combined_stdin = _build_stdin_sync(active_tests)
-
-        # ── Dynamic backend nonce injection & marker anti-spoofing ───────────
-        nonce = secrets.token_hex(16)
-        from app.routes.submissions import prepare_dsa_source, parse_test_outputs
-        secured_code, is_clean = prepare_dsa_source(
-            source_code=job.source_code,
-            q_data=q_data,
-            language_id=job.language_id,
-            nonce=nonce,
-        )
-
-        # ── Execute Judge0 ────────────────────────────────────────────────────
         try:
-            result = await judge0_service.execute(
-                source_code=secured_code,
+            # ── Load test data ────────────────────────────────────────────────────
+            # _get_question_submission_data_sync is synchronous;
+            # run it in a thread to keep event loop free.
+            q_data, load_err, is_sample_only = await asyncio.to_thread(
+                _get_question_submission_data_sync, job.question_id
+            )
+            if load_err or q_data is None:
+                self._mark_failed(
+                    job, load_err or f"Question {job.question_id} not found in catalogue"
+                )
+                return
+
+            sample_tests: list = q_data.get("sampleTests", [])
+            hidden_tests: list = q_data.get("hiddenTests", [])
+            compare_mode: str  = q_data.get("compareMode", "ordered")
+            n_sample           = len(sample_tests)
+            active_tests       = sample_tests + hidden_tests  # NEVER sent to browser
+
+            # ── Build combined stdin ──────────────────────────────────────────────
+            combined_stdin = _build_stdin_sync(active_tests)
+
+            # ── Dynamic backend nonce injection & marker anti-spoofing ───────────
+            nonce = secrets.token_hex(16)
+            from app.routes.submissions import prepare_dsa_source, parse_test_outputs
+            secured_code, is_clean = prepare_dsa_source(
+                source_code=job.source_code,
+                q_data=q_data,
                 language_id=job.language_id,
-                stdin=combined_stdin,
-                compiler_options=job.compiler_options,
+                nonce=nonce,
             )
-        except TimeoutError as exc:
-            self._mark_failed(job, f"Judge0 timeout: {exc}")
-            return
-        except Exception as exc:
-            self._mark_failed(job, f"Judge0 error: {exc}")
-            return
 
-        status_id: int = result["status_id"]
-        stdout: str    = result["stdout"] or ""
+            # ── Execute Judge0 ────────────────────────────────────────────────────
+            judge0_start = time.monotonic()
+            try:
+                result = await judge0_service.execute(
+                    source_code=secured_code,
+                    language_id=job.language_id,
+                    stdin=combined_stdin,
+                    compiler_options=job.compiler_options,
+                )
+            except TimeoutError as exc:
+                self._mark_failed(job, f"Judge0 timeout: {exc}")
+                return
+            except Exception as exc:
+                self._mark_failed(job, f"Judge0 error: {exc}")
+                return
+            judge0_duration_ms = round((time.monotonic() - judge0_start) * 1000, 2)
 
-        # ── Parse per-test-case outputs (authenticated with session nonce) ────
-        if not is_clean:
-            output_lines = ["" for _ in range(len(active_tests))]
-        else:
-            output_lines = parse_test_outputs(stdout, len(active_tests), nonce=nonce)
+            status_id: int = result["status_id"]
+            stdout: str    = result["stdout"] or ""
 
-        passed_count = 0
-        tc_results   = []
-
-        for i, tc in enumerate(active_tests):
-            actual_raw = output_lines[i] if i < len(output_lines) else ""
-            is_hidden  = i >= n_sample
-
-            passed = (
-                is_clean
-                and status_id == 3
-                and _compare_sync(actual_raw, tc.get("expectedRaw", ""), compare_mode)
-            )
-            if passed:
-                passed_count += 1
-
-            # Build SAFE tc dict — hidden test stdin/expectedRaw/actual are NEVER included
-            item: Dict[str, Any] = {
-                "index":     i + 1,
-                "passed":    passed,
-                "actual":    None if is_hidden else actual_raw,
-                "is_hidden": is_hidden,
-            }
-            if not is_hidden:
-                item["input"]    = tc.get("input", "")
-                item["expected"] = tc.get("expected", "")
-            tc_results.append(item)
-
-        # ── Determine final verdict ───────────────────────────────────────────
-        all_passed = (len(active_tests) > 0) and (passed_count == len(active_tests)) and (status_id == 3)
-        if is_sample_only:
-            if all_passed:
-                final_verdict = "Sample Accepted (Dev Only)"
-            elif status_id == 3:
-                final_verdict = "Wrong Answer"
+            # ── Parse per-test-case outputs (authenticated with session nonce) ────
+            if not is_clean:
+                output_lines = ["" for _ in range(len(active_tests))]
             else:
-                final_verdict = result["verdict"]
-        else:
-            if all_passed:
-                final_verdict = "Accepted"
-            elif status_id == 3:
-                final_verdict = "Wrong Answer"
+                output_lines = parse_test_outputs(stdout, len(active_tests), nonce=nonce)
+
+            passed_count = 0
+            tc_results   = []
+
+            for i, tc in enumerate(active_tests):
+                actual_raw = output_lines[i] if i < len(output_lines) else ""
+                is_hidden  = i >= n_sample
+
+                passed = (
+                    is_clean
+                    and status_id == 3
+                    and _compare_sync(actual_raw, tc.get("expectedRaw", ""), compare_mode)
+                )
+                if passed:
+                    passed_count += 1
+
+                # Build SAFE tc dict — hidden test stdin/expectedRaw/actual are NEVER included
+                item: Dict[str, Any] = {
+                    "index":     i + 1,
+                    "passed":    passed,
+                    "actual":    None if is_hidden else actual_raw,
+                    "is_hidden": is_hidden,
+                }
+                if not is_hidden:
+                    item["input"]    = tc.get("input", "")
+                    item["expected"] = tc.get("expected", "")
+                tc_results.append(item)
+
+            # ── Determine final verdict ───────────────────────────────────────────
+            all_passed = (len(active_tests) > 0) and (passed_count == len(active_tests)) and (status_id == 3)
+            if is_sample_only:
+                if all_passed:
+                    final_verdict = "Sample Accepted (Dev Only)"
+                elif status_id == 3:
+                    final_verdict = "Wrong Answer"
+                else:
+                    final_verdict = result["verdict"]
             else:
-                final_verdict = result["verdict"]
+                if all_passed:
+                    final_verdict = "Accepted"
+                elif status_id == 3:
+                    final_verdict = "Wrong Answer"
+                else:
+                    final_verdict = result["verdict"]
 
-        logger.info(
-            "[SUBMISSION] job=%s verdict=%s passed=%d/%d (sample_only=%s)",
-            job.job_id, final_verdict, passed_count, len(active_tests), is_sample_only,
-        )
-
-        # Compile error is ONLY recorded if status_id == 6 (Compilation Error)
-        # Runtime stderr is NEVER stored in compile_error to prevent hidden test leakage
-        _compile_err = (result.get("compile_output") or None) if status_id == 6 else None
-
-        # ── Write database history (non-fatal) ───────────────────────────────
-        # asyncio.to_thread dispatches the synchronous database call to a
-        # thread pool so the event loop remains unblocked.
-        try:
-            await asyncio.to_thread(
-                _record_submission_sync,
-                job.uid,
-                job.question_id,
-                final_verdict,
-                status_id,
-                job.language_id,
-                passed_count,
-                len(active_tests),
-                _fmt_time(result["time"]),
-                _fmt_memory(result["memory"]),
-                _compile_err,
+            total_duration_ms = round((time.monotonic() - start_mono) * 1000, 2)
+            logger.info(
+                "[SUBMISSION_COMPLETED] job=%s request_id=%s verdict=%s passed=%d/%d (sample_only=%s) judge0_ms=%.2f total_ms=%.2f",
+                job.job_id, job.request_id or "-", final_verdict, passed_count, len(active_tests), is_sample_only,
+                judge0_duration_ms, total_duration_ms,
+                extra={
+                    "event": "SUBMISSION_COMPLETED",
+                    "job_id": job.job_id,
+                    "request_id": job.request_id,
+                    "verdict": final_verdict,
+                    "passed_count": passed_count,
+                    "total_count": len(active_tests),
+                    "is_sample_only": is_sample_only,
+                    "judge0_duration_ms": judge0_duration_ms,
+                    "total_duration_ms": total_duration_ms,
+                },
             )
-        except Exception as exc:
-            from app.utils.errors import sanitize_db_error
-            err_info = sanitize_db_error(exc)
-            logger.error(
-                "[SUBMISSION_PERSISTENCE_FAILED] job_id=%s question_id=%s verdict=%s "
-                "exc_class=%s pgcode=%s error=%s",
-                job.job_id,
-                job.question_id,
-                final_verdict,
-                err_info["exception_class"],
-                err_info["pgcode"] or "NONE",
-                err_info["sanitized_message"],
-            )
-            # Non-fatal: execution result is still returned to the user
 
-        # ── Update progress if Accepted (non-fatal) ───────────────────────────
-        # CRITICAL: In sample-only dev mode, progress is NEVER updated.
-        if all_passed and not is_sample_only:
+            # Compile error is ONLY recorded if status_id == 6 (Compilation Error)
+            # Runtime stderr is NEVER stored in compile_error to prevent hidden test leakage
+            _compile_err = (result.get("compile_output") or None) if status_id == 6 else None
+
+            # ── Write database history (non-fatal) ───────────────────────────────
+            # asyncio.to_thread dispatches the synchronous database call to a
+            # thread pool so the event loop remains unblocked.
             try:
                 await asyncio.to_thread(
-                    _update_progress_sync,
+                    _record_submission_sync,
                     job.uid,
                     job.question_id,
+                    final_verdict,
+                    status_id,
+                    job.language_id,
+                    passed_count,
+                    len(active_tests),
+                    _fmt_time(result["time"]),
+                    _fmt_memory(result["memory"]),
+                    _compile_err,
                 )
             except Exception as exc:
                 from app.utils.errors import sanitize_db_error
                 err_info = sanitize_db_error(exc)
                 logger.error(
-                    "[PROGRESS_PERSISTENCE_FAILED] job_id=%s question_id=%s "
+                    "[SUBMISSION_PERSISTENCE_FAILED] job_id=%s question_id=%s verdict=%s "
                     "exc_class=%s pgcode=%s error=%s",
                     job.job_id,
                     job.question_id,
+                    final_verdict,
                     err_info["exception_class"],
                     err_info["pgcode"] or "NONE",
                     err_info["sanitized_message"],
                 )
+                # Non-fatal: execution result is still returned to the user
 
-        # ── Build safe result (no hidden test data) ───────────────────────────
-        safe_result: Dict[str, Any] = {
-            "verdict":        final_verdict,
-            "status_id":      status_id,
-            "runtime":        _fmt_time(result["time"]),
-            "memory":         _fmt_memory(result["memory"]),
-            "passed_count":   passed_count,
-            "total_count":    len(active_tests),
-            "compile_output": (result.get("compile_output") or None) if status_id == 6 else None,
-            "stderr":         None,  # Submit mode NEVER exposes runtime stderr
-            "test_cases":     tc_results,  # hidden tc items have no input/expected/actual
-        }
+            # ── Update progress if Accepted (non-fatal) ───────────────────────────
+            # CRITICAL: In sample-only dev mode, progress is NEVER updated.
+            if all_passed and not is_sample_only:
+                try:
+                    await asyncio.to_thread(
+                        _update_progress_sync,
+                        job.uid,
+                        job.question_id,
+                    )
+                except Exception as exc:
+                    from app.utils.errors import sanitize_db_error
+                    err_info = sanitize_db_error(exc)
+                    logger.error(
+                        "[PROGRESS_PERSISTENCE_FAILED] job_id=%s question_id=%s "
+                        "exc_class=%s pgcode=%s error=%s",
+                        job.job_id,
+                        job.question_id,
+                        err_info["exception_class"],
+                        err_info["pgcode"] or "NONE",
+                        err_info["sanitized_message"],
+                    )
 
-        self._mark_completed(job, safe_result)
+            # ── Build safe result (no hidden test data) ───────────────────────────
+            safe_result: Dict[str, Any] = {
+                "verdict":        final_verdict,
+                "status_id":      status_id,
+                "runtime":        _fmt_time(result["time"]),
+                "memory":         _fmt_memory(result["memory"]),
+                "passed_count":   passed_count,
+                "total_count":    len(active_tests),
+                "compile_output": (result.get("compile_output") or None) if status_id == 6 else None,
+                "stderr":         None,  # Submit mode NEVER exposes runtime stderr
+                "test_cases":     tc_results,  # hidden tc items have no input/expected/actual
+            }
+
+            self._mark_completed(job, safe_result)
+        finally:
+            request_id_ctx.reset(req_tok)
+            job_id_ctx.reset(job_tok)
 
     # ── Worker lifecycle ──────────────────────────────────────────────────────
 

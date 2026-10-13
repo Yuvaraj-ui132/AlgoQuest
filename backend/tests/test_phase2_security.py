@@ -496,3 +496,144 @@ def test_user_init_request_sanitizes_control_characters():
     assert req.email == "john@example.com"
     assert req.photo_url == "https://example.com/pic.png"
 
+
+# ── 12. Structured Logging, Tracing & Health Probes (Phase Eight) ─────────────
+
+def test_request_id_generated_and_propagated_in_headers():
+    """Requests without X-Request-ID must receive an auto-generated X-Request-ID response header."""
+    response = client.get("/health")
+    assert response.status_code == 200
+    assert "X-Request-ID" in response.headers
+    assert response.headers["X-Request-ID"].startswith("req_")
+
+
+def test_custom_request_id_sanitized_and_reflected():
+    """Client-provided X-Request-ID is sanitized and reflected back in response headers."""
+    custom_id = "trace-client-12345"
+    response = client.get("/health", headers={"X-Request-ID": custom_id})
+    assert response.status_code == 200
+    assert response.headers.get("X-Request-ID") == custom_id
+
+    # Malformed/injection chars are stripped
+    dirty_id = "trace<script>'\"injection"
+    response2 = client.get("/health", headers={"X-Request-ID": dirty_id})
+    assert response2.status_code == 200
+    assert response2.headers.get("X-Request-ID") == "tracescriptinjection"
+
+
+def test_error_responses_include_request_id():
+    """HTTP 401, 404, 422, and 500 responses must propagate X-Request-ID in headers for correlation."""
+    # 401 Unauthorized
+    r401 = client.get("/api/progress")
+    assert r401.status_code == 401
+    assert "X-Request-ID" in r401.headers
+
+    # 422 Unprocessable Content
+    with patch("app.dependencies.firebase_auth.verify_id_token", return_value={"uid": "u1"}):
+        r422 = client.get("/api/notes/-1", headers={"Authorization": "Bearer valid_token"})
+        assert r422.status_code == 422
+        assert "X-Request-ID" in r422.headers
+
+
+def test_health_liveness_probe_returns_ok():
+    """GET /health must return 200 with status ok."""
+    response = client.get("/health")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "ok"
+    assert data["service"] == "algoquest-api"
+
+
+def test_health_readiness_probe_success():
+    """GET /health/ready returns 200 when database, hidden test dataset, and queue are operational."""
+    with patch("app.services.db_service.check_health", return_value=True):
+        with patch("app.routes.submissions.get_hidden_tests_status", return_value={"dataset_available": True, "sample_only_mode": False}):
+            response = client.get("/health/ready")
+            assert response.status_code == 200
+            data = response.json()
+            assert data["status"] == "ready"
+            assert data["database"]["status"] == "connected"
+            assert data["hidden_tests"]["status"] == "loaded"
+            assert data["submission_queue"]["status"] == "healthy"
+
+
+def test_health_readiness_probe_fails_on_degraded_db():
+    """GET /health/ready returns 503 when the database check fails, without leaking credentials."""
+    with patch("app.services.db_service.check_health", return_value=False):
+        response = client.get("/health/ready")
+        assert response.status_code == 503
+        data = response.json()
+        assert data["status"] == "degraded"
+        assert data["database"]["status"] == "error"
+        assert "password" not in response.text
+        assert "secret" not in response.text
+
+
+def test_sensitive_data_scrubbing_in_logging():
+    """sanitize_log_text must scrub passwords, bearer tokens, JWTs, and database URLs."""
+    from app.utils.logging import sanitize_log_text
+
+    raw_text = (
+        "Connecting to postgresql://user:SecretPass123@host:5432/db with "
+        "Authorization: Bearer my_secret_token_123 and token=SuperSecretJWTVal and "
+        "jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.payload.sig"
+    )
+    cleaned = sanitize_log_text(raw_text)
+    assert "SecretPass123" not in cleaned
+    assert "my_secret_token_123" not in cleaned
+    assert "SuperSecretJWTVal" not in cleaned
+    assert "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9" not in cleaned
+    assert "[REDACTED]" in cleaned
+
+
+def test_structured_json_formatter_produces_valid_json():
+    """StructuredJsonFormatter must format log records as valid JSON with request_id and metadata."""
+    import logging
+    from app.utils.logging import StructuredJsonFormatter
+
+    formatter = StructuredJsonFormatter()
+    record = logging.LogRecord(
+        name="test.logger",
+        level=logging.INFO,
+        pathname="test.py",
+        lineno=10,
+        msg="Execution completed",
+        args=(),
+        exc_info=None,
+    )
+    record.request_id = "req_test_abc"
+    record.job_id = "job_test_xyz"
+    setattr(record, "duration_ms", 45.2)
+    setattr(record, "status_code", 200)
+
+    formatted = formatter.format(record)
+    parsed = json.loads(formatted)
+    assert parsed["message"] == "Execution completed"
+    assert parsed["level"] == "INFO"
+    assert parsed["logger"] == "test.logger"
+    assert parsed["request_id"] == "req_test_abc"
+    assert parsed["job_id"] == "job_test_xyz"
+    assert parsed["duration_ms"] == 45.2
+    assert parsed["status_code"] == 200
+
+
+def test_submission_job_correlation_and_queue_metrics():
+    """Submission job creation must track request_id and provide queue metrics."""
+    from app.services.submission_queue import submission_queue
+
+    job = submission_queue.create_job(
+        uid="user_trace_test",
+        question_id=1,
+        language_id=71,
+        source_code="print('hello')",
+        request_id="req_correlated_123",
+    )
+    assert job.request_id == "req_correlated_123"
+
+    stats = submission_queue.get_queue_stats()
+    assert "active_workers" in stats
+    assert "queue_size" in stats
+    assert "tracked_jobs" in stats
+    assert stats["tracked_jobs"] >= 1
+
+

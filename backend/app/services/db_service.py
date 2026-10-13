@@ -19,6 +19,14 @@ def get_backend():
     return firestore_service
 
 
+def check_health() -> bool:
+    """Check database health on the active backend."""
+    backend = get_backend()
+    if hasattr(backend, "check_health"):
+        return backend.check_health()
+    return True
+
+
 # ── User Initialization ────────────────────────────────────────────────────────
 
 def init_user_document(

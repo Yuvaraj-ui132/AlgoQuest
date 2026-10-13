@@ -106,6 +106,28 @@ class Settings(BaseSettings):
     def allowed_origins(self) -> list:
         return [o.strip() for o in self.allowed_origins_str.split(",") if o.strip()]
 
+    # ── Logging & Observability (Phase Eight) ─────────────────────────────────
+    log_level: str = Field(
+        default="INFO",
+        validation_alias=AliasChoices("LOG_LEVEL"),
+    )
+    """Log level threshold: 'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'."""
+
+    log_format: str = Field(
+        default="text",
+        validation_alias=AliasChoices("LOG_FORMAT"),
+    )
+    """Log format: 'text' (human-readable) or 'json' (structured JSON for log aggregators)."""
+
+    @property
+    def effective_log_format(self) -> str:
+        fmt = self.log_format.strip().lower()
+        if fmt in ("json", "structured"):
+            return "json"
+        if self.is_production and fmt != "text":
+            return "json"
+        return "text"
+
 
     # ── Execution ─────────────────────────────────────────────────────────────
     judge0_max_poll_attempts: int = 20

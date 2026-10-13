@@ -30,18 +30,31 @@ def _cors_headers(request: Request) -> dict:
     return {}
 
 
+def _response_headers(request: Request, base_headers: dict = None) -> dict:
+    headers = dict(base_headers) if base_headers else {}
+    headers.update(_cors_headers(request))
+    req_id = getattr(request.state, "request_id", None)
+    if not req_id:
+        try:
+            from app.utils.logging import request_id_ctx
+            req_id = request_id_ctx.get()
+        except Exception:
+            pass
+    if req_id:
+        headers["X-Request-ID"] = req_id
+    return headers
+
+
 def add_exception_handlers(app: FastAPI) -> None:
     """Register global exception handlers on the FastAPI app."""
     from fastapi import HTTPException
 
     @app.exception_handler(HTTPException)
     async def http_exception_handler(request: Request, exc: HTTPException):
-        headers = dict(exc.headers) if exc.headers else {}
-        headers.update(_cors_headers(request))
         return JSONResponse(
             status_code=exc.status_code,
             content={"detail": exc.detail},
-            headers=headers,
+            headers=_response_headers(request, exc.headers),
         )
 
     @app.exception_handler(RequestValidationError)
@@ -54,7 +67,7 @@ def add_exception_handlers(app: FastAPI) -> None:
         return JSONResponse(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             content={"detail": "; ".join(errors)},
-            headers=_cors_headers(request),
+            headers=_response_headers(request),
         )
 
     @app.exception_handler(Exception)
@@ -64,11 +77,27 @@ def add_exception_handlers(app: FastAPI) -> None:
         is_sensitive = hasattr(exc, "orig") or any(k in err_str.lower() for k in ("password", "token", "key", "secret"))
         sanitized_diag = sanitize_db_error(exc) if is_sensitive else None
 
+        req_id = getattr(request.state, "request_id", None)
+        if not req_id:
+            try:
+                from app.utils.logging import request_id_ctx
+                req_id = request_id_ctx.get()
+            except Exception:
+                pass
+
         logger.error(
-            "Unhandled exception on %s %s: %s",
+            "Unhandled exception on %s %s [req=%s]: %s",
             request.method,
             request.url.path,
+            req_id or "-",
             sanitized_diag["sanitized_message"] if sanitized_diag else exc,
+            extra={
+                "event": "API_UNHANDLED_EXCEPTION",
+                "request_id": req_id or "",
+                "method": request.method,
+                "path": request.url.path,
+                "error": sanitized_diag["sanitized_message"] if sanitized_diag else str(exc),
+            },
             exc_info=True,
         )
 
@@ -82,7 +111,7 @@ def add_exception_handlers(app: FastAPI) -> None:
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={"detail": detail},
-            headers=_cors_headers(request),
+            headers=_response_headers(request),
         )
 
 

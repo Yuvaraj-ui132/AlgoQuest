@@ -32,6 +32,19 @@ def _user_ref(uid: str):
     return _db().collection("users").document(uid)
 
 
+def check_health() -> bool:
+    """Safe connectivity/client check for Cloud Firestore."""
+    try:
+        import firebase_admin
+        if not firebase_admin._apps:
+            return False
+        client = _db()
+        return client is not None
+    except Exception as exc:
+        logger.warning("Firestore health check failed: %s", exc)
+        return False
+
+
 # ── User initialization ───────────────────────────────────────────────────────
 
 def init_user_document(

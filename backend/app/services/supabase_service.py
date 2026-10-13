@@ -259,6 +259,18 @@ def init_db(engine=None):
     Base.metadata.create_all(bind=eng)
 
 
+def check_health() -> bool:
+    """Safe connectivity check for PostgreSQL / SQLite."""
+    try:
+        eng = get_engine()
+        with eng.connect() as conn:
+            conn.execute(select(1))
+        return True
+    except Exception as exc:
+        logger.warning("Supabase database health check failed: %s", exc)
+        return False
+
+
 # ── User Initialization ────────────────────────────────────────────────────────
 
 def init_user_document(

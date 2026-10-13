@@ -139,6 +139,17 @@ def reset_test_data_cache() -> None:
     _sample_only_active = False
 
 
+def get_hidden_tests_status() -> Dict[str, Any]:
+    """Return non-sensitive summary of hidden test availability for readiness checks."""
+    file_path = _locate_hidden_tests_file()
+    has_hidden = _hidden_data_cache is not None or (file_path is not None and os.path.isfile(file_path))
+    is_sample_only = bool(settings.allow_sample_only_grading or _sample_only_active)
+    return {
+        "dataset_available": has_hidden,
+        "sample_only_mode": is_sample_only,
+    }
+
+
 def _locate_hidden_tests_file() -> Optional[str]:
     """
     Locates the private hidden test cases file in priority order:
@@ -707,6 +718,9 @@ async def create_submission(
     # Must happen BEFORE queue insertion. A 429 must NOT create a job.
     _check_rate_limit(uid)   # raises HTTP 429 if limit exceeded
 
+    from app.utils.logging import request_id_ctx
+    req_id = request_id_ctx.get() or None
+
     compiler_options = body.compiler_options or ""
 
     # ── ASYNC SUBMIT — HTTP 202 early return ──────────────────────────────────
@@ -720,6 +734,7 @@ async def create_submission(
             language_id=body.language_id,
             source_code=body.source_code,
             compiler_options=compiler_options,
+            request_id=req_id,
         )
         return JSONResponse(
             status_code=status.HTTP_202_ACCEPTED,
@@ -728,6 +743,7 @@ async def create_submission(
 
     # ── General mode (no question context) ────────────────────────────────────
     if body.execution_type == "general" or body.question_id is None:
+        start_t = time.monotonic()
         # Decode the base64 stdin provided by the frontend
         import base64
         raw_stdin = ""
@@ -743,6 +759,19 @@ async def create_submission(
             stdin=raw_stdin,
             compiler_options=compiler_options,
         )
+        duration_ms = round((time.monotonic() - start_t) * 1000, 2)
+        logger.info(
+            "[SUBMISSION_SYNC_COMPLETED] request_id=%s mode=general verdict=%s status_id=%s duration_ms=%.2f",
+            req_id or "-", result["verdict"], result["status_id"], duration_ms,
+            extra={
+                "event": "SUBMISSION_SYNC_COMPLETED",
+                "request_id": req_id,
+                "mode": "general",
+                "verdict": result["verdict"],
+                "status_id": result["status_id"],
+                "duration_ms": duration_ms,
+            },
+        )
         return SubmissionResponse(
             verdict=result["verdict"],
             status_id=result["status_id"],
@@ -754,6 +783,7 @@ async def create_submission(
         )
 
     # ── DSA mode (run / submit) ───────────────────────────────────────────────
+    start_t = time.monotonic()
     is_sample_only = False
     if body.execution_type == "run":
         q_data = _get_question_test_data(body.question_id)
@@ -861,6 +891,21 @@ async def create_submission(
 
     # ── For 'run': return result directly (RUN is always synchronous) ─────────
     # No Firestore history write, no progress update, no queue.
+    duration_ms = round((time.monotonic() - start_t) * 1000, 2)
+    logger.info(
+        "[SUBMISSION_SYNC_COMPLETED] request_id=%s mode=run question_id=%s verdict=%s passed=%d/%d duration_ms=%.2f",
+        req_id or "-", body.question_id, final_verdict, passed_count, len(active_tests), duration_ms,
+        extra={
+            "event": "SUBMISSION_SYNC_COMPLETED",
+            "request_id": req_id,
+            "mode": "run",
+            "question_id": body.question_id,
+            "verdict": final_verdict,
+            "passed_count": passed_count,
+            "total_count": len(active_tests),
+            "duration_ms": duration_ms,
+        },
+    )
     return SubmissionResponse(
         verdict=final_verdict,
         status_id=status_id,
