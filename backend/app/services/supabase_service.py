@@ -1395,11 +1395,20 @@ def recover_orphan_jobs_sync() -> int:
     session = get_db_session()
     try:
         now = datetime.now(timezone.utc)
-        rows = (
-            session.query(QueueJob)
-            .filter(QueueJob.status == "running")
-            .all()
-        )
+        dialect = session.get_bind().dialect.name
+        if dialect == "postgresql":
+            rows = (
+                session.query(QueueJob)
+                .filter(QueueJob.status == "running")
+                .with_for_update(skip_locked=True)
+                .all()
+            )
+        else:
+            rows = (
+                session.query(QueueJob)
+                .filter(QueueJob.status == "running")
+                .all()
+            )
         recovered = 0
         for row in rows:
             is_orphan = False
@@ -1491,8 +1500,9 @@ def delete_old_jobs_sync(older_than_seconds: int = 1800) -> int:
         if deleted:
             session.commit()
         return deleted
-    except Exception:
+    except Exception as exc:
         session.rollback()
+        logger.warning("[DELETE_OLD_JOBS] Failed to delete old queue jobs: %s", exc, exc_info=True)
         return 0
     finally:
         session.close()
