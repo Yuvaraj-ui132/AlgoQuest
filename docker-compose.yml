@@ -1,0 +1,71 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: algoquest-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-algoquest_dev}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/migrations:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-algoquest_dev}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - algoquest-net
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: algoquest-api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    environment:
+      - APP_ENV=development
+      - DATABASE_BACKEND=supabase
+      - SUPABASE_DB_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-algoquest_dev}
+      - QUEUE_ENABLE_PG_BACKEND=true
+      - ALLOW_SAMPLE_ONLY_GRADING=true
+      - SUBMISSION_WORKERS=2
+      - BACKEND_HOST=0.0.0.0
+      - BACKEND_PORT=8000
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - LOG_FORMAT=${LOG_FORMAT:-text}
+      - ALLOWED_ORIGINS_STR=${ALLOWED_ORIGINS_STR:-http://localhost:5500,http://localhost:8000,http://127.0.0.1:5500,https://algoquest-9aab0.web.app}
+      # External service credentials (optional for core features, configure in .env.docker)
+      - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID:-algoquest-9aab0}
+      - FIREBASE_SERVICE_ACCOUNT_JSON=${FIREBASE_SERVICE_ACCOUNT_JSON:-}
+      - JUDGE0_API_KEY=${JUDGE0_API_KEY:-}
+      - JUDGE0_USE_RAPIDAPI=${JUDGE0_USE_RAPIDAPI:-true}
+    volumes:
+      # Live-reload mount for application code during local development
+      - ./backend/app:/app/app:ro
+      - ./backend/data:/app/data:ro
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\" || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - algoquest-net
+
+volumes:
+  postgres_data:
+    name: algoquest_postgres_data
+
+networks:
+  algoquest-net:
+    driver: bridge
