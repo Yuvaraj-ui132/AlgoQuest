@@ -49,6 +49,11 @@ async def lifespan(app: FastAPI):
     submission_queue.start_workers(count=settings.submission_workers)
     yield
     submission_queue.stop_workers()
+    try:
+        from app.services.judge0_service import close_http_client
+        await close_http_client()
+    except Exception:
+        pass
 
 
 app = FastAPI(

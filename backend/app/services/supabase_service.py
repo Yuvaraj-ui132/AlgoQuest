@@ -14,6 +14,7 @@ Key Features:
 import os
 import uuid
 import logging
+import asyncio
 from datetime import datetime, timezone
 from typing import Dict, List, Optional, Any
 
@@ -31,6 +32,7 @@ from sqlalchemy import (
     Index,
     TypeDecorator,
     func,
+    case,
     select,
     desc,
     or_,
@@ -670,18 +672,7 @@ async def save_general_compiler_code(uid: str, language: str, code: str) -> None
 
 # ── Bulk Load ─────────────────────────────────────────────────────────────────
 
-async def get_all_user_data(uid: str) -> Dict[str, Any]:
-    """
-    Fetch all user data in a single consolidated database query roundtrip.
-    Returns:
-        {
-            "progress": {"solved": [...], "rev1": [...], "rev2": [...]},
-            "bookmarks": [...],
-            "notes": {qId: content},
-            "editor": {qId: {language, code}},
-            "general_compiler": {lang: code}
-        }
-    """
+def _get_all_user_data_sync(uid: str) -> Dict[str, Any]:
     session = get_db_session()
     try:
         progress_records = session.query(UserProgress).filter(UserProgress.user_id == uid).all()
@@ -712,6 +703,22 @@ async def get_all_user_data(uid: str) -> Dict[str, Any]:
         }
     finally:
         session.close()
+
+
+async def get_all_user_data(uid: str) -> Dict[str, Any]:
+    """
+    Fetch all user data in a single consolidated database query roundtrip.
+    Dispatched via asyncio.to_thread() to avoid blocking the event loop.
+    Returns:
+        {
+            "progress": {"solved": [...], "rev1": [...], "rev2": [...]},
+            "bookmarks": [...],
+            "notes": {qId: content},
+            "editor": {qId: {language, code}},
+            "general_compiler": {lang: code}
+        }
+    """
+    return await asyncio.to_thread(_get_all_user_data_sync, uid)
 
 
 # ── Submissions ───────────────────────────────────────────────────────────────
@@ -850,7 +857,7 @@ def record_submission_sync(
         session.close()
 
 
-async def get_submission_history(
+def _get_submission_history_sync(
     uid: str,
     limit: int = 20,
     after_doc_id: Optional[str] = None,
@@ -948,48 +955,66 @@ async def get_submission_history(
         session.close()
 
 
-async def get_user_analytics(uid: str) -> Dict[str, Any]:
+async def get_submission_history(
+    uid: str,
+    limit: int = 20,
+    after_doc_id: Optional[str] = None,
+) -> Dict[str, Any]:
     """
-    Computes summary analytics for a user:
-    - Solved count and revision counts from UserProgress
-    - Total submissions, accepted count, and acceptance rate from Submission
+    Keyset paginated submission history ordered newest-first.
+    Compatible with both UUID cursor and legacy Firestore document ID cursor.
+    Dispatched via asyncio.to_thread() to avoid blocking the event loop.
     """
+    return await asyncio.to_thread(_get_submission_history_sync, uid, limit, after_doc_id)
+
+
+def _get_user_analytics_sync(uid: str) -> Dict[str, Any]:
     session = get_db_session()
     try:
-        progress_rows = session.query(UserProgress).filter(UserProgress.user_id == uid).all()
-        solved_count = sum(1 for p in progress_rows if p.solved)
-        rev1_count = sum(1 for p in progress_rows if p.rev1)
-        rev2_count = sum(1 for p in progress_rows if p.rev2)
+        p_res = session.query(
+            func.coalesce(func.sum(case((UserProgress.solved.is_(True), 1), else_=0)), 0),
+            func.coalesce(func.sum(case((UserProgress.rev1.is_(True), 1), else_=0)), 0),
+            func.coalesce(func.sum(case((UserProgress.rev2.is_(True), 1), else_=0)), 0),
+        ).filter(UserProgress.user_id == uid).first()
+        solved_count, rev1_count, rev2_count = p_res if p_res else (0, 0, 0)
 
-        submissions = session.query(Submission).filter(Submission.user_id == uid).all()
-        total_subs = len(submissions)
-        accepted_subs = sum(1 for s in submissions if s.verdict == "Accepted")
+        s_res = session.query(
+            func.count(Submission.id),
+            func.coalesce(func.sum(case((Submission.verdict == "Accepted", 1), else_=0)), 0),
+        ).filter(Submission.user_id == uid).first()
+        total_subs, accepted_subs = s_res if s_res else (0, 0)
         acc_rate = round((accepted_subs / total_subs * 100), 2) if total_subs > 0 else 0.0
 
         return {
-            "solved_count": solved_count,
-            "rev1_count": rev1_count,
-            "rev2_count": rev2_count,
-            "total_submissions": total_subs,
-            "accepted_submissions": accepted_subs,
+            "solved_count": int(solved_count),
+            "rev1_count": int(rev1_count),
+            "rev2_count": int(rev2_count),
+            "total_submissions": int(total_subs),
+            "accepted_submissions": int(accepted_subs),
             "acceptance_rate": acc_rate,
         }
     finally:
         session.close()
 
 
+async def get_user_analytics(uid: str) -> Dict[str, Any]:
+    """
+    Computes summary analytics for a user using database-level SQL aggregations:
+    - Solved count and revision counts from UserProgress
+    - Total submissions, accepted count, and acceptance rate from Submission
+    Dispatched via asyncio.to_thread() to avoid blocking the event loop.
+    """
+    return await asyncio.to_thread(_get_user_analytics_sync, uid)
+
+
 # ── Batch Sync (Reliable Cloud-Synced State) ───────────────────────────────────
 
-async def batch_sync(
+def _batch_sync_sync(
     uid: str,
     progress_items: Optional[List[Dict[str, Any]]] = None,
     bookmark_items: Optional[List[Dict[str, Any]]] = None,
     note_items: Optional[List[Dict[str, Any]]] = None,
-) -> Dict[str, Any]:
-    """
-    Atomically synchronizes batches of progress, bookmark, and note updates.
-    Returns the full updated user data dictionary for instant client state reconciliation.
-    """
+) -> None:
     session = get_db_session()
     now = datetime.now(timezone.utc)
     try:
@@ -1074,5 +1099,18 @@ async def batch_sync(
     finally:
         session.close()
 
+
+async def batch_sync(
+    uid: str,
+    progress_items: Optional[List[Dict[str, Any]]] = None,
+    bookmark_items: Optional[List[Dict[str, Any]]] = None,
+    note_items: Optional[List[Dict[str, Any]]] = None,
+) -> Dict[str, Any]:
+    """
+    Atomically synchronizes batches of progress, bookmark, and note updates.
+    Returns the full updated user data dictionary for instant client state reconciliation.
+    Dispatched via asyncio.to_thread() to avoid blocking the event loop.
+    """
+    await asyncio.to_thread(_batch_sync_sync, uid, progress_items, bookmark_items, note_items)
     return await get_all_user_data(uid)
 

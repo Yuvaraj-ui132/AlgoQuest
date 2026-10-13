@@ -93,8 +93,10 @@ class SubmissionQueue:
       - Periodically clean up old completed/failed jobs.
     """
 
-    def __init__(self) -> None:
-        self._queue:        asyncio.Queue = asyncio.Queue()
+    def __init__(self, maxsize: Optional[int] = None) -> None:
+        from app.config import settings
+        effective_max = maxsize if maxsize is not None else getattr(settings, "submission_queue_max_size", 100)
+        self._queue:        asyncio.Queue = asyncio.Queue(maxsize=effective_max)
         self._jobs:         Dict[str, SubmissionJob] = {}
         self._workers:      List[asyncio.Task] = []
         self._cleanup_task: Optional[asyncio.Task] = None
@@ -113,8 +115,21 @@ class SubmissionQueue:
         """
         Create a QUEUED job and place it on the asyncio queue.
         Rate limiting must happen BEFORE calling this method.
+        Applies queue backpressure (HTTP 503) if the bounded queue is full.
         Returns the job so the route handler can return job_id to the client.
         """
+        if self._queue.full():
+            logger.warning(
+                "[SUBMISSION_QUEUE_FULL] Queue capacity (%d) reached. Applying backpressure.",
+                self._queue.maxsize,
+            )
+            from fastapi import HTTPException, status
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Submission queue is full. Please try again shortly.",
+                headers={"Retry-After": "5"},
+            )
+
         from app.utils.logging import request_id_ctx
         clean_req_id = request_id or request_id_ctx.get() or None
 
@@ -170,6 +185,7 @@ class SubmissionQueue:
             "active_workers": active_workers,
             "total_workers": len(self._workers),
             "queue_size": self._queue.qsize(),
+            "max_queue_size": self._queue.maxsize,
             "tracked_jobs": len(self._jobs),
         }
 

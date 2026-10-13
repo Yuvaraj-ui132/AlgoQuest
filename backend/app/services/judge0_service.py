@@ -35,6 +35,37 @@ logger = logging.getLogger(__name__)
 # Track which endpoint base URL was used for each active submission token
 _token_base_urls: Dict[str, str] = {}
 
+# ── Connection pooling ────────────────────────────────────────────────────────
+_client: Optional[httpx.AsyncClient] = None
+
+
+def get_http_client() -> httpx.AsyncClient:
+    """Return a shared, connection-pooled AsyncClient."""
+    global _client
+    try:
+        current_loop = asyncio.get_running_loop()
+    except RuntimeError:
+        current_loop = None
+
+    if (
+        _client is None
+        or _client.is_closed
+        or (current_loop is not None and getattr(_client, "_aq_loop", None) != current_loop)
+    ):
+        limits = httpx.Limits(max_keepalive_connections=20, max_connections=50)
+        _client = httpx.AsyncClient(timeout=30.0, limits=limits)
+        if current_loop is not None:
+            _client._aq_loop = current_loop
+    return _client
+
+
+async def close_http_client() -> None:
+    """Safely close persistent AsyncClient on application shutdown."""
+    global _client
+    if _client is not None and not _client.is_closed:
+        await _client.aclose()
+        _client = None
+
 
 # ── Status helpers ────────────────────────────────────────────────────────────
 
@@ -135,43 +166,43 @@ async def create_submission(
     url = f"{target_base}/submissions?base64_encoded=true&wait=false"
     headers = _get_headers(for_rapidapi=("rapidapi.com" in target_base))
 
-    async with httpx.AsyncClient(timeout=30.0) as client:
-        try:
+    client = get_http_client()
+    try:
+        response = await client.post(url, json=payload, headers=headers)
+        # If RapidAPI returns 401 or 403 (unauthorized, invalid key, or not subscribed),
+        # gracefully fall back to the public Judge0 CE endpoint so code execution succeeds!
+        if response.status_code in (401, 403) and "rapidapi.com" in url:
+            logger.warning(
+                "[Judge0] RapidAPI returned HTTP %s (%s). Falling back to public endpoint %s.",
+                response.status_code,
+                response.text[:200],
+                settings.judge0_public_base,
+            )
+            target_base = settings.judge0_public_base
+            url = f"{target_base}/submissions?base64_encoded=true&wait=false"
+            headers = {"content-type": "application/json"}
             response = await client.post(url, json=payload, headers=headers)
-            # If RapidAPI returns 401 or 403 (unauthorized, invalid key, or not subscribed),
-            # gracefully fall back to the public Judge0 CE endpoint so code execution succeeds!
-            if response.status_code in (401, 403) and "rapidapi.com" in url:
-                logger.warning(
-                    "[Judge0] RapidAPI returned HTTP %s (%s). Falling back to public endpoint %s.",
-                    response.status_code,
-                    response.text[:200],
-                    settings.judge0_public_base,
-                )
-                target_base = settings.judge0_public_base
-                url = f"{target_base}/submissions?base64_encoded=true&wait=false"
-                headers = {"content-type": "application/json"}
-                response = await client.post(url, json=payload, headers=headers)
 
-            response.raise_for_status()
-            data = response.json()
-        except httpx.HTTPStatusError as exc:
-            logger.error("[Judge0] HTTP error: %s - %s", exc.response.status_code, exc.response.text[:200])
-            if exc.response.status_code == 429:
-                raise HTTPException(
-                    status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-                    detail="Code execution provider rate limit reached. Please retry shortly.",
-                    headers={"Retry-After": "30"},
-                )
+        response.raise_for_status()
+        data = response.json()
+    except httpx.HTTPStatusError as exc:
+        logger.error("[Judge0] HTTP error: %s - %s", exc.response.status_code, exc.response.text[:200])
+        if exc.response.status_code == 429:
             raise HTTPException(
-                status_code=status.HTTP_502_BAD_GATEWAY,
-                detail=f"Code execution provider error: HTTP {exc.response.status_code} - {exc.response.text[:200]}",
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail="Code execution provider rate limit reached. Please retry shortly.",
+                headers={"Retry-After": "30"},
             )
-        except httpx.RequestError as exc:
-            logger.error("[Judge0] Connection error: %s", exc)
-            raise HTTPException(
-                status_code=status.HTTP_502_BAD_GATEWAY,
-                detail=f"Code execution provider unreachable: {exc}",
-            )
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"Code execution provider error: HTTP {exc.response.status_code} - {exc.response.text[:200]}",
+        )
+    except httpx.RequestError as exc:
+        logger.error("[Judge0] Connection error: %s", exc)
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"Code execution provider unreachable: {exc}",
+        )
 
     token = data.get("token")
     if not token:
@@ -197,32 +228,38 @@ async def poll_submission(token: str) -> Dict[str, Any]:
     headers = _get_headers(for_rapidapi=is_rapidapi)
     headers.pop("content-type", None)
 
-    async with httpx.AsyncClient(timeout=30.0) as client:
-        for attempt in range(settings.judge0_max_poll_attempts):
+    client = get_http_client()
+    for attempt in range(settings.judge0_max_poll_attempts):
+        if attempt > 0:
             await asyncio.sleep(settings.judge0_poll_interval_seconds)
-            try:
-                response = await client.get(url, headers=headers)
-                response.raise_for_status()
-                data = response.json()
-            except httpx.HTTPStatusError as exc:
-                logger.error("[Judge0] Poll error on %s: %s", url, exc)
-                _token_base_urls.pop(token, None)
-                raise HTTPException(
-                    status_code=status.HTTP_502_BAD_GATEWAY,
-                    detail=f"Judge0 polling failed: HTTP {exc.response.status_code}",
-                )
-            except httpx.RequestError as exc:
-                logger.error("[Judge0] Poll network error on %s: %s", url, exc)
-                _token_base_urls.pop(token, None)
-                raise HTTPException(
-                    status_code=status.HTTP_502_BAD_GATEWAY,
-                    detail=f"Judge0 polling unreachable: {exc}",
-                )
+        else:
+            # Quick initial probe for fast DSA executions (saves ~1.75s idle delay)
+            initial_delay = min(0.25, settings.judge0_poll_interval_seconds)
+            await asyncio.sleep(initial_delay)
 
-            status_id = data.get("status", {}).get("id", 0)
-            if is_terminal(status_id):
-                _token_base_urls.pop(token, None)
-                return data
+        try:
+            response = await client.get(url, headers=headers)
+            response.raise_for_status()
+            data = response.json()
+        except httpx.HTTPStatusError as exc:
+            logger.error("[Judge0] Poll error on %s: %s", url, exc)
+            _token_base_urls.pop(token, None)
+            raise HTTPException(
+                status_code=status.HTTP_502_BAD_GATEWAY,
+                detail=f"Judge0 polling failed: HTTP {exc.response.status_code}",
+            )
+        except httpx.RequestError as exc:
+            logger.error("[Judge0] Poll network error on %s: %s", url, exc)
+            _token_base_urls.pop(token, None)
+            raise HTTPException(
+                status_code=status.HTTP_502_BAD_GATEWAY,
+                detail=f"Judge0 polling unreachable: {exc}",
+            )
+
+        status_id = data.get("status", {}).get("id", 0)
+        if is_terminal(status_id):
+            _token_base_urls.pop(token, None)
+            return data
 
     _token_base_urls.pop(token, None)
     raise HTTPException(

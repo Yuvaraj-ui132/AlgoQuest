@@ -633,7 +633,73 @@ def test_submission_job_correlation_and_queue_metrics():
     stats = submission_queue.get_queue_stats()
     assert "active_workers" in stats
     assert "queue_size" in stats
+    assert "max_queue_size" in stats
+    assert stats["max_queue_size"] == 100
     assert "tracked_jobs" in stats
     assert stats["tracked_jobs"] >= 1
+
+
+def test_submission_queue_backpressure_when_full():
+    """Verify that when queue reaches max capacity, create_job raises HTTP 503 with Retry-After header."""
+    from app.services.submission_queue import SubmissionQueue
+    from fastapi import HTTPException
+
+    # Create bounded queue with capacity 2
+    bounded_mgr = SubmissionQueue(maxsize=2)
+    bounded_mgr.create_job(uid="u1", question_id=1, language_id=71, source_code="code")
+    bounded_mgr.create_job(uid="u2", question_id=1, language_id=71, source_code="code")
+
+    assert bounded_mgr._queue.full() is True
+
+    # 3rd job must be rejected with HTTP 503 backpressure
+    with pytest.raises(HTTPException) as exc_info:
+        bounded_mgr.create_job(uid="u3", question_id=1, language_id=71, source_code="code")
+
+    assert exc_info.value.status_code == 503
+    assert exc_info.value.headers.get("Retry-After") == "5"
+    assert "queue is full" in exc_info.value.detail.lower()
+
+
+def test_judge0_persistent_http_client_reuse():
+    """Verify that Judge0 service maintains a shared, connection-pooled AsyncClient."""
+    from app.services import judge0_service
+
+    client1 = judge0_service.get_http_client()
+    client2 = judge0_service.get_http_client()
+    assert client1 is client2
+    assert not client1.is_closed
+
+
+def test_judge0_adaptive_polling_fast_path():
+    """Verify that poll_submission returns on the initial probe without sleeping the full interval."""
+    import asyncio
+    from app.services import judge0_service
+    from unittest.mock import AsyncMock, patch
+
+    mock_resp = MagicMock()
+    mock_resp.status_code = 200
+    mock_resp.raise_for_status = MagicMock()
+    mock_resp.json.return_value = {
+        "status": {"id": 3, "description": "Accepted"},
+        "stdout": "",
+        "stderr": "",
+        "compile_output": "",
+        "time": "0.05",
+        "memory": "1200",
+    }
+
+    async def _test():
+        with patch("httpx.AsyncClient.get", new_callable=AsyncMock, return_value=mock_resp), \
+             patch("asyncio.sleep", new_callable=AsyncMock) as mock_sleep:
+
+            res = await judge0_service.poll_submission("tok_fast_path_123")
+            assert res["status"]["id"] == 3
+            # Should have slept for the initial fast probe (<=0.25s), not the full 2.0s
+            mock_sleep.assert_called_once()
+            called_sleep_time = mock_sleep.call_args[0][0]
+            assert called_sleep_time <= 0.25
+
+    asyncio.run(_test())
+
 
 

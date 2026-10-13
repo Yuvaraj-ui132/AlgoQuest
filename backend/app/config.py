@@ -137,12 +137,18 @@ class Settings(BaseSettings):
     """Seconds to wait between polling attempts."""
 
     # ── Async submission queue ─────────────────────────────────────────────────
-    submission_workers: int = 1
+    submission_workers: int = 2
     """
     Number of asyncio background workers processing the submit queue.
-    Start with 1 for safety; increase for higher concurrency.
-    Do NOT set to an unbounded value — each worker holds a Judge0 connection.
+    Defaults to 2 for concurrent throughput; bounded to prevent overloading Judge0.
     Override via SUBMISSION_WORKERS env var.
+    """
+
+    submission_queue_max_size: int = 100
+    """
+    Maximum number of queued jobs before applying backpressure (HTTP 503).
+    Prevents unbounded memory growth and excessive wait times.
+    Override via SUBMISSION_QUEUE_MAX_SIZE env var.
     """
 
     # ── Private Test Suite & Grading Isolation ─────────────────────────────────
