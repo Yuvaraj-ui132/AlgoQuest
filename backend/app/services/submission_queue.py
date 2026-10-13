@@ -305,7 +305,7 @@ class SubmissionQueue:
             tc_results.append(item)
 
         # ── Determine final verdict ───────────────────────────────────────────
-        all_passed = (passed_count == len(active_tests)) and (status_id == 3)
+        all_passed = (len(active_tests) > 0) and (passed_count == len(active_tests)) and (status_id == 3)
         if is_sample_only:
             if all_passed:
                 final_verdict = "Sample Accepted (Dev Only)"

@@ -28,6 +28,7 @@ from app.routes.submissions import (
     reset_test_data_cache,
     _get_question_test_data,
     get_question_submission_data,
+    validate_hidden_tests_on_startup,
 )
 from app.services.submission_queue import (
     SubmissionJob,
@@ -398,4 +399,274 @@ def test_comparator_rejects_invalid_topological_sort_in_course_schedule():
     assert _compare("3 2 1 0", expected_orders, "any_of") is False
     assert _compare("1 0 3 2", expected_orders, "any_of") is False
     assert _compare("2 3 0 1", expected_orders, "any_of") is False
+
+
+# ── 11. Startup Validation & Fail-Closed Diagnostics ─────────────────────────
+
+def test_validate_hidden_tests_on_startup_success(monkeypatch):
+    """Startup validation succeeds and reports correct problem & test counts."""
+    local_hidden_path = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "..", "data", "hidden_test_cases.json")
+    )
+    monkeypatch.setattr(settings, "allow_sample_only_grading", False)
+    monkeypatch.setattr(settings, "hidden_tests_path", local_hidden_path)
+    reset_test_data_cache()
+
+    info = validate_hidden_tests_on_startup()
+    assert info["status"] == "ok"
+    assert info["problems_loaded"] == 174
+    assert info["total_tests"] == 4318
+
+
+def test_validate_hidden_tests_on_startup_missing_fails_closed(monkeypatch):
+    """Startup validation detects missing hidden suite in production and returns error without crashing."""
+    monkeypatch.setattr(settings, "allow_sample_only_grading", False)
+    monkeypatch.setattr(settings, "hidden_tests_path", "/nonexistent/test/path.json")
+    reset_test_data_cache()
+
+    info = validate_hidden_tests_on_startup()
+    assert info["status"] == "error"
+    assert "Private hidden test suite is not configured or missing" in info["error"]
+
+
+def test_validate_hidden_tests_on_startup_malformed_fails_closed(monkeypatch):
+    """Startup validation detects malformed hidden test JSON in production and returns error without crashing."""
+    with tempfile.NamedTemporaryFile("w", delete=False, suffix=".json") as f:
+        f.write("{ invalid json corrupted ...")
+        temp_path = f.name
+
+    try:
+        monkeypatch.setattr(settings, "allow_sample_only_grading", False)
+        monkeypatch.setattr(settings, "hidden_tests_path", temp_path)
+        reset_test_data_cache()
+
+        info = validate_hidden_tests_on_startup()
+        assert info["status"] == "error"
+        assert "Malformed private hidden test file" in info["error"]
+    finally:
+        os.remove(temp_path)
+
+
+def test_validate_hidden_tests_on_startup_sample_only_mode(monkeypatch):
+    """Startup validation notes sample-only development mode without error."""
+    monkeypatch.setattr(settings, "allow_sample_only_grading", True)
+    monkeypatch.setattr(settings, "hidden_tests_path", "/nonexistent/test/path.json")
+    reset_test_data_cache()
+
+    info = validate_hidden_tests_on_startup()
+    assert info["status"] == "sample_only"
+
+
+# ── 12. Defensive Zero Active Tests Handling ──────────────────────────────────
+
+def test_empty_active_tests_cannot_produce_accepted(monkeypatch):
+    """If a question has 0 active tests (e.g. malformed metadata), it must never produce Accepted."""
+    async def _run():
+        monkeypatch.setattr(settings, "allow_sample_only_grading", False)
+        reset_test_data_cache()
+
+        job = SubmissionJob(
+            job_id="test-job-empty-tests",
+            uid="user_edge",
+            question_id=1,
+            language_id=71,
+            execution_type="submit",
+            source_code="class Solution: pass",
+        )
+
+        mock_judge_result = {
+            "verdict": "Accepted",
+            "status_id": 3,
+            "time": 0.01,
+            "memory": 1024,
+            "stdout": "",
+            "compile_output": None,
+            "stderr": None,
+        }
+
+        # Mock question data to have 0 tests
+        mock_q_data = {
+            "id": 1,
+            "title": "Edge Case",
+            "sampleTests": [],
+            "hiddenTests": [],
+            "compareMode": "ordered",
+        }
+
+        with patch("app.routes.submissions.get_question_submission_data", return_value=(mock_q_data, None, False)), \
+             patch("app.services.judge0_service.execute", new_callable=AsyncMock, return_value=mock_judge_result), \
+             patch("app.routes.submissions.prepare_dsa_source", return_value=("mock_code", True)), \
+             patch("app.routes.submissions.parse_test_outputs", return_value=[]), \
+             patch("app.services.submission_queue._record_submission_sync"), \
+             patch("app.services.submission_queue._update_progress_sync") as mock_progress:
+
+            await submission_queue._process_job(job)
+
+            assert job.status == JobStatus.COMPLETED
+            assert job.result is not None
+            # With 0 tests, verdict must NOT be Accepted
+            assert job.result["verdict"] != "Accepted"
+            mock_progress.assert_not_called()
+
+    asyncio.run(_run())
+
+
+# ── 13. Strict Structural Dataset Validation & Fail-Closed Behavior ───────────
+
+def _load_real_hidden_data():
+    local_path = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "..", "data", "hidden_test_cases.json")
+    )
+    with open(local_path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def test_validate_hidden_tests_on_startup_missing_problem_ids_rejected(monkeypatch):
+    """Startup validation rejects dataset missing required problem IDs 1-174 and fails closed."""
+    data = {"1": [{"stdin": "5\n", "expectedRaw": "5"}]}
+    with tempfile.NamedTemporaryFile("w", delete=False, suffix=".json") as f:
+        json.dump(data, f)
+        temp_path = f.name
+    try:
+        monkeypatch.setattr(settings, "allow_sample_only_grading", False)
+        monkeypatch.setattr(settings, "hidden_tests_path", temp_path)
+        reset_test_data_cache()
+
+        info = validate_hidden_tests_on_startup()
+        assert info["status"] == "error"
+        assert "missing required problem ID" in info["error"]
+
+        # Verify production submission fails closed
+        q_data, err, is_sample_only = get_question_submission_data(1)
+        assert q_data is None
+        assert "Invalid private hidden test suite structure" in err
+    finally:
+        os.remove(temp_path)
+
+
+def test_validate_hidden_tests_on_startup_non_list_tests_rejected(monkeypatch):
+    """Startup validation rejects dataset where a problem's hidden tests is not a list."""
+    real_data = _load_real_hidden_data()
+    real_data["1"] = {"not": "a list"}
+    with tempfile.NamedTemporaryFile("w", delete=False, suffix=".json") as f:
+        json.dump(real_data, f)
+        temp_path = f.name
+    try:
+        monkeypatch.setattr(settings, "allow_sample_only_grading", False)
+        monkeypatch.setattr(settings, "hidden_tests_path", temp_path)
+        reset_test_data_cache()
+
+        info = validate_hidden_tests_on_startup()
+        assert info["status"] == "error"
+        assert "Problem 1 hidden tests must be a list" in info["error"]
+    finally:
+        os.remove(temp_path)
+
+
+def test_validate_hidden_tests_on_startup_missing_stdin_or_expected_raw_rejected(monkeypatch):
+    """Startup validation rejects dataset if any test entry is missing string stdin or expectedRaw."""
+    real_data = _load_real_hidden_data()
+    del real_data["1"][0]["stdin"]
+    with tempfile.NamedTemporaryFile("w", delete=False, suffix=".json") as f:
+        json.dump(real_data, f)
+        temp_path = f.name
+    try:
+        monkeypatch.setattr(settings, "allow_sample_only_grading", False)
+        monkeypatch.setattr(settings, "hidden_tests_path", temp_path)
+        reset_test_data_cache()
+
+        info = validate_hidden_tests_on_startup()
+        assert info["status"] == "error"
+        assert "Problem 1 test case 0 is missing a string 'stdin'" in info["error"]
+    finally:
+        os.remove(temp_path)
+
+    real_data2 = _load_real_hidden_data()
+    del real_data2["1"][0]["expectedRaw"]
+    with tempfile.NamedTemporaryFile("w", delete=False, suffix=".json") as f:
+        json.dump(real_data2, f)
+        temp_path = f.name
+    try:
+        monkeypatch.setattr(settings, "allow_sample_only_grading", False)
+        monkeypatch.setattr(settings, "hidden_tests_path", temp_path)
+        reset_test_data_cache()
+
+        info = validate_hidden_tests_on_startup()
+        assert info["status"] == "error"
+        assert "Problem 1 test case 0 is missing a valid string 'expectedRaw'" in info["error"]
+    finally:
+        os.remove(temp_path)
+
+
+def test_validate_hidden_tests_on_startup_test_count_mismatch_rejected(monkeypatch):
+    """Startup validation rejects dataset if test counts do not match 25 per standard, 11 for Q161, 7 for Q169."""
+    # Standard problem count mismatch (24 instead of 25)
+    real_data = _load_real_hidden_data()
+    real_data["1"] = real_data["1"][:-1]
+    with tempfile.NamedTemporaryFile("w", delete=False, suffix=".json") as f:
+        json.dump(real_data, f)
+        temp_path = f.name
+    try:
+        monkeypatch.setattr(settings, "allow_sample_only_grading", False)
+        monkeypatch.setattr(settings, "hidden_tests_path", temp_path)
+        reset_test_data_cache()
+
+        info = validate_hidden_tests_on_startup()
+        assert info["status"] == "error"
+        assert "Problem 1 has 24 hidden tests, expected 25" in info["error"]
+    finally:
+        os.remove(temp_path)
+
+    # Q161 mismatch (10 instead of 11)
+    real_data161 = _load_real_hidden_data()
+    real_data161["161"] = real_data161["161"][:-1]
+    with tempfile.NamedTemporaryFile("w", delete=False, suffix=".json") as f:
+        json.dump(real_data161, f)
+        temp_path = f.name
+    try:
+        monkeypatch.setattr(settings, "allow_sample_only_grading", False)
+        monkeypatch.setattr(settings, "hidden_tests_path", temp_path)
+        reset_test_data_cache()
+
+        info = validate_hidden_tests_on_startup()
+        assert info["status"] == "error"
+        assert "Problem 161 has 10 hidden tests, expected 11" in info["error"]
+    finally:
+        os.remove(temp_path)
+
+    # Q169 mismatch (6 instead of 7)
+    real_data169 = _load_real_hidden_data()
+    real_data169["169"] = real_data169["169"][:-1]
+    with tempfile.NamedTemporaryFile("w", delete=False, suffix=".json") as f:
+        json.dump(real_data169, f)
+        temp_path = f.name
+    try:
+        monkeypatch.setattr(settings, "allow_sample_only_grading", False)
+        monkeypatch.setattr(settings, "hidden_tests_path", temp_path)
+        reset_test_data_cache()
+
+        info = validate_hidden_tests_on_startup()
+        assert info["status"] == "error"
+        assert "Problem 169 has 6 hidden tests, expected 7" in info["error"]
+    finally:
+        os.remove(temp_path)
+
+    # Zero hidden tests
+    real_data_zero = _load_real_hidden_data()
+    real_data_zero["1"] = []
+    with tempfile.NamedTemporaryFile("w", delete=False, suffix=".json") as f:
+        json.dump(real_data_zero, f)
+        temp_path = f.name
+    try:
+        monkeypatch.setattr(settings, "allow_sample_only_grading", False)
+        monkeypatch.setattr(settings, "hidden_tests_path", temp_path)
+        reset_test_data_cache()
+
+        info = validate_hidden_tests_on_startup()
+        assert info["status"] == "error"
+        assert "Problem 1 has zero hidden tests" in info["error"]
+    finally:
+        os.remove(temp_path)
+
+
 

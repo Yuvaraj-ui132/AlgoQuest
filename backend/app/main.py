@@ -35,9 +35,11 @@ async def lifespan(app: FastAPI):
     """
     from app.utils.security import initialize_firebase
     from app.services.submission_queue import submission_queue
+    from app.routes.submissions import validate_hidden_tests_on_startup
     from app.config import settings
 
     initialize_firebase()
+    validate_hidden_tests_on_startup()
     if settings.database_backend == "supabase":
         try:
             from app.services.supabase_service import repair_historical_languages

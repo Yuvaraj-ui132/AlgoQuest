@@ -196,6 +196,113 @@ def _load_hidden_data() -> None:
         logger.error("[GRADING] Fail-closed: %s", _hidden_data_error)
 
 
+def _validate_hidden_dataset_structure(data: Any) -> Optional[str]:
+    """
+    Validates structural integrity of the private hidden test dataset.
+    Returns None if valid, or a descriptive error string if invalid.
+    Does NOT leak test inputs, expected outputs, or sensitive data.
+    """
+    if not isinstance(data, dict):
+        return "Hidden test dataset must be a JSON object mapping problem IDs to test lists."
+
+    # 1. Validate exact presence of all required problem IDs 1-174
+    for qid_int in range(1, 175):
+        qid_str = str(qid_int)
+        if qid_str not in data:
+            return f"Hidden test dataset is missing required problem ID {qid_str} (expected 1-174)."
+
+    if len(data) != 174:
+        return f"Hidden test dataset contains {len(data)} problems, expected exactly 174 (1-174)."
+
+    # 2. Validate per-problem test counts and test case schemas
+    total_tests = 0
+    for qid_int in range(1, 175):
+        qid_str = str(qid_int)
+        tests = data[qid_str]
+        if not isinstance(tests, list):
+            return f"Problem {qid_str} hidden tests must be a list, got {type(tests).__name__}."
+
+        if qid_int == 161:
+            expected_count = 11
+        elif qid_int == 169:
+            expected_count = 7
+        else:
+            expected_count = 25
+
+        if len(tests) == 0:
+            return f"Problem {qid_str} has zero hidden tests."
+
+        if len(tests) != expected_count:
+            return (
+                f"Problem {qid_str} has {len(tests)} hidden tests, "
+                f"expected {expected_count}."
+            )
+
+        for idx, tc in enumerate(tests):
+            if not isinstance(tc, dict):
+                return f"Problem {qid_str} test case {idx} must be a JSON object."
+            if "stdin" not in tc or not isinstance(tc["stdin"], str):
+                return f"Problem {qid_str} test case {idx} is missing a string 'stdin'."
+            if "expectedRaw" not in tc or not isinstance(tc["expectedRaw"], str):
+                return f"Problem {qid_str} test case {idx} is missing a valid string 'expectedRaw'."
+
+        total_tests += len(tests)
+
+    if total_tests != 4318:
+        return f"Total hidden test count is {total_tests}, expected exactly 4318."
+
+    return None
+
+
+def validate_hidden_tests_on_startup() -> Dict[str, Any]:
+    """
+    Validates private hidden test dataset presence and structure during startup.
+    Logs clear, safe diagnostics without leaking test contents or secrets.
+    Does not crash the application process, preserving health checks and fail-closed security.
+    """
+    global _hidden_data_error, _hidden_data_cache
+    _load_hidden_data()
+    if _sample_only_active:
+        logger.warning(
+            "[GRADING] STARTUP NOTICE: Server running with allow_sample_only_grading=True. "
+            "Submissions will not produce production Accepted verdicts."
+        )
+        return {"status": "sample_only", "problems_loaded": 0, "total_tests": 0}
+
+    if _hidden_data_error:
+        logger.error(
+            "[GRADING] STARTUP WARNING: %s (production submissions will fail closed)",
+            _hidden_data_error,
+        )
+        return {"status": "error", "error": _hidden_data_error}
+
+    if _hidden_data_cache is not None:
+        struct_err = _validate_hidden_dataset_structure(_hidden_data_cache)
+        if struct_err:
+            _hidden_data_error = f"Invalid private hidden test suite structure: {struct_err}"
+            _hidden_data_cache = None
+            logger.error(
+                "[GRADING] STARTUP WARNING: %s (production submissions will fail closed)",
+                _hidden_data_error,
+            )
+            return {"status": "error", "error": _hidden_data_error}
+
+        total_tests = sum(len(tests) for tests in _hidden_data_cache.values() if isinstance(tests, list))
+        logger.info(
+            "[GRADING] STARTUP OK: Private hidden test suite loaded (%d problems, %d hidden tests).",
+            len(_hidden_data_cache),
+            total_tests,
+        )
+        return {
+            "status": "ok",
+            "problems_loaded": len(_hidden_data_cache),
+            "total_tests": total_tests,
+            "path": _locate_hidden_tests_file(),
+        }
+
+    return {"status": "unavailable"}
+
+
 def _get_question_test_data(question_id: int) -> Optional[Dict[str, Any]]:
     """
     Returns public problem metadata and sample test cases only.
@@ -737,7 +844,7 @@ async def create_submission(
         tc_results.append(item)
 
     # ── Determine final verdict ───────────────────────────────────────────────
-    all_passed = passed_count == len(active_tests) and status_id == 3
+    all_passed = (len(active_tests) > 0) and (passed_count == len(active_tests)) and (status_id == 3)
 
     if is_sample_only:
         final_verdict = "Sample Accepted (Dev Only)" if all_passed else ("Wrong Answer" if status_id == 3 else result["verdict"])
