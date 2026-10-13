@@ -360,7 +360,7 @@ function renderHistoryTable(resetScroll) {
         <col style="width:140px"/><!-- Status -->
         <col/>                    <!-- Problem: takes all remaining space -->
         <col style="width:82px"/> <!-- Language -->
-        <col style="width:68px"/> <!-- Tests -->
+        <col style="width:92px"/> <!-- Tests -->
         <col style="width:90px"/> <!-- Runtime -->
         <col style="width:90px"/> <!-- Memory -->
         <col style="width:96px"/> <!-- Submitted -->

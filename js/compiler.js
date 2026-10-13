@@ -208,6 +208,8 @@ const Compiler = (() => {
 
   function run(sourceCode, language, stdin) {
     _isSubmit = false;
+    isSubmitting = false;
+    activeConsoleTab = 'testcase';
 
     const isDsaPage = isDsaPageActive();
     const currentQ = window.App?.currentQuestion;
@@ -241,6 +243,9 @@ const Compiler = (() => {
 
   function submit(sourceCode, language) {
     _isSubmit = true;
+    isSubmitting = true;
+    activeConsoleTab = 'result';
+    renderSampleTestConsole();
 
     const isDsaPage = isDsaPageActive();
     const currentQ = window.App?.currentQuestion;
@@ -304,6 +309,19 @@ const Compiler = (() => {
     updateStatus('stopped', 'Stopped');
 
     const msg = reason || 'Execution stopped by user.';
+
+    if (isSubmitting) {
+      isSubmitting = false;
+      lastSubmissionResult = {
+        verdict: 'Stopped',
+        status_id: 14,
+        runtime: '--',
+        memory: '--',
+        compile_output: msg,
+      };
+      activeConsoleTab = 'result';
+      renderSampleTestConsole();
+    }
 
     const errEl = document.getElementById('exec-error');
     if (errEl) {
@@ -447,15 +465,16 @@ const Compiler = (() => {
               if (el) el.style.display = 'none';
             });
             updateStatus('error', 'Timed out');
-            const banner = document.getElementById('dsa-status-banner') || document.getElementById('verdict-banner');
-            if (banner) {
-              banner.className = 'verdict-banner show error';
-              banner.style.display = '';
-              banner.innerHTML = `
-                <div class="verdict-header"><i class="fas fa-clock"></i><span>Timed Out</span></div>
-                <div class="verdict-explanation">The submission timed out waiting for a result. Please try again.</div>
-              `;
-            }
+            isSubmitting = false;
+            lastSubmissionResult = {
+              verdict: 'Timed Out',
+              status_id: 5,
+              runtime: '--',
+              memory: '--',
+              compile_output: 'The submission timed out waiting for a result. Please try again.',
+            };
+            activeConsoleTab = 'result';
+            renderSampleTestConsole();
             return;
           }
 
@@ -491,15 +510,16 @@ const Compiler = (() => {
               if (el) el.style.display = 'none';
             });
             updateStatus('error', 'Failed');
-            const banner = document.getElementById('dsa-status-banner') || document.getElementById('verdict-banner');
-            if (banner) {
-              banner.className = 'verdict-banner show error';
-              banner.style.display = '';
-              banner.innerHTML = `
-                <div class="verdict-header"><i class="fas fa-exclamation-triangle"></i><span>Submission Failed</span></div>
-                <div class="verdict-explanation">${jobStatus.error || 'An unknown error occurred.'}</div>
-              `;
-            }
+            isSubmitting = false;
+            lastSubmissionResult = {
+              verdict: 'Submission Failed',
+              status_id: 13,
+              runtime: '--',
+              memory: '--',
+              compile_output: jobStatus.error || 'An unknown error occurred.',
+            };
+            activeConsoleTab = 'result';
+            renderSampleTestConsole();
             // After any submit (even failed), invalidate history cache
             if (typeof window.invalidateHistoryCache === 'function') {
               try { window.invalidateHistoryCache(); } catch (_) {}
@@ -644,6 +664,18 @@ const Compiler = (() => {
   let currentSelectedCaseIdx = 0;
   let currentCaseResults = {};
   let lastExecutionMeta = null;
+  let activeConsoleTab = 'testcase'; // 'testcase' | 'result'
+  let lastSubmissionResult = null;
+  let isSubmitting = false;
+
+  const LANG_DISPLAY = {
+    cpp: 'C++',
+    c: 'C',
+    java: 'Java',
+    python: 'Python',
+    javascript: 'JavaScript',
+    js: 'JavaScript',
+  };
 
   function _escape(str) {
     if (str === null || str === undefined) return '';
@@ -662,6 +694,9 @@ const Compiler = (() => {
     currentSelectedCaseIdx = 0;
     currentCaseResults = {};
     lastExecutionMeta = null;
+    lastSubmissionResult = null;
+    isSubmitting = false;
+    activeConsoleTab = 'testcase';
 
     // Keep verdict banner hidden
     const verdictBanner = document.getElementById('dsa-status-banner');
@@ -738,6 +773,7 @@ const Compiler = (() => {
   function selectCase(idx) {
     if (idx < 0 || idx >= currentSampleTests.length) return;
     currentSelectedCaseIdx = idx;
+    activeConsoleTab = 'testcase';
     renderSampleTestConsole();
   }
 
@@ -745,13 +781,325 @@ const Compiler = (() => {
     return currentSelectedCaseIdx;
   }
 
+  function formatTestCaseOutput(actual, expected) {
+    if (actual === undefined || actual === null) return '(no output)';
+    const str = String(actual).trim();
+    const exp = expected ? String(expected).trim() : '';
+
+    // If expected is an array [...]
+    if (exp.startsWith('[') && exp.endsWith(']')) {
+      if (!str) return '[]';
+      if (str.startsWith('[') && str.endsWith(']')) return str;
+      const tokens = str.split(/\s+/).filter(Boolean);
+      return `[${tokens.join(',')}]`;
+    }
+
+    // If expected is a quoted string "..."
+    if (exp.startsWith('"') && exp.endsWith('"')) {
+      if (!str) return '""';
+      if (str.startsWith('"') && str.endsWith('"')) return str;
+      return `"${str}"`;
+    }
+
+    // If expected is boolean true / false
+    if (exp === 'true' || exp === 'false') {
+      if (str === '1') return 'true';
+      if (str === '0') return 'false';
+    }
+
+    if (!str) return '(no output)';
+    return str;
+  }
+
+  function renderSubmissionResultPanel(result) {
+    if (!result) return '<div class="dsa-no-tests-msg">No submission results available.</div>';
+
+    const verdict = result.verdict || 'Evaluation Complete';
+    const statusId = result.status_id;
+    const time = (result.runtime && result.runtime !== '--') ? result.runtime : '--';
+    const memory = (result.memory && result.memory !== '--') ? result.memory : '--';
+
+    const hasPassed = typeof result.passed_count === 'number' && result.passed_count >= 0;
+    const hasTotal = typeof result.total_count === 'number' && result.total_count > 0;
+
+    let passedCount = null;
+    let totalCount = null;
+    let failedCount = null;
+    let countHeadline = '';
+
+    if (hasPassed && hasTotal) {
+      passedCount = result.passed_count;
+      totalCount = result.total_count;
+      failedCount = Math.max(0, totalCount - passedCount);
+      countHeadline = `${passedCount} / ${totalCount} test cases passed`;
+    } else if (hasPassed) {
+      passedCount = result.passed_count;
+      countHeadline = `${passedCount} test cases passed`;
+    } else if (verdict === 'Accepted' || verdict.startsWith('Sample Accepted')) {
+      countHeadline = 'All test cases passed';
+    } else {
+      countHeadline = 'Submission evaluated';
+    }
+
+    let verdictCls = 'error';
+    let verdictIcon = 'fa-exclamation-triangle';
+    if (verdict === 'Accepted' || verdict.startsWith('Sample Accepted')) {
+      verdictCls = 'accepted';
+      verdictIcon = 'fa-check-circle';
+    } else if (verdict === 'Wrong Answer') {
+      verdictCls = 'wrong';
+      verdictIcon = 'fa-times-circle';
+    } else if (verdict === 'Time Limit Exceeded') {
+      verdictCls = 'error';
+      verdictIcon = 'fa-clock';
+    } else if (verdict === 'Compilation Error') {
+      verdictCls = 'error';
+      verdictIcon = 'fa-exclamation-triangle';
+    }
+
+    // Summary pills (passed / failed)
+    let summaryChipsHtml = '';
+    if (passedCount !== null && totalCount !== null) {
+      summaryChipsHtml = `
+        <div class="leetcode-summary-row">
+          <span class="leetcode-stat-pill passed"><i class="fas fa-check"></i> <strong>${passedCount}</strong> passed</span>
+          <span class="leetcode-stat-pill ${failedCount > 0 ? 'failed' : 'zero-failed'}"><i class="fas fa-times"></i> <strong>${failedCount}</strong> failed</span>
+        </div>
+      `;
+    }
+
+    // Language display
+    const currentLangKey = window.App?.dsaEditorLanguage || 'cpp';
+    const langLabel = LANG_DISPLAY[currentLangKey] || currentLangKey.toUpperCase();
+
+    // Metadata cards
+    const metaGridHtml = `
+      <div class="leetcode-meta-grid">
+        <div class="leetcode-meta-card">
+          <div class="leetcode-meta-label"><i class="fas fa-clock"></i> Runtime</div>
+          <div class="leetcode-meta-val">${_escape(time)}</div>
+        </div>
+        <div class="leetcode-meta-card">
+          <div class="leetcode-meta-label"><i class="fas fa-memory"></i> Memory</div>
+          <div class="leetcode-meta-val">${_escape(memory)}</div>
+        </div>
+        <div class="leetcode-meta-card">
+          <div class="leetcode-meta-label"><i class="fas fa-code"></i> Language</div>
+          <div class="leetcode-meta-val">${_escape(langLabel)}</div>
+        </div>
+      </div>
+    `;
+
+    // Detailed breakdown / failing test case / compile error
+    let detailHtml = '';
+
+    if (verdict === 'Accepted' || verdict.startsWith('Sample Accepted')) {
+      detailHtml = `
+        <div class="leetcode-accepted-card">
+          <div class="leetcode-accepted-icon"><i class="fas fa-check-circle"></i></div>
+          <div class="leetcode-accepted-text">
+            <strong>Accepted!</strong> All ${hasTotal ? totalCount : ''} test cases passed. Your solution has been verified and marked as solved!
+          </div>
+        </div>
+      `;
+    } else if (verdict === 'Wrong Answer') {
+      const testCases = result.test_cases || [];
+      const firstFailed = testCases.find(tc => !tc.passed);
+      if (firstFailed) {
+        if (!firstFailed.is_hidden) {
+          // Public sample test case: safe to display input, expected, and actual
+          detailHtml = `
+            <div class="leetcode-detail-section">
+              <div class="leetcode-detail-title">
+                <i class="fas fa-times-circle" style="color:#ef4444;"></i>
+                <span>Failing Test Case (Sample Case ${firstFailed.index})</span>
+              </div>
+              <div class="leetcode-detail-field">
+                <label>Input</label>
+                <pre class="dsa-test-code-box">${_escape(firstFailed.input || '')}</pre>
+              </div>
+              <div class="leetcode-detail-field">
+                <label>Actual Output</label>
+                <pre class="dsa-test-code-box mismatch">${_escape(formatTestCaseOutput(firstFailed.actual, firstFailed.expected))}</pre>
+              </div>
+              <div class="leetcode-detail-field">
+                <label>Expected Output</label>
+                <pre class="dsa-test-code-box match">${_escape(firstFailed.expected || '')}</pre>
+              </div>
+            </div>
+          `;
+        } else {
+          // Hidden test case: NEVER expose private stdin or expectedRaw
+          detailHtml = `
+            <div class="leetcode-detail-section">
+              <div class="leetcode-detail-title">
+                <i class="fas fa-lock" style="color:var(--text-muted);"></i>
+                <span>Failing Test Case (Hidden Test Case)</span>
+              </div>
+              <div class="leetcode-hidden-test-notice">
+                <div class="leetcode-hidden-icon"><i class="fas fa-shield-alt"></i></div>
+                <div class="leetcode-hidden-text">
+                  <strong>Private Test Case:</strong> The input and expected output for this test case are hidden to protect test integrity and prevent hardcoding. Check edge cases, boundary values, and constraint limits.
+                </div>
+              </div>
+            </div>
+          `;
+        }
+      }
+    } else if (statusId === 6 || verdict === 'Compilation Error') {
+      detailHtml = `
+        <div class="leetcode-detail-section">
+          <div class="leetcode-detail-title">
+            <i class="fas fa-exclamation-triangle" style="color:#f59e0b;"></i>
+            <span>Compiler Error Details</span>
+          </div>
+          <div class="leetcode-error-box">
+            <pre class="dsa-error-pre">${_escape(result.compile_output || 'Compilation failed.')}</pre>
+          </div>
+        </div>
+      `;
+    } else if (statusId === 5 || verdict === 'Time Limit Exceeded') {
+      detailHtml = `
+        <div class="leetcode-detail-section">
+          <div class="leetcode-detail-title">
+            <i class="fas fa-clock" style="color:#f59e0b;"></i>
+            <span>Time Limit Exceeded</span>
+          </div>
+          <div class="leetcode-error-note">
+            <i class="fas fa-info-circle"></i> Your algorithm exceeded the allowed execution time limit on Judge0. Optimize your algorithm's time complexity to handle larger inputs.
+          </div>
+        </div>
+      `;
+    } else if ((statusId >= 7 && statusId <= 14) || verdict.includes('Runtime Error')) {
+      const category = getErrorCategory(statusId, verdict, '');
+      let explanation = CATEGORY_EXPLANATIONS[category] || 'A runtime error occurred during program execution.';
+      if (statusId === 7) {
+        explanation = 'Runtime Error (SIGSEGV - Segmentation Fault). Checked for out-of-bounds array access, null pointer dereference, or infinite recursion stack overflow.';
+      } else if (statusId === 9) {
+        explanation = 'Runtime Error (SIGFPE - Floating Point Exception). Invalid arithmetic operation such as division or modulo by zero.';
+      } else if (statusId === 10) {
+        explanation = 'Runtime Error (SIGABRT - Aborted). The program aborted execution, often due to an assertion failure or out of memory condition.';
+      } else if (statusId === 11) {
+        explanation = 'Runtime Error (NZEC - Non-Zero Exit Code). The program exited with a non-zero code. Check for unhandled exceptions or syntax errors.';
+      }
+      detailHtml = `
+        <div class="leetcode-detail-section">
+          <div class="leetcode-detail-title">
+            <i class="fas fa-bomb" style="color:#ef4444;"></i>
+            <span>${_escape(verdict)}</span>
+          </div>
+          <div class="leetcode-error-note">
+            <i class="fas fa-info-circle"></i> ${_escape(explanation)}
+          </div>
+        </div>
+      `;
+    } else if (result.compile_output || result.stderr) {
+      detailHtml = `
+        <div class="leetcode-detail-section">
+          <div class="leetcode-detail-title">
+            <i class="fas fa-exclamation-circle" style="color:#ef4444;"></i>
+            <span>Error Output</span>
+          </div>
+          <div class="leetcode-error-box">
+            <pre class="dsa-error-pre">${_escape(result.compile_output || result.stderr || '')}</pre>
+          </div>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="leetcode-result-panel">
+        <div class="leetcode-result-header">
+          <div class="leetcode-verdict-title ${verdictCls}">
+            <i class="fas ${verdictIcon}"></i>
+            <span>${_escape(verdict)}</span>
+          </div>
+          <div class="leetcode-count-headline">${_escape(countHeadline)}</div>
+          ${summaryChipsHtml}
+        </div>
+        ${metaGridHtml}
+        ${detailHtml}
+      </div>
+    `;
+  }
+
+  function renderSubmissionLoadingState() {
+    return `
+      <div class="leetcode-loading-panel">
+        <div class="leetcode-spinner"><i class="fas fa-circle-notch fa-spin"></i></div>
+        <div class="leetcode-loading-title">Evaluating Submission…</div>
+        <div class="leetcode-loading-desc">Running code against all test cases on Judge0. This usually takes a few seconds.</div>
+      </div>
+    `;
+  }
+
+  function switchToTab(tabName) {
+    if (tabName !== 'testcase' && tabName !== 'result') return;
+    activeConsoleTab = tabName;
+    renderSampleTestConsole();
+  }
+
   function renderSampleTestConsole() {
     const tabsContainer = document.getElementById('dsa-testcase-tabs');
     const contentContainer = document.getElementById('dsa-testcase-content');
     if (!tabsContainer || !contentContainer) return;
 
+    const isTcActive = activeConsoleTab === 'testcase';
+    const isResActive = activeConsoleTab === 'result';
+
+    // Top navigation tab bar: Testcase vs Result
+    let tabsHtml = '<div class="dsa-console-tabs-nav">';
+    tabsHtml += `<button type="button" class="dsa-console-nav-tab ${isTcActive ? 'active' : ''}" onclick="Compiler.switchToTab('testcase')"><i class="fas fa-vial"></i> Testcase</button>`;
+
+    if (lastSubmissionResult || isSubmitting) {
+      let tagHtml = '';
+      if (lastSubmissionResult) {
+        const v = lastSubmissionResult.verdict || '';
+        const tagCls = v === 'Accepted' ? 'accepted' : (v === 'Wrong Answer' ? 'wrong' : 'error');
+        tagHtml = ` <span class="dsa-console-nav-tag ${tagCls}">${_escape(v)}</span>`;
+      }
+      tabsHtml += `<button type="button" class="dsa-console-nav-tab ${isResActive ? 'active' : ''}" onclick="Compiler.switchToTab('result')"><i class="fas fa-poll"></i> Result${tagHtml}</button>`;
+    }
+
+    // If Testcase tab is active, show the Case buttons inline
+    if (isTcActive && currentSampleTests && currentSampleTests.length > 0) {
+      tabsHtml += '<div class="dsa-tc-buttons" style="margin-left:auto;">';
+      currentSampleTests.forEach((tc, idx) => {
+        const isActive = idx === currentSelectedCaseIdx;
+        const res = currentCaseResults[tc.index];
+        let statusClass = '';
+        let icon = '';
+        if (res) {
+          if (res.passed) {
+            statusClass = ' passed';
+            icon = '<i class="fas fa-check"></i> ';
+          } else {
+            statusClass = ' failed';
+            icon = '<i class="fas fa-times"></i> ';
+          }
+        }
+        tabsHtml += `<button type="button" class="dsa-tab-btn ${isActive ? 'active' : ''}${statusClass}" onclick="Compiler.selectCase(${idx})">${icon}Case ${tc.index}</button>`;
+      });
+      tabsHtml += '</div>';
+    }
+
+    tabsHtml += '</div>';
+    tabsContainer.innerHTML = tabsHtml;
+
+    // Content container rendering
+    if (isResActive) {
+      if (isSubmitting) {
+        contentContainer.innerHTML = renderSubmissionLoadingState();
+      } else if (lastSubmissionResult) {
+        contentContainer.innerHTML = renderSubmissionResultPanel(lastSubmissionResult);
+      } else {
+        contentContainer.innerHTML = '<div class="dsa-no-tests-msg">No submission results yet. Click <strong>Submit</strong> to evaluate.</div>';
+      }
+      return;
+    }
+
+    // Testcase tab active
     if (!currentSampleTests || currentSampleTests.length === 0) {
-      tabsContainer.innerHTML = '';
       contentContainer.innerHTML = '<div class="dsa-no-tests-msg">No sample test cases available.</div>';
       return;
     }
@@ -759,30 +1107,6 @@ const Compiler = (() => {
     if (currentSelectedCaseIdx >= currentSampleTests.length) {
       currentSelectedCaseIdx = 0;
     }
-
-    // Render Compact Tabs Bar: Testcase  Case 1  Case 2  ...  Run All
-    let tabsHtml = '<div class="dsa-testcase-tab-bar">';
-    tabsHtml += '<span class="dsa-tc-label">Testcase</span>';
-    tabsHtml += '<div class="dsa-tc-buttons">';
-    currentSampleTests.forEach((tc, idx) => {
-      const isActive = idx === currentSelectedCaseIdx;
-      const res = currentCaseResults[tc.index];
-      let statusClass = '';
-      let icon = '';
-      if (res) {
-        if (res.passed) {
-          statusClass = ' passed';
-          icon = '<i class="fas fa-check"></i> ';
-        } else {
-          statusClass = ' failed';
-          icon = '<i class="fas fa-times"></i> ';
-        }
-      }
-      tabsHtml += `<button type="button" class="dsa-tab-btn ${isActive ? 'active' : ''}${statusClass}" onclick="Compiler.selectCase(${idx})">${icon}Case ${tc.index}</button>`;
-    });
-    tabsHtml += '</div>';
-    tabsHtml += '</div>';
-    tabsContainer.innerHTML = tabsHtml;
 
     // Render Active Case Content
     const activeCase = currentSampleTests[currentSelectedCaseIdx];
@@ -807,7 +1131,7 @@ const Compiler = (() => {
     contentHtml += '<label>Output</label>';
     if (res && res.actual !== undefined && res.actual !== null) {
       const isMatch = res.passed;
-      contentHtml += `<pre class="dsa-test-code-box ${isMatch ? 'match' : 'mismatch'}">${_escape(res.actual || '(no output)')}</pre>`;
+      contentHtml += `<pre class="dsa-test-code-box ${isMatch ? 'match' : 'mismatch'}">${_escape(formatTestCaseOutput(res.actual, activeCase.expected))}</pre>`;
     } else {
       contentHtml += '<pre class="dsa-test-code-box placeholder" style="color:var(--text-muted);font-style:italic;">(Run code to see output)</pre>';
     }
@@ -841,7 +1165,6 @@ const Compiler = (() => {
   function renderDsaResultsFromBackend(result, time, memory) {
     const passedCount = result.passed_count || 0;
     const totalCount = result.total_count || (result.test_cases || []).length;
-    const allPassed = result.verdict === 'Accepted';
 
     // Store execution metadata only if valid
     lastExecutionMeta = {
@@ -851,6 +1174,15 @@ const Compiler = (() => {
       passedCount,
       totalCount
     };
+
+    if (_isSubmit) {
+      lastSubmissionResult = result;
+      isSubmitting = false;
+      activeConsoleTab = 'result';
+    } else {
+      isSubmitting = false;
+      activeConsoleTab = 'testcase';
+    }
 
     // Keep verdictBanner hidden to prevent giant colored box consuming console height
     const verdictBanner = document.getElementById('dsa-status-banner');
@@ -1080,10 +1412,24 @@ const Compiler = (() => {
     activeRuntime = '--';
     activeMemory = '--';
     updateStatus('error', 'Error');
-    _showOutput('', err.message || 'An error occurred.', '', null, null, null);
-    showToast('Error: ' + (err.message || 'Unknown error'), 'error');
+
+    if (isSubmitting) {
+      isSubmitting = false;
+      lastSubmissionResult = {
+        verdict: 'Error',
+        status_id: 13,
+        runtime: '--',
+        memory: '--',
+        compile_output: err?.message || 'An error occurred during execution.',
+      };
+      activeConsoleTab = 'result';
+      renderSampleTestConsole();
+    }
+
+    _showOutput('', err?.message || 'An error occurred.', '', null, null, null);
+    showToast('Error: ' + (err?.message || 'Unknown error'), 'error');
     _setButtonsDisabled(false);
-    _showBanner(13, 'Internal Error', { status: { description: 'Internal Error' }, message: err.message });
+    _showBanner(13, 'Internal Error', { status: { description: 'Internal Error' }, message: err?.message });
   }
 
   function _setButtonsDisabled(disabled) {
@@ -1188,6 +1534,9 @@ const Compiler = (() => {
     renderGenError++;
 
     _isSubmit = false;
+    isSubmitting = false;
+    lastSubmissionResult = null;
+    activeConsoleTab = 'testcase';
     activeVerdict = null;
     activeRuntime = null;
     activeMemory = null;
@@ -2002,7 +2351,7 @@ public:
       '</div>' +
       '<div class="dsa-testcase-line">' +
       '<label>Actual Output</label>' +
-      '<pre class="' + (isMatch ? 'match' : 'mismatch') + '">' + (res.actual || '(no output)') + '</pre>' +
+      '<pre class="' + (isMatch ? 'match' : 'mismatch') + '">' + formatTestCaseOutput(res.actual, res.expected) + '</pre>' +
       '</div>' +
       '<div class="dsa-testcase-line">' +
       '<label>Status</label>' +
@@ -2024,6 +2373,7 @@ public:
     selectCase,
     getSelectedCaseIndex,
     renderSampleTestConsole,
+    switchToTab,
   };
 
 })();
