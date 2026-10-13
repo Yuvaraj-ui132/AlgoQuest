@@ -38,6 +38,22 @@ async def lifespan(app: FastAPI):
     from app.config import settings
 
     setup_logging(log_level=settings.log_level, log_format=settings.effective_log_format)
+
+    # Optional external error tracking (Sentry)
+    import os
+    sentry_dsn = os.environ.get("SENTRY_DSN")
+    if sentry_dsn:
+        try:
+            import sentry_sdk
+            sentry_sdk.init(
+                dsn=sentry_dsn,
+                environment=settings.app_env,
+                traces_sample_rate=0.1,
+                send_default_pii=False,
+            )
+        except ImportError:
+            pass
+
     initialize_firebase()
     validate_hidden_tests_on_startup()
     if settings.database_backend == "supabase":
