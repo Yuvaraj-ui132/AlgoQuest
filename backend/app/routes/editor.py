@@ -10,7 +10,7 @@ General compiler (per language):
   PUT /api/general-compiler/{language}  → save code
 """
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Path, HTTPException, status
 from app.dependencies import get_current_user
 from app.models.requests import EditorCodeUpdateRequest, GeneralCompilerUpdateRequest
 from app.models.responses import EditorCodeResponse, GeneralCompilerResponse, SuccessResponse
@@ -29,7 +29,7 @@ _VALID_LANGUAGES = {"cpp", "c", "java", "python", "js"}
     summary="Load saved DSA editor code for a question",
 )
 async def get_editor_code(
-    question_id: int,
+    question_id: int = Path(..., ge=1, le=10000, description="Question ID between 1 and 10000"),
     uid: str = Depends(get_current_user),
 ) -> EditorCodeResponse:
     data = await db_service.get_editor_code(uid, question_id)
@@ -46,8 +46,8 @@ async def get_editor_code(
     summary="Save DSA editor code for a question",
 )
 async def save_editor_code(
-    question_id: int,
     body: EditorCodeUpdateRequest,
+    question_id: int = Path(..., ge=1, le=10000, description="Question ID between 1 and 10000"),
     uid: str = Depends(get_current_user),
 ) -> SuccessResponse:
     await db_service.save_editor_code(uid, question_id, body.language, body.code)
@@ -63,11 +63,10 @@ async def save_editor_code(
     description="Returns saved code for the general code editor (not question-specific).",
 )
 async def get_general_compiler_code(
-    language: str,
+    language: str = Path(..., min_length=1, max_length=10, description="Programming language key"),
     uid: str = Depends(get_current_user),
 ) -> GeneralCompilerResponse:
     if language not in _VALID_LANGUAGES:
-        from fastapi import HTTPException, status
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Invalid language '{language}'. Must be one of: {sorted(_VALID_LANGUAGES)}",
@@ -82,12 +81,11 @@ async def get_general_compiler_code(
     summary="Save general compiler code for a language",
 )
 async def save_general_compiler_code(
-    language: str,
     body: GeneralCompilerUpdateRequest,
+    language: str = Path(..., min_length=1, max_length=10, description="Programming language key"),
     uid: str = Depends(get_current_user),
 ) -> SuccessResponse:
     if language not in _VALID_LANGUAGES:
-        from fastapi import HTTPException, status
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Invalid language '{language}'. Must be one of: {sorted(_VALID_LANGUAGES)}",

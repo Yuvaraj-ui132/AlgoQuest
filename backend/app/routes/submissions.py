@@ -42,7 +42,7 @@ import logging
 from collections import defaultdict
 from typing import List, Optional, Dict, Any, Tuple
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
 
 from fastapi.responses import JSONResponse
 
@@ -82,16 +82,24 @@ def _check_rate_limit(uid: str) -> None:
     Raise HTTP 429 if the authenticated user has exceeded RATE_LIMIT_MAX
     submissions within the last RATE_WINDOW_SECONDS seconds.
     Updates the timestamp list in-place on every call.
+    Periodically purges inactive UIDs to prevent unbounded memory growth.
     """
     now = time.monotonic()
     cutoff = now - RATE_WINDOW_SECONDS
 
     with _rate_lock:
+        # Periodic pruning when store grows beyond threshold
+        if len(_rate_store) > 500:
+            stale_uids = [u for u, ts in _rate_store.items() if not ts or ts[-1] <= cutoff]
+            for u in stale_uids:
+                del _rate_store[u]
+
         timestamps = _rate_store[uid]
         # Evict stale timestamps outside the rolling window
-        _rate_store[uid] = [t for t in timestamps if t > cutoff]
+        valid_timestamps = [t for t in timestamps if t > cutoff]
+        _rate_store[uid] = valid_timestamps
 
-        if len(_rate_store[uid]) >= RATE_LIMIT_MAX:
+        if len(valid_timestamps) >= RATE_LIMIT_MAX:
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                 detail=(
@@ -897,7 +905,9 @@ async def get_all_user_data(
     summary="Get sample test cases for a question",
     description="Returns public sample test cases for a question from backend/data/test_cases.json. Hidden tests are never exposed."
 )
-async def get_question_sample_tests(question_id: int):
+async def get_question_sample_tests(
+    question_id: int = Path(..., ge=1, le=10000, description="Question ID between 1 and 10000"),
+):
     q_data = _get_question_test_data(question_id)
     if not q_data:
         raise HTTPException(status_code=404, detail=f"Question {question_id} not found")
@@ -928,7 +938,7 @@ async def get_question_sample_tests(question_id: int):
 async def get_submission_history(
     uid: str = Depends(get_current_user),
     limit: int = Query(20, ge=1, le=50, description="Number of records to return (1-50)."),
-    after: Optional[str] = Query(None, description="Cursor: document ID of the last item on the previous page."),
+    after: Optional[str] = Query(None, max_length=128, description="Cursor: document ID of the last item on the previous page."),
 ) -> SubmissionHistoryResponse:
     """
     Return paginated submission history for the verified user.
@@ -972,7 +982,7 @@ async def get_submission_history(
     ),
 )
 async def get_job_status(
-    job_id: str,
+    job_id: str = Path(..., min_length=1, max_length=128, description="Job identifier"),
     uid: str = Depends(get_current_user),
 ) -> JobStatusResponse:
     """

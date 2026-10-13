@@ -5,7 +5,7 @@ GET /api/notes/{question_id}  → get note content
 PUT /api/notes/{question_id}  → save note content
 """
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Path
 from app.dependencies import get_current_user
 from app.models.requests import NoteUpdateRequest
 from app.models.responses import NoteResponse, SuccessResponse
@@ -21,7 +21,7 @@ router = APIRouter()
     description="Returns the saved note for this question. Returns empty string if no note exists.",
 )
 async def get_note(
-    question_id: int,
+    question_id: int = Path(..., ge=1, le=10000, description="Question ID between 1 and 10000"),
     uid: str = Depends(get_current_user),
 ) -> NoteResponse:
     content = await db_service.get_note(uid, question_id)
@@ -35,8 +35,8 @@ async def get_note(
     description="Creates or overwrites the note for this question.",
 )
 async def save_note(
-    question_id: int,
     body: NoteUpdateRequest,
+    question_id: int = Path(..., ge=1, le=10000, description="Question ID between 1 and 10000"),
     uid: str = Depends(get_current_user),
 ) -> SuccessResponse:
     await db_service.save_note(uid, question_id, body.content)

@@ -40,6 +40,7 @@ class SubmissionRequest(BaseModel):
         None,
         description="Question ID from questions.json. Required for 'run' and 'submit' modes.",
         ge=1,
+        le=10000,
     )
     stdin: Optional[str] = Field(
         None,
@@ -140,6 +141,15 @@ class UserInitRequest(BaseModel):
         description="Profile photo URL (Google Sign-In or user-supplied).",
         max_length=2048,
     )
+
+    @field_validator("name", "email", "photo_url")
+    @classmethod
+    def sanitize_strings(cls, v):
+        if v is not None:
+            # Strip null bytes and ASCII control characters (< 32)
+            cleaned = "".join(ch for ch in v if ord(ch) >= 32)
+            return cleaned.strip()
+        return v
 
 
 class ProgressSyncItem(BaseModel):

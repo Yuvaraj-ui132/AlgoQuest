@@ -6,7 +6,7 @@ PUT    /api/bookmarks/{qid}     → add bookmark
 DELETE /api/bookmarks/{qid}     → remove bookmark
 """
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Path, status
 from app.dependencies import get_current_user
 from app.models.responses import BookmarksResponse, SuccessResponse
 from app.services import db_service
@@ -30,7 +30,7 @@ async def get_bookmarks(uid: str = Depends(get_current_user)) -> BookmarksRespon
     summary="Bookmark a question",
 )
 async def add_bookmark(
-    question_id: int,
+    question_id: int = Path(..., ge=1, le=10000, description="Question ID between 1 and 10000"),
     uid: str = Depends(get_current_user),
 ) -> SuccessResponse:
     await db_service.set_bookmark(uid, question_id, bookmarked=True)
@@ -43,7 +43,7 @@ async def add_bookmark(
     summary="Remove a bookmark",
 )
 async def remove_bookmark(
-    question_id: int,
+    question_id: int = Path(..., ge=1, le=10000, description="Question ID between 1 and 10000"),
     uid: str = Depends(get_current_user),
 ) -> SuccessResponse:
     await db_service.set_bookmark(uid, question_id, bookmarked=False)

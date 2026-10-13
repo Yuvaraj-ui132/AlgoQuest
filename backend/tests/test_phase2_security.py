@@ -336,3 +336,163 @@ def test_cors_origin_headers_handling():
     )
     assert response.status_code == 200
     assert response.headers.get("access-control-allow-origin") == "https://algoquest-9aab0.web.app"
+
+
+# ── 7. Sensitive Endpoints Authentication Rejection (HTTP 401) ───────────────
+
+@pytest.mark.parametrize(
+    "method,path,payload",
+    [
+        ("get", "/api/bookmarks", None),
+        ("put", "/api/bookmarks/1", None),
+        ("delete", "/api/bookmarks/1", None),
+        ("get", "/api/notes/1", None),
+        ("put", "/api/notes/1", {"content": "my note"}),
+        ("get", "/api/progress", None),
+        ("put", "/api/progress/1", {"solved": True}),
+        ("get", "/api/editor/1", None),
+        ("put", "/api/editor/1", {"language": "python", "code": "pass"}),
+        ("get", "/api/general-compiler/python", None),
+        ("put", "/api/general-compiler/python", {"code": "pass"}),
+        ("get", "/api/user/all", None),
+        ("post", "/api/user/init", {"name": "Test"}),
+        ("get", "/api/submissions/history", None),
+        ("get", "/api/submissions/job-test-123", None),
+    ],
+)
+def test_sensitive_endpoints_reject_unauthenticated_requests(method, path, payload):
+    """All sensitive state endpoints must strictly reject unauthenticated requests with HTTP 401."""
+    func = getattr(client, method)
+    kwargs = {}
+    if payload is not None:
+        kwargs["json"] = payload
+    response = func(path, **kwargs)
+    assert response.status_code == 401
+    assert "Missing authentication token" in response.json()["detail"]
+
+
+# ── 8. Malformed & Out-of-Range Path Parameter Rejection (HTTP 422) ──────────
+
+@pytest.mark.parametrize(
+    "method,path_template,invalid_id,payload",
+    [
+        ("put", "/api/bookmarks/{}", 0, None),
+        ("put", "/api/bookmarks/{}", -1, None),
+        ("put", "/api/bookmarks/{}", 10001, None),
+        ("delete", "/api/bookmarks/{}", 0, None),
+        ("delete", "/api/bookmarks/{}", -5, None),
+        ("delete", "/api/bookmarks/{}", 10001, None),
+        ("get", "/api/notes/{}", 0, None),
+        ("get", "/api/notes/{}", -1, None),
+        ("get", "/api/notes/{}", 10001, None),
+        ("put", "/api/notes/{}", 0, {"content": "test"}),
+        ("put", "/api/notes/{}", 10001, {"content": "test"}),
+        ("put", "/api/progress/{}", 0, {"solved": True}),
+        ("put", "/api/progress/{}", 10001, {"solved": True}),
+        ("get", "/api/editor/{}", 0, None),
+        ("get", "/api/editor/{}", 10001, None),
+        ("put", "/api/editor/{}", 0, {"language": "python", "code": "pass"}),
+        ("put", "/api/editor/{}", 10001, {"language": "python", "code": "pass"}),
+        ("get", "/api/questions/{}/sample-tests", 0, None),
+        ("get", "/api/questions/{}/sample-tests", -1, None),
+        ("get", "/api/questions/{}/sample-tests", 10001, None),
+    ],
+)
+def test_path_parameter_range_validation(method, path_template, invalid_id, payload):
+    """Question IDs outside the valid [1, 10000] range must be rejected with HTTP 422."""
+    path = path_template.format(invalid_id)
+    func = getattr(client, method)
+    kwargs = {"headers": {"Authorization": "Bearer valid_token"}}
+    if payload is not None:
+        kwargs["json"] = payload
+    with patch("app.dependencies.firebase_auth.verify_id_token", return_value={"uid": "user_val"}):
+        response = func(path, **kwargs)
+        assert response.status_code == 422
+
+
+# ── 9. SQL Injection Resistance & Malformed Input Handling ────────────────────
+
+def test_sql_injection_payload_in_path_parameter_blocked():
+    """SQL injection strings in path parameters must fail FastAPI validation with HTTP 422."""
+    sqli_payloads = [
+        "1 OR 1=1",
+        "1; DROP TABLE users;--",
+        "' UNION SELECT * FROM users--",
+    ]
+    with patch("app.dependencies.firebase_auth.verify_id_token", return_value={"uid": "user_val"}):
+        for payload in sqli_payloads:
+            response = client.get(
+                f"/api/notes/{payload}",
+                headers={"Authorization": "Bearer valid_token"},
+            )
+            assert response.status_code == 422
+
+
+def test_submission_history_oversized_cursor_rejected():
+    """Submission history pagination cursor exceeding 128 characters must be rejected with HTTP 422."""
+    with patch("app.dependencies.firebase_auth.verify_id_token", return_value={"uid": "user_val"}):
+        oversized_cursor = "c" * 129
+        response = client.get(
+            f"/api/submissions/history?after={oversized_cursor}",
+            headers={"Authorization": "Bearer valid_token"},
+        )
+        assert response.status_code == 422
+
+
+def test_submission_rejects_question_id_over_10000():
+    """Submission request with question_id > 10000 must fail with HTTP 422."""
+    with patch("app.dependencies.firebase_auth.verify_id_token", return_value={"uid": "user_val"}):
+        response = client.post(
+            "/api/submissions",
+            json={
+                "source_code": "print('hello')",
+                "language_id": 71,
+                "execution_type": "run",
+                "question_id": 10001,
+            },
+            headers={"Authorization": "Bearer valid_token"},
+        )
+        assert response.status_code == 422
+
+
+# ── 10. Rate Limiter Memory Pruning & Safe Eviction ───────────────────────────
+
+def test_rate_limiter_prunes_stale_entries():
+    """
+    _check_rate_limit must purge inactive/expired UIDs when store exceeds threshold,
+    preventing unbounded memory growth.
+    """
+    from app.routes.submissions import _check_rate_limit, _rate_store, _rate_lock
+
+    with _rate_lock:
+        _rate_store.clear()
+        # Seed 550 dummy stale UIDs
+        for i in range(550):
+            _rate_store[f"old_user_{i}"] = [time.monotonic() - 120]  # Expired 2 mins ago
+
+    assert len(_rate_store) == 550
+
+    # Next check by an active user triggers cleanup
+    _check_rate_limit("active_user_fresh")
+
+    with _rate_lock:
+        # All 550 stale entries should have been pruned
+        assert len(_rate_store) == 1
+        assert "active_user_fresh" in _rate_store
+
+
+# ── 11. User Profile Sanitization ─────────────────────────────────────────────
+
+def test_user_init_request_sanitizes_control_characters():
+    """UserInitRequest strips null bytes and ASCII control characters."""
+    from app.models.requests import UserInitRequest
+
+    req = UserInitRequest(
+        name="John\x00Doe\x07",
+        email="john\x1b@example.com",
+        photo_url="https://example.com/pic.png\x00",
+    )
+    assert req.name == "JohnDoe"
+    assert req.email == "john@example.com"
+    assert req.photo_url == "https://example.com/pic.png"
+

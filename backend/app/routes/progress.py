@@ -6,7 +6,7 @@ PUT  /api/progress/{qid}     → update one question's progress flags
 GET  /api/user/all is in submissions.py (bulk load on login)
 """
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Path, status
 from app.dependencies import get_current_user
 from app.models.requests import ProgressUpdateRequest
 from app.models.responses import ProgressResponse, SuccessResponse
@@ -51,8 +51,8 @@ async def get_progress(uid: str = Depends(get_current_user)) -> ProgressResponse
     ),
 )
 async def update_progress(
-    question_id: int,
     body: ProgressUpdateRequest,
+    question_id: int = Path(..., ge=1, le=10000, description="Question ID between 1 and 10000"),
     uid: str = Depends(get_current_user),
 ) -> SuccessResponse:
     await db_service.update_progress(
