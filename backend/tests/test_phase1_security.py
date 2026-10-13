@@ -20,7 +20,7 @@ from unittest.mock import AsyncMock, patch, MagicMock
 # Add backend directory to sys.path so app modules import cleanly
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from app.models.responses import TestCaseResult, SubmissionResponse
+from app.models.responses import TestCaseResult
 from app.routes.submissions import parse_test_outputs, prepare_dsa_source, _compare
 from app.services.driver_generator import build_backend_driver, clean_user_code
 
@@ -235,7 +235,7 @@ def test_all_174_questions_coverage_across_all_four_languages():
             driver = build_backend_driver("// user solution", q, lang, "secnonce999")
             assert "[unsupported" not in driver, f"Unsupported marker found in Q{qid} ({q.get('name')}) for {lang}"
             assert "secnonce999" in driver, f"Session nonce missing in Q{qid} driver for {lang}"
-            assert f"__AQ_secnonce999_COMPLETED__" in driver, f"Completion marker missing in Q{qid} driver for {lang}"
+            assert "__AQ_secnonce999_COMPLETED__" in driver, f"Completion marker missing in Q{qid} driver for {lang}"
 
             # Verify prepare_dsa_source returns clean payload
             b64_code, is_clean = prepare_dsa_source("class Solution:\n    pass", q, lang_id, "secnonce999")
@@ -263,7 +263,6 @@ def test_python_and_node_real_solution_execution():
     import json
     import subprocess
     import tempfile
-    import shutil
     from app.routes.submissions import parse_test_outputs, _compare
 
     tc_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data", "test_cases.json"))
@@ -592,7 +591,6 @@ def test_incorrect_solution_rejected_by_judge():
 
 def test_clean_user_code_strips_legacy_client_wrappers_all_languages():
     """Verify that legacy client wrappers with CRLF, headers, and structs are cleanly stripped across all 4 languages."""
-    from app.services.driver_generator import clean_user_code
 
     # C++ legacy wrapped code with CRLF
     cpp_legacy = (

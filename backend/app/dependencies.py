@@ -11,7 +11,6 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import logging
 import firebase_admin.auth as firebase_auth
-from firebase_admin.exceptions import FirebaseError
 
 logger = logging.getLogger("algoquest.auth")
 

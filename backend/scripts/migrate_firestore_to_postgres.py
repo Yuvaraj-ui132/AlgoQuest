@@ -16,8 +16,8 @@ import json
 import logging
 import argparse
 from datetime import datetime, timezone
-from typing import Dict, Any, Optional
-from sqlalchemy import create_engine, select, text
+from typing import Dict, Any
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -25,7 +25,6 @@ sys.path.insert(0, BASE_DIR)
 
 from app.config import settings
 from app.services.supabase_service import (
-    Base,
     User,
     UserProgress,
     UserBookmark,

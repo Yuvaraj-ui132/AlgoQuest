@@ -52,7 +52,6 @@ from app.models.responses import (
     SubmissionResponse,
     SubmissionHistoryItem,
     SubmissionHistoryResponse,
-    JobAcceptedResponse,
     JobStatusResponse,
     TestCaseResult,
     UserAllDataResponse,

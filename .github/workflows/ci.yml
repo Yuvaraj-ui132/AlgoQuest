@@ -13,14 +13,85 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  backend-tests:
-    name: Backend Tests (Python 3.11)
+  lint-and-code-quality:
+    name: Python Linting (Ruff)
     runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Ruff
+        run: pip install ruff>=0.3.0
+
+      - name: Run Ruff Lint Checks
+        run: ruff check backend/
+
+  security-and-dependencies:
+    name: Security & Vulnerability Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install pip-audit
+        run: |
+          python -m pip install --upgrade pip
+          pip install pip-audit>=2.7.0
+
+      - name: Audit backend dependencies for known CVEs
+        run: pip-audit -r backend/requirements.txt
+
+      - name: Verify no committed secret files
+        run: |
+          echo "Scanning Git index for accidentally committed credentials or secrets..."
+          leaks=$(git ls-files | grep -E "(\.env$|\.env\.local|\.key$|\.pem$|serviceAccount.*\.json|.*service-account.*\.json)" || true)
+          if [ -n "$leaks" ]; then
+            echo "ERROR: Disallowed secret files tracked in Git:"
+            echo "$leaks"
+            exit 1
+          fi
+          echo "No secret files found in git index."
+
+  backend-tests:
+    name: Backend Tests & PostgreSQL Integration (Python 3.11)
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: algoquest_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
 
     env:
       APP_ENV: test
-      DATABASE_BACKEND: firestore
+      DATABASE_BACKEND: supabase
       ALLOW_SAMPLE_ONLY_GRADING: "false"
+      SUPABASE_DB_URL: postgresql://postgres:postgres@localhost:5432/algoquest_test
+      TEST_PG_URL: postgresql://postgres:postgres@localhost:5432/algoquest_test
+      TEST_PG_ADMIN_URL: postgresql://postgres:postgres@localhost:5432/postgres
+      PG_PORT: 5432
+      QUEUE_ENABLE_PG_BACKEND: "true"
 
     steps:
       - name: Check out repository
@@ -31,12 +102,14 @@ jobs:
         with:
           python-version: '3.11'
           cache: 'pip'
-          cache-dependency-path: backend/requirements.txt
+          cache-dependency-path: |
+            backend/requirements.txt
+            backend/requirements-dev.txt
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r backend/requirements.txt pytest
+          pip install -r backend/requirements.txt -r backend/requirements-dev.txt
 
       - name: Prepare test data fixture
         env:
@@ -50,7 +123,7 @@ jobs:
             python -c "import json; data = {str(q): [{'stdin': f'ci_in_{q}_{i}\n', 'expectedRaw': '0'} for i in range(11 if q == 161 else (7 if q == 169 else 25))] for q in range(1, 175)}; open('backend/data/hidden_test_cases.json', 'w', encoding='utf-8').write(json.dumps(data))"
           fi
 
-      - name: Run backend tests
+      - name: Run full backend and PostgreSQL integration tests
         run: pytest backend/tests/ -v
 
   frontend-syntax:

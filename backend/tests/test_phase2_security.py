@@ -27,7 +27,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 from app.main import app
 from app.config import settings
 from app.utils.errors import sanitize_db_error
-from app.services.submission_queue import submission_queue, JobStatus
+from app.services.submission_queue import submission_queue
 
 
 client = TestClient(app, raise_server_exceptions=False)
@@ -674,7 +674,7 @@ def test_judge0_adaptive_polling_fast_path():
     """Verify that poll_submission returns on the initial probe without sleeping the full interval."""
     import asyncio
     from app.services import judge0_service
-    from unittest.mock import AsyncMock, patch
+    from unittest.mock import patch
 
     mock_resp = MagicMock()
     mock_resp.status_code = 200

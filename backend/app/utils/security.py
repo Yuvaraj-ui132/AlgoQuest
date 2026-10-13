@@ -6,7 +6,7 @@ import json
 import logging
 import os
 import firebase_admin
-from firebase_admin import credentials, auth
+from firebase_admin import credentials
 from app.config import settings
 
 logger = logging.getLogger("algoquest.security")

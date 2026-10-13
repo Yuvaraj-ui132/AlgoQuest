@@ -13,7 +13,6 @@ import urllib.request
 import zipfile
 import tarfile
 import subprocess
-import shutil
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 PG_DIR = os.path.join(BASE_DIR, ".pgsql")
@@ -31,7 +30,7 @@ def download_and_extract_postgres():
     os.makedirs(PG_DIR, exist_ok=True)
     jar_url = "https://repo1.maven.org/maven2/io/zonky/test/postgres/embedded-postgres-binaries-windows-amd64/16.4.0/embedded-postgres-binaries-windows-amd64-16.4.0.jar"
     print(f"[PostgreSQL] Downloading portable PostgreSQL 16 binaries from {jar_url}...")
-    
+
     req = urllib.request.Request(jar_url, headers={"User-Agent": "AlgoQuestSetup/1.0"})
     data = urllib.request.urlopen(req).read()
     print(f"[PostgreSQL] Downloaded {len(data) / (1024*1024):.2f} MB. Extracting JAR...")
@@ -100,7 +99,7 @@ def setup_databases_and_migration():
     psql_exe = os.path.join(BIN_DIR, "psql.exe")
 
     # 1. Create development database
-    print(f"[PostgreSQL] Ensuring database 'algoquest_dev' exists...")
+    print("[PostgreSQL] Ensuring database 'algoquest_dev' exists...")
     res = subprocess.run(
         [psql_exe, "-U", "postgres", "-p", str(PORT), "-d", "postgres", "-tc", "SELECT 1 FROM pg_database WHERE datname = 'algoquest_dev'"],
         capture_output=True,

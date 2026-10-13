@@ -3,7 +3,7 @@ Pydantic response models — defines the exact shape returned to the frontend.
 """
 
 from pydantic import BaseModel, Field, model_validator
-from typing import Optional, List, Any, Dict
+from typing import Optional, List, Dict
 
 
 # ── Submissions ───────────────────────────────────────────────────────────────

@@ -12,7 +12,7 @@ Accounts for:
 """
 
 from datetime import datetime, timezone
-from typing import Dict, List, Any, Optional, Set, Tuple
+from typing import Dict, Any, Optional, Set, Tuple
 from sqlalchemy.orm import Session
 
 from app.services.supabase_service import (

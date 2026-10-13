@@ -32,7 +32,6 @@ from app.config import settings
 from app.services import supabase_service, db_service, firestore_service
 from app.services.supabase_service import (
     Base,
-    User,
     UserProgress,
     UserBookmark,
     UserNote,

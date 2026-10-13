@@ -1,0 +1,34 @@
+[tool.pytest.ini_options]
+testpaths = ["backend/tests"]
+python_files = ["test_*.py"]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::FutureWarning",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+exclude = [
+    ".git",
+    "__pycache__",
+    ".pytest_cache",
+    "scratch",
+    ".pgsql",
+    "venv",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+]
+ignore = [
+    "E501", # line length handled generously
+    "E701", # multiple statements on one line
+    "E402", # module level import not at top of file
+]
+
+[tool.ruff.lint.per-file-ignores]
+"backend/tests/*" = ["F841"]

@@ -6,7 +6,7 @@ PUT    /api/bookmarks/{qid}     → add bookmark
 DELETE /api/bookmarks/{qid}     → remove bookmark
 """
 
-from fastapi import APIRouter, Depends, Path, status
+from fastapi import APIRouter, Depends, Path
 from app.dependencies import get_current_user
 from app.models.responses import BookmarksResponse, SuccessResponse
 from app.services import db_service

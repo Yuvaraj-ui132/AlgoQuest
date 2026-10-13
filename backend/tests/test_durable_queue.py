@@ -11,23 +11,19 @@ Covers:
 7. Queue capacity backpressure and API compatibility (ownership, security, non-exposure of hidden tests).
 """
 
-import asyncio
 import os
 import sys
 import uuid
 from datetime import datetime, timezone, timedelta
-from unittest.mock import patch, MagicMock
 import pytest
 from fastapi import HTTPException
 from sqlalchemy.dialects import postgresql
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from app.config import settings
 from app.services import supabase_service
 from app.services.supabase_service import (
     Base,
-    User,
     Submission,
     QueueJob,
     enqueue_job_sync,
@@ -36,11 +32,10 @@ from app.services.supabase_service import (
     complete_job_sync,
     fail_job_sync,
     recover_orphan_jobs_sync,
-    count_pending_jobs_sync,
     get_queue_job_sync,
     record_submission_sync,
 )
-from app.services.submission_queue import SubmissionQueue, SubmissionJob, JobStatus
+from app.services.submission_queue import SubmissionQueue, JobStatus
 
 
 @pytest.fixture(autouse=True)

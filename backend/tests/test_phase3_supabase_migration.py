@@ -39,9 +39,6 @@ from app.services.supabase_service import (
     User,
     UserProgress,
     UserBookmark,
-    UserNote,
-    UserEditorDraft,
-    UserCompilerDraft,
     Submission,
 )
 from app.config import settings
@@ -64,7 +61,7 @@ def setup_sqlite_supabase():
 
 def test_user_initialization_idempotent():
     uid = "test_user_p3_001"
-    
+
     # First creation
     created = supabase_service.init_user_document(
         uid=uid,
@@ -104,7 +101,7 @@ async def test_progress_crud_and_sync():
 
     # Async update
     await supabase_service.update_progress(uid=uid, question_id=1, solved=True, rev1=True)
-    
+
     data = await supabase_service.get_all_progress(uid)
     assert "1" in data
     assert data["1"]["solved"] is True

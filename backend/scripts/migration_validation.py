@@ -9,7 +9,7 @@ Audits:
 """
 
 from datetime import datetime, timezone
-from typing import Dict, List, Any, Tuple
+from typing import Dict, Any
 from sqlalchemy.orm import Session
 
 from app.services.supabase_service import (

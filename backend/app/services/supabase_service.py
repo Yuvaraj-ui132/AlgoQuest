@@ -11,7 +11,6 @@ Key Features:
 - Exact JSON response compatibility with existing frontend ApiClient.
 """
 
-import os
 import uuid
 import logging
 import asyncio
@@ -34,10 +33,8 @@ from sqlalchemy import (
     func,
     case,
     select,
-    text,
     desc,
     or_,
-    and_,
 )
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import declarative_base, sessionmaker, Session

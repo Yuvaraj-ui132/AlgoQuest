@@ -59,7 +59,6 @@ def update_progress_sync(uid: str, question_id: int) -> None:
     if hasattr(backend, "update_progress_sync"):
         return backend.update_progress_sync(uid, question_id)
     # Firestore fallback
-    import asyncio
     from app.services.submission_queue import _update_progress_sync
     return _update_progress_sync(uid, question_id)
 

@@ -8,7 +8,7 @@ in the boundary markers so client code cannot spoof markers or verdicts.
 """
 
 import re
-from typing import Dict, Any, List, Tuple, Optional
+from typing import Dict, Any
 
 CPP_HEADERS = """#include <algorithm>
 #include <array>

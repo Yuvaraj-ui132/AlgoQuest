@@ -3,7 +3,6 @@ Centralized error handling and exception registration.
 """
 
 import logging
-import os
 from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError

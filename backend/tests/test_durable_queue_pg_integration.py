@@ -18,21 +18,15 @@ import time
 import uuid
 import threading
 import subprocess
-from datetime import datetime, timezone, timedelta
-from typing import List, Dict, Any, Optional
 import pytest
 from fastapi import HTTPException
 import psycopg2
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from app.config import settings
-from app.services import supabase_service, submission_queue as queue_module
+from app.services import supabase_service
 from app.services.supabase_service import (
-    Base,
-    User,
     Submission,
-    QueueJob,
     enqueue_job_sync,
     claim_next_job_sync,
     heartbeat_job_sync,
@@ -44,7 +38,7 @@ from app.services.supabase_service import (
     delete_old_jobs_sync,
     record_submission_sync,
 )
-from app.services.submission_queue import SubmissionQueue, SubmissionJob, JobStatus
+from app.services.submission_queue import SubmissionQueue, JobStatus
 
 
 # ── PostgreSQL 16 Lifecycle & Test Database Setup ─────────────────────────────
@@ -63,22 +57,23 @@ POSTGRES_EXE = os.path.join(BIN_DIR, "postgres.exe")
 PG_CTL_EXE = os.path.join(BIN_DIR, "pg_ctl.exe")
 INITDB_EXE = os.path.join(BIN_DIR, "initdb.exe")
 DATA_DIR = os.path.abspath(r"C:\Users\Shree\.gemini\antigravity-ide\brain\07208254-08f9-489b-a9a3-c78298a2e1a0\scratch\pgdata_clean")
-PG_PORT = 5434
-PG_TEST_URL = f"postgresql://postgres@localhost:{PG_PORT}/algoquest_test"
+PG_PORT = int(os.environ.get("PG_PORT", 5434))
+PG_TEST_URL = os.environ.get("TEST_PG_URL", f"postgresql://postgres@localhost:{PG_PORT}/algoquest_test")
+PG_ADMIN_URL = os.environ.get("TEST_PG_ADMIN_URL", f"postgresql://postgres@localhost:{PG_PORT}/postgres")
 
 
 @pytest.fixture(scope="session", autouse=True)
 def postgresql16_service():
     """
-    Spawns and manages the local PostgreSQL 16 server for the test session.
-    Applies V1 and V2 migrations to a clean algoquest_test database.
+    Spawns or connects to the PostgreSQL 16 server for the test session.
+    Applies V1, V2, and V3 migrations to a clean algoquest_test database.
     """
     import psycopg2
 
-    # Check if already running on port
+    # Check if already running / accessible
     already_running = False
     try:
-        test_conn = psycopg2.connect(f"postgresql://postgres@localhost:{PG_PORT}/postgres", connect_timeout=1)
+        test_conn = psycopg2.connect(PG_ADMIN_URL, connect_timeout=2)
         test_conn.close()
         already_running = True
     except Exception:
@@ -86,16 +81,19 @@ def postgresql16_service():
 
     proc = None
     if not already_running:
-        # Initialize cluster if needed
-        if not os.path.exists(DATA_DIR):
-            subprocess.run([INITDB_EXE, "-D", DATA_DIR, "-U", "postgres", "--auth=trust", "-E", "UTF8"], check=True)
+        if os.path.exists(POSTGRES_EXE) and os.path.exists(INITDB_EXE):
+            # Initialize cluster if needed
+            if not os.path.exists(DATA_DIR):
+                subprocess.run([INITDB_EXE, "-D", DATA_DIR, "-U", "postgres", "--auth=trust", "-E", "UTF8"], check=True)
 
-        # Start PostgreSQL 16
-        proc = subprocess.Popen([POSTGRES_EXE, "-D", DATA_DIR, "-p", str(PG_PORT)])
-        time.sleep(2)
+            # Start PostgreSQL 16
+            proc = subprocess.Popen([POSTGRES_EXE, "-D", DATA_DIR, "-p", str(PG_PORT)])
+            time.sleep(2)
+        else:
+            pytest.skip("PostgreSQL 16 instance is not accessible and local binary not found. Skipping PG integration tests.")
 
     # Create clean test database
-    admin_conn = psycopg2.connect(f"postgresql://postgres@localhost:{PG_PORT}/postgres")
+    admin_conn = psycopg2.connect(PG_ADMIN_URL)
     admin_conn.autocommit = True
     admin_cur = admin_conn.cursor()
     admin_cur.execute("DROP DATABASE IF EXISTS algoquest_test")
