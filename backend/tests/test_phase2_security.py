@@ -644,8 +644,8 @@ def test_submission_queue_backpressure_when_full():
     from app.services.submission_queue import SubmissionQueue
     from fastapi import HTTPException
 
-    # Create bounded queue with capacity 2
-    bounded_mgr = SubmissionQueue(maxsize=2)
+    # Create bounded queue with capacity 2 explicitly using the in-memory backend
+    bounded_mgr = SubmissionQueue(maxsize=2, pg_mode=False)
     bounded_mgr.create_job(uid="u1", question_id=1, language_id=71, source_code="code")
     bounded_mgr.create_job(uid="u2", question_id=1, language_id=71, source_code="code")
 
