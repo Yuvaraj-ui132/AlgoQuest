@@ -2,7 +2,7 @@
 Pydantic request models — all inputs validated by FastAPI before reaching route handlers.
 """
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 from typing import Optional, Literal, List
 
 
@@ -58,13 +58,11 @@ class SubmissionRequest(BaseModel):
         ge=1,
     )
 
-    @field_validator("question_id")
-    @classmethod
-    def validate_question_id(cls, v, info):
-        execution_type = info.data.get("execution_type")
-        if execution_type in ("run", "submit") and v is None:
+    @model_validator(mode="after")
+    def validate_dsa_question_id(self):
+        if self.execution_type in ("run", "submit") and self.question_id is None:
             raise ValueError("question_id is required for 'run' and 'submit' execution types.")
-        return v
+        return self
 
     @field_validator("language_id")
     @classmethod
