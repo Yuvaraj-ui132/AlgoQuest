@@ -1014,7 +1014,7 @@
                   <span class="dsa-console-tab-indicator">
                     <i class="fas fa-terminal"></i> Test / Result Console
                   </span>
-                  <div class="status-badge idle" id="dsa-status-badge">
+                  <div class="status-badge idle" id="dsa-status-badge" onclick="if(window.Compiler&&window.Compiler.hasSubmissionResult()){event.stopPropagation();window.Compiler.toggleResultView();}" title="Toggle between Testcase and Result">
                     <i class="fas fa-minus-circle"></i> Idle
                   </div>
                   <button class="dsa-console-toggle-btn" aria-label="Toggle Console">

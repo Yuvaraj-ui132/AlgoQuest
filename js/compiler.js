@@ -857,17 +857,6 @@ const Compiler = (() => {
       verdictIcon = 'fa-exclamation-triangle';
     }
 
-    // Summary pills (passed / failed)
-    let summaryChipsHtml = '';
-    if (passedCount !== null && totalCount !== null) {
-      summaryChipsHtml = `
-        <div class="leetcode-summary-row">
-          <span class="leetcode-stat-pill passed"><i class="fas fa-check"></i> <strong>${passedCount}</strong> passed</span>
-          <span class="leetcode-stat-pill ${failedCount > 0 ? 'failed' : 'zero-failed'}"><i class="fas fa-times"></i> <strong>${failedCount}</strong> failed</span>
-        </div>
-      `;
-    }
-
     // Language display
     const currentLangKey = window.App?.dsaEditorLanguage || 'cpp';
     const langLabel = LANG_DISPLAY[currentLangKey] || currentLangKey.toUpperCase();
@@ -1015,7 +1004,6 @@ const Compiler = (() => {
             <span>${_escape(verdict)}</span>
           </div>
           <div class="leetcode-count-headline">${_escape(countHeadline)}</div>
-          ${summaryChipsHtml}
         </div>
         ${metaGridHtml}
         ${detailHtml}
@@ -1039,6 +1027,21 @@ const Compiler = (() => {
     renderSampleTestConsole();
   }
 
+  function toggleResultView() {
+    const bottomConsole = document.getElementById('dsa-bottom-console');
+    if (bottomConsole && bottomConsole.classList.contains('collapsed')) {
+      if (typeof window.toggleDsaConsole === 'function') {
+        window.toggleDsaConsole();
+      }
+    }
+    activeConsoleTab = (activeConsoleTab === 'result') ? 'testcase' : 'result';
+    renderSampleTestConsole();
+  }
+
+  function hasSubmissionResult() {
+    return !!lastSubmissionResult;
+  }
+
   function renderSampleTestConsole() {
     const tabsContainer = document.getElementById('dsa-testcase-tabs');
     const contentContainer = document.getElementById('dsa-testcase-content');
@@ -1047,23 +1050,24 @@ const Compiler = (() => {
     const isTcActive = activeConsoleTab === 'testcase';
     const isResActive = activeConsoleTab === 'result';
 
-    // Top navigation tab bar: Testcase vs Result
-    let tabsHtml = '<div class="dsa-console-tabs-nav">';
-    tabsHtml += `<button type="button" class="dsa-console-nav-tab ${isTcActive ? 'active' : ''}" onclick="Compiler.switchToTab('testcase')"><i class="fas fa-vial"></i> Testcase</button>`;
-
-    if (lastSubmissionResult || isSubmitting) {
-      let tagHtml = '';
-      if (lastSubmissionResult) {
-        const v = lastSubmissionResult.verdict || '';
-        const tagCls = v === 'Accepted' ? 'accepted' : (v === 'Wrong Answer' ? 'wrong' : 'error');
-        tagHtml = ` <span class="dsa-console-nav-tag ${tagCls}">${_escape(v)}</span>`;
+    // In result mode, hide tabsContainer completely to eliminate duplicate tab row and tighten vertical spacing
+    if (isResActive) {
+      tabsContainer.innerHTML = '';
+      tabsContainer.style.display = 'none';
+      if (isSubmitting) {
+        contentContainer.innerHTML = renderSubmissionLoadingState();
+      } else if (lastSubmissionResult) {
+        contentContainer.innerHTML = renderSubmissionResultPanel(lastSubmissionResult);
+      } else {
+        contentContainer.innerHTML = '<div class="dsa-no-tests-msg">No submission results yet. Click <strong>Submit</strong> to evaluate.</div>';
       }
-      tabsHtml += `<button type="button" class="dsa-console-nav-tab ${isResActive ? 'active' : ''}" onclick="Compiler.switchToTab('result')"><i class="fas fa-poll"></i> Result${tagHtml}</button>`;
+      return;
     }
 
-    // If Testcase tab is active, show the Case buttons inline
-    if (isTcActive && currentSampleTests && currentSampleTests.length > 0) {
-      tabsHtml += '<div class="dsa-tc-buttons" style="margin-left:auto;">';
+    // In testcase mode, display only sample case selection tabs directly without redundant Testcase/Result buttons
+    if (currentSampleTests && currentSampleTests.length > 0) {
+      tabsContainer.style.display = 'flex';
+      let tabsHtml = '<div class="dsa-tc-buttons">';
       currentSampleTests.forEach((tc, idx) => {
         const isActive = idx === currentSelectedCaseIdx;
         const res = currentCaseResults[tc.index];
@@ -1081,21 +1085,10 @@ const Compiler = (() => {
         tabsHtml += `<button type="button" class="dsa-tab-btn ${isActive ? 'active' : ''}${statusClass}" onclick="Compiler.selectCase(${idx})">${icon}Case ${tc.index}</button>`;
       });
       tabsHtml += '</div>';
-    }
-
-    tabsHtml += '</div>';
-    tabsContainer.innerHTML = tabsHtml;
-
-    // Content container rendering
-    if (isResActive) {
-      if (isSubmitting) {
-        contentContainer.innerHTML = renderSubmissionLoadingState();
-      } else if (lastSubmissionResult) {
-        contentContainer.innerHTML = renderSubmissionResultPanel(lastSubmissionResult);
-      } else {
-        contentContainer.innerHTML = '<div class="dsa-no-tests-msg">No submission results yet. Click <strong>Submit</strong> to evaluate.</div>';
-      }
-      return;
+      tabsContainer.innerHTML = tabsHtml;
+    } else {
+      tabsContainer.innerHTML = '';
+      tabsContainer.style.display = 'none';
     }
 
     // Testcase tab active
@@ -2374,6 +2367,8 @@ public:
     getSelectedCaseIndex,
     renderSampleTestConsole,
     switchToTab,
+    toggleResultView,
+    hasSubmissionResult,
   };
 
 })();

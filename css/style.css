@@ -3697,9 +3697,16 @@ table.questions-table td.name-col {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
-  padding: 10px 12px 8px;
+  padding: 6px 12px;
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
+}
+
+#dsa-testcase-tabs:empty {
+  display: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
 }
 
 /* DSA test case content: scrollable area */
@@ -3708,7 +3715,7 @@ table.questions-table td.name-col {
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 12px;
+  padding: 8px 12px 12px;
 }
 
 /* DSA bottom stats: pinned at bottom, never scroll away */
@@ -3878,9 +3885,16 @@ table.questions-table td.name-col {
   overflow-x: auto !important;
   white-space: nowrap !important;
   gap: 6px !important;
-  padding: 10px 14px 8px !important;
+  padding: 6px 12px !important;
   scrollbar-width: none !important;
   /* Firefox */
+}
+
+#dsa-testcase-tabs:empty {
+  display: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
 }
 
 #dsa-testcase-tabs::-webkit-scrollbar {
@@ -5936,8 +5950,8 @@ tr.history-row {
 .leetcode-result-panel {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 4px 0 16px;
+  gap: 8px;
+  padding: 0 0 10px;
   animation: fadeInResult 0.2s ease-in-out;
 }
 
@@ -5950,21 +5964,21 @@ tr.history-row {
 .leetcode-result-header {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 3px;
 }
 
 .leetcode-verdict-title {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 19px;
+  gap: 6px;
+  font-size: 14.5px;
   font-weight: 600;
   letter-spacing: -0.01em;
-  line-height: 1.25;
+  line-height: 1.2;
 }
 
 .leetcode-verdict-title i {
-  font-size: 16px;
+  font-size: 13.5px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -5983,13 +5997,13 @@ tr.history-row {
 }
 
 .leetcode-count-headline {
-  font-size: 13.5px;
+  font-size: 12.5px;
   font-weight: 500;
   color: var(--text-secondary);
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-top: 1px;
+  margin-top: 0;
 }
 
 /* Passed / Failed Badges */
