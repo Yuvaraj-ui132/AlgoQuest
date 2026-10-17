@@ -2,7 +2,7 @@
 AlgoQuest FastAPI Backend — Main Application Entry Point
 
 Architecture:
-  Browser (Vanilla JS) → FastAPI → Firebase Firestore + Judge0 CE
+  Browser (Vanilla JS) → FastAPI → PostgreSQL (Supabase) / Cloud Firestore + Judge0 CE
 
 Authentication:
   Firebase Auth (client-side) → ID Token → FastAPI verifies token → UID derived
@@ -26,16 +26,20 @@ async def lifespan(app: FastAPI):
       1. Initialize structured logging with redacting filter.
       2. Initialize Firebase Admin SDK.
       3. Validate hidden test cases dataset.
-      4. Start async submission worker(s) via asyncio.Queue.
+      4. Start async submission worker(s) via asyncio.Queue or PostgreSQL queue.
 
     Shutdown:
       1. Gracefully cancel all submission worker tasks.
+      2. Close any lingering HTTP client sessions.
     """
     from app.utils.logging import setup_logging
     from app.utils.security import initialize_firebase
     from app.services.submission_queue import submission_queue
     from app.routes.submissions import validate_hidden_tests_on_startup
     from app.config import settings
+    import logging
+
+    logger = logging.getLogger(__name__)
 
     setup_logging(log_level=settings.log_level, log_format=settings.effective_log_format)
 
@@ -52,7 +56,7 @@ async def lifespan(app: FastAPI):
                 send_default_pii=False,
             )
         except ImportError:
-            pass
+            logger.info("Sentry DSN configured but sentry-sdk package is not installed.")
 
     initialize_firebase()
     validate_hidden_tests_on_startup()
@@ -60,16 +64,16 @@ async def lifespan(app: FastAPI):
         try:
             from app.services.supabase_service import repair_historical_languages
             repair_historical_languages()
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.warning("Historical language repair skipped or failed: %s", exc)
     submission_queue.start_workers(count=settings.submission_workers)
     yield
     submission_queue.stop_workers()
     try:
         from app.services.judge0_service import close_http_client
         await close_http_client()
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.warning("Error closing Judge0 HTTP client: %s", exc)
 
 
 app = FastAPI(
@@ -84,8 +88,8 @@ app = FastAPI(
         "Obtain the token on the client via `firebase.auth().currentUser.getIdToken()`.\n\n"
         "## Architecture\n"
         "- **Firebase Auth** handles login/signup (client-side)\n"
-        "- **FastAPI** verifies ID tokens and proxies Firestore + Judge0 calls\n"
-        "- **Firestore / Supabase** stores user data (progress, bookmarks, notes, editor code)\n"
+        "- **FastAPI** verifies ID tokens, manages submission queues, and mediates database and Judge0 calls\n"
+        "- **PostgreSQL (Supabase) / Cloud Firestore** stores user data (progress, bookmarks, notes, editor code, submissions)\n"
         "- **Judge0 CE** executes submitted code in isolated containers"
     ),
     version="1.0.0",

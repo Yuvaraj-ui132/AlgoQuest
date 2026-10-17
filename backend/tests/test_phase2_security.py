@@ -40,24 +40,28 @@ def test_production_mode_unhandled_exception_hides_internals():
     In production mode, unhandled exceptions must return a generic 500 detail.
     Database IPs, usernames, passwords, and tracebacks must NEVER be exposed.
     """
-    settings.app_env = "production"
+    orig_env = settings.app_env
+    try:
+        settings.app_env = "production"
 
-    with patch("app.routes.bookmarks.db_service.get_all_bookmarks", side_effect=Exception(
-        'OperationalError: connection to server at "52.68.3.1", port 6543 failed: '
-        'FATAL: password authentication failed for user "postgres.secret_db_user"'
-    )):
-        with patch("app.dependencies.firebase_auth.verify_id_token", return_value={"uid": "test_user_sec"}):
-            response = client.get(
-                "/api/bookmarks",
-                headers={"Authorization": "Bearer valid_test_token"},
-            )
-            assert response.status_code == 500
-            data = response.json()
-            assert data["detail"] == "An internal server error occurred."
-            # Confirm no IP, credentials, or internal class names leaked
-            assert "52.68.3.1" not in response.text
-            assert "postgres.secret_db_user" not in response.text
-            assert "OperationalError" not in response.text
+        with patch("app.routes.bookmarks.db_service.get_all_bookmarks", side_effect=Exception(
+            'OperationalError: connection to server at "52.68.3.1", port 6543 failed: '
+            'FATAL: password authentication failed for user "postgres.secret_db_user"'
+        )):
+            with patch("app.dependencies.firebase_auth.verify_id_token", return_value={"uid": "test_user_sec"}):
+                response = client.get(
+                    "/api/bookmarks",
+                    headers={"Authorization": "Bearer valid_test_token"},
+                )
+                assert response.status_code == 500
+                data = response.json()
+                assert data["detail"] == "An internal server error occurred."
+                # Confirm no IP, credentials, or internal class names leaked
+                assert "52.68.3.1" not in response.text
+                assert "postgres.secret_db_user" not in response.text
+                assert "OperationalError" not in response.text
+    finally:
+        settings.app_env = orig_env
 
 
 def test_sanitize_db_error_strips_sensitive_data():

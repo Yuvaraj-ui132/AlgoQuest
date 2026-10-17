@@ -257,7 +257,11 @@ _SessionFactory = None
 
 def get_engine(db_url: Optional[str] = None):
     global _engine, _SessionFactory
-    url = db_url or settings.supabase_db_url or "sqlite:///:memory:"
+    url = db_url or settings.supabase_db_url
+    if not url:
+        if settings.is_production:
+            raise ValueError("SUPABASE_DB_URL is not configured for production environment")
+        url = "sqlite:///:memory:"
 
     if _engine is None or db_url is not None:
         if url.startswith("sqlite"):
@@ -297,9 +301,21 @@ def init_db(engine=None):
 
 
 def check_health() -> bool:
-    """Safe connectivity check for PostgreSQL / SQLite."""
+    """
+    Safe connectivity check for PostgreSQL / SQLite.
+    Never claims connected unless the configured connection actually succeeds.
+    """
     try:
+        if settings.is_production and not settings.supabase_db_url:
+            logger.warning("Supabase health check failed: SUPABASE_DB_URL is not configured.")
+            return False
         eng = get_engine()
+        if settings.is_production and getattr(eng.dialect, "name", "") != "postgresql":
+            logger.warning(
+                "Supabase health check failed: dialect %r is not PostgreSQL in production.",
+                getattr(eng.dialect, "name", "unknown"),
+            )
+            return False
         with eng.connect() as conn:
             conn.execute(select(1))
         return True

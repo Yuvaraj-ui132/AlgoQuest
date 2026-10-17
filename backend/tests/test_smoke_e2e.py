@@ -31,6 +31,8 @@ client = TestClient(app, raise_server_exceptions=False)
 def setup_local_test_db():
     """Ensure tests run against an isolated clean schema."""
     orig_backend = settings.database_backend
+    orig_env = settings.app_env
+    settings.app_env = "test"
     settings.database_backend = "supabase"
     engine = supabase_service.get_engine("sqlite:///:memory:")
     Base.metadata.drop_all(bind=engine)
@@ -38,6 +40,7 @@ def setup_local_test_db():
     yield engine
     Base.metadata.drop_all(bind=engine)
     settings.database_backend = orig_backend
+    settings.app_env = orig_env
 
 
 # ── 1. Health and Readiness ──────────────────────────────────────────────────

@@ -157,3 +157,30 @@ jobs:
             exit 1
           fi
           echo "All frontend JavaScript files passed syntax validation."
+
+  deploy-to-render:
+    name: Deploy to Render (Post-CI)
+    needs: [lint-and-code-quality, security-and-dependencies, backend-tests, frontend-syntax]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger Render Deployment via Deploy Hook
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -n "$RENDER_DEPLOY_HOOK_URL" ]; then
+            echo "CI checks passed. Triggering Render deployment hook..."
+            response=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -X POST "$RENDER_DEPLOY_HOOK_URL")
+            http_code=$(echo "$response" | grep "HTTP_STATUS" | cut -d':' -f2)
+            echo "Render deploy hook returned HTTP $http_code"
+            if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
+              echo "Render deployment triggered successfully."
+            else
+              echo "WARNING: Render deploy hook returned non-2xx status ($http_code). Check Render hook URL configuration."
+            fi
+          else
+            echo "RENDER_DEPLOY_HOOK_URL secret is not set in repository secrets."
+            echo "Render autoDeploy is disabled in render.yaml to guarantee commits failing CI are never deployed."
+          fi
+

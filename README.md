@@ -1,11 +1,12 @@
 # AlgoQuest
 
-> A full-stack, placement-focused DSA practice platform with in-browser code execution, asynchronous submission processing, real-time Firestore synchronization, and detailed performance analytics.
+> A full-stack, placement-focused DSA practice platform with in-browser code execution, asynchronous submission processing, real-time progress synchronization, and detailed performance analytics.
 
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.109+-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
 [![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?style=flat-square&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
-[![Firebase](https://img.shields.io/badge/Firebase-Auth_%26_Firestore-FFCA28?style=flat-square&logo=firebase&logoColor=black)](https://firebase.google.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Supabase-4169E1?style=flat-square&logo=postgresql&logoColor=white)](https://supabase.com/)
+[![Firebase](https://img.shields.io/badge/Firebase-Auth-FFCA28?style=flat-square&logo=firebase&logoColor=black)](https://firebase.google.com/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=flat-square&logo=docker&logoColor=white)](https://www.docker.com/)
 
 ---
@@ -32,13 +33,13 @@ flowchart TD
         API[FastAPI Router & Security]
         AuthCheck[Firebase ID Token Verifier]
         RateLimit[In-Memory Rate Limiter]
-        Queue[asyncio.Queue Submission Queue]
+        Queue[Submission Queue - Memory / PG]
         Worker[Background Submission Worker]
     end
 
     subgraph External["Cloud & Execution Services"]
         Judge0[Judge0 CE API]
-        Firestore[(Cloud Firestore)]
+        DB[(Supabase PostgreSQL / Cloud Firestore)]
     end
 
     UI -->|1. Authenticate| Auth
@@ -53,10 +54,10 @@ flowchart TD
     
     Queue --> Worker
     Worker -->|Fetch Hidden Tests & Execute| Judge0
-    Worker -->|Write Submission Record & Update Solved| Firestore
+    Worker -->|Write Submission Record & Update Solved| DB
     
     UI -->|4. Poll Job Status /api/submissions/jobs/{id}| API
-    API -->|Read User Progress & History| Firestore
+    API -->|Read User Progress & History| DB
 ```
 
 ---
@@ -67,10 +68,10 @@ flowchart TD
 - **Professional Code Workspace**: Embedded Microsoft Monaco Editor with multi-language support (**C++17, Java 17, Python 3, JavaScript ES6**), syntax highlighting, and customizable keybindings.
 - **Dual Execution Engine**:
   - **Run Code (Synchronous)**: Executes user code against visible sample test cases with instant stdin/stdout feedback.
-  - **Submit Solution (Asynchronous)**: Validates against full hidden test suites via an `asyncio.Queue` worker queue returning HTTP 202 with non-blocking client polling.
+  - **Submit Solution (Asynchronous)**: Validates against full hidden test suites via an async worker queue (in-memory or durable PostgreSQL) returning HTTP 202 with non-blocking client polling.
 - **Hidden Test Case Protection**: Hidden test inputs and expected outputs are stored strictly server-side and never exposed to the client.
 - **Submission History & Analytics**: Tracks execution runtime, memory consumption, language breakdowns, success rates, and verdict histories.
-- **Authentication & Security**: Email/password and Google OAuth via Firebase Authentication, with cryptographically verified JWT tokens and strict UID-isolated Firestore data models.
+- **Authentication & Security**: Email/password and Google OAuth via Firebase Authentication, with cryptographically verified JWT tokens and strict UID-isolated database models (Supabase PostgreSQL / Cloud Firestore).
 - **Per-User Rate Limiting**: Token-bucket rate limiting (10 submissions / 60 seconds) prevents API abuse.
 - **Warm Graphite UI**: Modern developer workspace design with dark/light themes, zero blue accents, and responsive layout.
 
