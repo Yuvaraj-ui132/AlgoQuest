@@ -152,6 +152,9 @@ async def create_submission(
     except Exception:
         plain_code = source_code
 
+    from app.services.driver_generator import strip_outer_markdown_fences
+    plain_code = strip_outer_markdown_fences(plain_code)
+
     payload = {
         "source_code": _b64_encode(plain_code),
         "language_id": language_id,

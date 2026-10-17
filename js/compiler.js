@@ -59,6 +59,42 @@ const Compiler = (() => {
   let activeMemory = null;
   let activeMetadata = null;
 
+  /**
+   * stripOuterMarkdownFences — strips markdown code fences (e.g. ```python ... ```)
+   * ONLY when they clearly wrap the entire pasted code block.
+   * Normalizes CRLF to LF, and preserves all internal indentation and backticks.
+   */
+  function stripOuterMarkdownFences(code) {
+    if (!code || typeof code !== 'string') return code || '';
+    const normalized = code.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+    const stripped = normalized.trim();
+    const lines = stripped.split('\n');
+    if (lines.length >= 2) {
+      const firstLine = lines[0].trim();
+      const lastLine = lines[lines.length - 1].trim();
+      const openMatch = firstLine.match(/^(`{3,})([a-zA-Z0-9_+-]*)$/);
+      const closeMatch = lastLine.match(/^(`{3,})$/);
+      if (openMatch && closeMatch) {
+        const openTicks = openMatch[1];
+        const closeTicks = closeMatch[1];
+        if (closeTicks.length >= openTicks.length) {
+          const hasInnerFence = lines.slice(1, -1).some(line => /^`{3,}/.test(line.trim()));
+          if (!hasInnerFence) {
+            const innerLines = lines.slice(1, -1);
+            while (innerLines.length > 0 && !innerLines[0].trim()) {
+              innerLines.shift();
+            }
+            while (innerLines.length > 0 && !innerLines[innerLines.length - 1].trim()) {
+              innerLines.pop();
+            }
+            return innerLines.join('\n');
+          }
+        }
+      }
+    }
+    return normalized;
+  }
+
   function getUid() {
     if (window.App && typeof window.getStorageKey === 'function') {
       const user = (typeof isFirebaseConfigured !== 'undefined' && isFirebaseConfigured && firebase.auth && firebase.auth() && firebase.auth().currentUser);
@@ -410,9 +446,12 @@ const Compiler = (() => {
       }, 55000); // Backend polls for max 40s; give it a 15s buffer
     }
 
+    // Clean markdown fences (e.g. ```python ... ``` copied from LLMs) and normalize CRLF
+    const cleanCode = stripOuterMarkdownFences(sourceCode);
+
     // Build payload for the backend
     const payload = {
-      source_code: btoa(unescape(encodeURIComponent(sourceCode))),
+      source_code: btoa(unescape(encodeURIComponent(cleanCode))),
       language_id: langId,
       execution_type: executionType || 'general',
       question_id: questionId || null,
@@ -424,7 +463,8 @@ const Compiler = (() => {
     }
 
     if (customStdin !== null && customStdin !== undefined) {
-      payload.stdin = btoa(unescape(encodeURIComponent(customStdin)));
+      const cleanStdin = customStdin.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+      payload.stdin = btoa(unescape(encodeURIComponent(cleanStdin)));
     }
 
     try {

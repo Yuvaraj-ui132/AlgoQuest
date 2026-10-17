@@ -154,12 +154,54 @@ def _strip_curly_block(code: str, pattern: str) -> str:
     return code
 
 
+def strip_outer_markdown_fences(code: str) -> str:
+    """
+    Strips markdown code fences (e.g. ```python ... ``` or ```java ... ```)
+    ONLY when they clearly wrap the entire user code block.
+    Preserves all internal indentation, comments, and template strings/backticks.
+    Normalizes CRLF to LF.
+    """
+    if not code:
+        return ""
+
+    # Normalize CRLF line endings
+    normalized = code.replace("\r\n", "\n").replace("\r", "\n")
+    stripped = normalized.strip()
+    lines = stripped.split("\n")
+
+    if len(lines) >= 2:
+        first_line = lines[0].strip()
+        last_line = lines[-1].strip()
+
+        # Opening fence must be 3 or more backticks followed by optional language tag
+        m_open = re.match(r"^(`{3,})([a-zA-Z0-9_+-]*)$", first_line)
+        # Closing fence must be 3 or more backticks
+        m_close = re.match(r"^(`{3,})$", last_line)
+
+        if m_open and m_close:
+            open_ticks = m_open.group(1)
+            close_ticks = m_close.group(1)
+            if len(close_ticks) >= len(open_ticks):
+                # Verify that no internal line is a standalone markdown fence
+                has_inner_fence = any(re.match(r"^`{3,}", line.strip()) for line in lines[1:-1])
+                if not has_inner_fence:
+                    inner_lines = lines[1:-1]
+                    while inner_lines and not inner_lines[0].strip():
+                        inner_lines.pop(0)
+                    while inner_lines and not inner_lines[-1].strip():
+                        inner_lines.pop()
+                    return "\n".join(inner_lines)
+
+    return normalized
+
+
 def clean_user_code(user_code: str, lang: str) -> str:
     """
     Extracts raw user solution code if the client submitted legacy wrapped code,
-    or returns user_code directly.
+    strips outer markdown fences if present, or returns user_code directly.
     """
-    code = user_code.replace("\r\n", "\n").strip()
+    code = strip_outer_markdown_fences(user_code)
+    code = code.replace("\r\n", "\n").strip()
     if not code:
         return ""
 

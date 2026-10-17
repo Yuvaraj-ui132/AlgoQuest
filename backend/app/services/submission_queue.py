@@ -724,7 +724,12 @@ class SubmissionQueue:
                 passed = (
                     is_clean
                     and status_id == 3
-                    and _compare_sync(actual_raw, tc.get("expectedRaw", ""), compare_mode)
+                    and _compare_sync(
+                        actual_raw,
+                        tc.get("expectedRaw", ""),
+                        compare_mode,
+                        return_type=q_data.get("returnType"),
+                    )
                 )
                 if passed:
                     passed_count += 1
@@ -971,7 +976,12 @@ def _is_crash_output(text: str) -> bool:
     return any(p in lower for p in _CRASH_PATTERNS)
 
 
-def _compare_sync(actual: str, expected_raw: str, compare_mode: str) -> bool:
+def _compare_sync(
+    actual: str,
+    expected_raw: str,
+    compare_mode: str,
+    return_type: Optional[str] = None,
+) -> bool:
     """Mirror of the route handler's _compare() — self-contained for the worker."""
     import re
 
@@ -980,6 +990,19 @@ def _compare_sync(actual: str, expected_raw: str, compare_mode: str) -> bool:
 
     if _is_crash_output(actual):
         return False
+
+    if return_type == "string":
+        # For string outputs, compare according to problem output rules:
+        # Ignore trailing whitespace/newline differences, but do NOT remove
+        # meaningful internal spaces or change case unless problem explicitly allows it.
+        act_clean = actual.rstrip("\r\n \t")
+        exp_clean = expected_raw.rstrip("\r\n \t")
+
+        if compare_mode == "any_of":
+            valid = [s.strip() for s in expected_raw.split("|")]
+            return act_clean in valid or actual.strip() in valid
+
+        return act_clean == exp_clean
 
     def normalize(text: str) -> str:
         return re.sub(r"\s+", " ", text.strip())

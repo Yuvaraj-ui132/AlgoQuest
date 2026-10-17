@@ -82,6 +82,14 @@
       headers,
     };
 
+    const method = (options.method || 'GET').toUpperCase();
+    // Safe retry: ONLY idempotent read requests (GET / HEAD) may be retried.
+    // Critical: POST/PUT/DELETE/PATCH mutations (especially POST /api/submissions)
+    // MUST NEVER be automatically retried to prevent duplicate queue jobs or duplicate submissions.
+    const isIdempotent = (method === 'GET' || method === 'HEAD');
+    const canRetry = isIdempotent && options.retry !== false;
+    const maxRetries = canRetry ? 3 : 0;
+
     let coldStartTimer = null;
     let didShowColdStartToast = false;
     if (typeof showToast === 'function' && !_coldStartToastActive) {
@@ -92,25 +100,57 @@
       }, 3500);
     }
 
-    let response;
+    let response = null;
+    let lastNetworkError = null;
+
     try {
-      response = await fetch(url, fetchOptions);
-    } catch (networkErr) {
-      if (networkErr.name === 'AbortError') {
-        throw new ApiError(0, 'Request cancelled.');
+      for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        try {
+          response = await fetch(url, fetchOptions);
+        } catch (networkErr) {
+          if (networkErr.name === 'AbortError') {
+            throw new ApiError(0, 'Request cancelled.');
+          }
+          lastNetworkError = networkErr;
+
+          // If retryable and attempts remain, wait with exponential backoff
+          if (canRetry && attempt < maxRetries && !fetchOptions.signal?.aborted) {
+            const backoffMs = Math.min(1000 * Math.pow(2, attempt), 4000);
+            await new Promise(resolve => setTimeout(resolve, backoffMs));
+            continue;
+          }
+          throw new ApiError(0, `Network error: ${networkErr.message}. Is the backend running at ${BACKEND_URL}?`);
+        }
+
+        // Handle transient cold-start HTTP errors (502 Bad Gateway, 503 Service Unavailable, 504 Gateway Timeout)
+        if (
+          canRetry &&
+          (response.status === 502 || response.status === 503 || response.status === 504) &&
+          attempt < maxRetries &&
+          !fetchOptions.signal?.aborted
+        ) {
+          const backoffMs = Math.min(1000 * Math.pow(2, attempt), 4000);
+          await new Promise(resolve => setTimeout(resolve, backoffMs));
+          continue;
+        }
+
+        // Valid response or non-transient status reached
+        break;
       }
-      throw new ApiError(0, `Network error: ${networkErr.message}. Is the backend running at ${BACKEND_URL}?`);
     } finally {
       if (coldStartTimer) clearTimeout(coldStartTimer);
-      if (didShowColdStartToast) {
-        _coldStartToastActive = false;
-        if (typeof showToast === 'function') {
-          showToast('Server connected!', 'success');
-        }
-      }
     }
 
-    if (!response.ok) {
+    if (!response || !response.ok) {
+      // Clear cold-start active state on error without falsely claiming "Server connected!"
+      if (didShowColdStartToast || _coldStartToastActive) {
+        _coldStartToastActive = false;
+      }
+
+      if (!response) {
+        throw new ApiError(0, `Network error: ${lastNetworkError ? lastNetworkError.message : 'Unknown error'}`);
+      }
+
       let detail = `HTTP ${response.status}`;
       try {
         const body = await response.json();
@@ -123,6 +163,14 @@
       }
 
       throw new ApiError(response.status, detail);
+    }
+
+    // A real successful API response confirms the backend is awake!
+    if (didShowColdStartToast || _coldStartToastActive) {
+      _coldStartToastActive = false;
+      if (typeof showToast === 'function') {
+        showToast('Server connected!', 'success');
+      }
     }
 
     // 204 No Content
