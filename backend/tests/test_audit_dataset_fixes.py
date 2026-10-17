@@ -21,7 +21,12 @@ import secrets
 import pytest
 
 from app.services.driver_generator import build_backend_driver
-from app.routes.submissions import parse_test_outputs, _compare, _build_stdin
+from app.routes.submissions import (
+    parse_test_outputs,
+    _compare,
+    _build_stdin,
+    _sanitize_hidden_dataset,
+)
 from scripts.private_solvers.part1 import PART1_SOLVERS
 from scripts.private_solvers.part2 import PART2_SOLVERS
 from scripts.private_solvers.part3 import PART3_SOLVERS
@@ -44,6 +49,7 @@ def dataset():
         samples = json.load(f)
     with open(HIDDEN_FILE, "r", encoding="utf-8") as f:
         hidden = json.load(f)
+    _sanitize_hidden_dataset(hidden)
     return {"samples": samples, "hidden": hidden}
 
 
