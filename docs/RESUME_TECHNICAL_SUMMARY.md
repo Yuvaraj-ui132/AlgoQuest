@@ -62,7 +62,7 @@
 | **Curriculum Scale** | 174 Curated Problems | `backend/data/test_cases.json`, `js/question-metadata.js` |
 | **Topic Coverage** | 14 DSA Categories | Arrays, Strings, Trees, Graphs, DP, Heaps, etc. |
 | **Execution Runtimes** | 5 Languages | C++17 (`76`), C (`50`), Java (`62`), Python 3 (`71`), JS (`63`) |
-| **Test Suite Coverage** | 43 Automated Tests | `backend/tests/` (100% Passing via `pytest`) |
+| **Test Suite Coverage** | 239 Automated Tests | `backend/tests/` (100% Passing via `pytest` across 13 test suites) |
 | **API Surface** | 16 Registered Endpoints | FastAPI OpenAPI schema |
 | **Rate Limit Window** | 10 req / 60s per UID | `backend/app/routes/submissions.py` (`_rate_store`) |
 | **Job Retention TTL** | 20 min retention, 5 min cleanup | `backend/app/services/submission_queue.py` |
@@ -75,7 +75,7 @@
 | Decision | Why Chosen | Major Benefit | Trade-Off / Limitation |
 | :--- | :--- | :--- | :--- |
 | **Async Submit (`HTTP 202`)** | Full test runs can take 3–8s; risks reverse proxy timeouts. | Non-blocking, robust client polling, zero connection drops. | Requires client polling loop and transient job state tracking. |
-| **In-Memory `asyncio.Queue`** | Eliminates external daemon requirements for single containers. | Zero extra cost, zero Redis/RabbitMQ infrastructure overhead. | In-flight jobs lost if backend crashes; single-container bound. |
+| **Dual-Mode Queue Architecture** | Lightweight in-memory `asyncio.Queue` for local dev / simple containers; PostgreSQL `FOR UPDATE SKIP LOCKED` durable queue for restart resilience. | Zero extra external daemon cost; restart durability when enabled. | In-memory mode loses in-flight jobs on process termination; PG mode requires PostgreSQL. |
 | **Server-Side Hidden Tests** | Prevents client inspect-element extraction of hidden edge cases. | High assessment integrity matching production platforms. | Server must execute comparator logic instead of delegating to client. |
 | **No Source Code in History Docs** | Active code is already in `editor/{qid}`; history is just telemetry. | Minimal Firestore document size, low storage cost, fast queries. | User cannot review past historical code snapshots. |
 | **Bulk User Hydration (`/api/user/all`)** | Eliminates 5–6 sequential client Firestore queries on initial load. | Single round-trip login hydration (<250ms), snappy UX. | Slightly larger single JSON payload on login. |
