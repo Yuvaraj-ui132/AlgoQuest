@@ -49,3 +49,4 @@ backend/data/hidden_test_cases.json
 data/hidden_test_cases.json
 backend/scripts/private_*
 private_*
+scratch/
