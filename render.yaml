@@ -1,16 +1,13 @@
 services:
   - type: web
     name: algoquest-api
-    runtime: python
-    rootDir: backend
-    buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 1
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
     plan: free
     autoDeploy: false
     healthCheckPath: /health
     envVars:
-      - key: PYTHON_VERSION
-        value: 3.11.9
       - key: DATABASE_BACKEND
         value: supabase
       - key: SUPABASE_DB_URL

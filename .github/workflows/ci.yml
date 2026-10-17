@@ -158,9 +158,50 @@ jobs:
           fi
           echo "All frontend JavaScript files passed syntax validation."
 
+  docker-build-verification:
+    name: Docker Build & Container Verification
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker image with backend context
+        run: |
+          echo "Building Docker image using context 'backend' and 'backend/Dockerfile'..."
+          docker build -t algoquest-api:ci-test -f backend/Dockerfile backend/
+          echo "Docker image built successfully."
+
+      - name: Verify container startup and health probe
+        run: |
+          echo "Running container in background to verify startup and health endpoint..."
+          docker run -d --name test-api -p 8000:8000 \
+            -e APP_ENV=test \
+            -e DATABASE_BACKEND=supabase \
+            algoquest-api:ci-test
+          
+          success=0
+          for i in $(seq 1 15); do
+            if curl -s http://localhost:8000/health | grep -q '"status":"ok"'; then
+              echo "Container health check passed!"
+              success=1
+              break
+            fi
+            echo "Waiting for container to start (attempt $i)..."
+            sleep 1
+          done
+
+          if [ $success -eq 0 ]; then
+            echo "Container health check failed. Dumping logs:"
+            docker logs test-api
+            exit 1
+          fi
+
+          docker stop test-api
+
   deploy-to-render:
     name: Deploy to Render (Post-CI)
-    needs: [lint-and-code-quality, security-and-dependencies, backend-tests, frontend-syntax]
+    needs: [lint-and-code-quality, security-and-dependencies, backend-tests, frontend-syntax, docker-build-verification]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
 
