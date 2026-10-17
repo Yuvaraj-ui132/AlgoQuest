@@ -174,6 +174,7 @@ async def readiness_check():
             },
             "submission_queue": {
                 "status": "healthy" if workers_ok else "degraded",
+                "mode": queue_stats.get("mode", "memory"),
                 "active_workers": queue_stats.get("active_workers", 0),
                 "queue_size": queue_stats.get("queue_size", 0),
             },

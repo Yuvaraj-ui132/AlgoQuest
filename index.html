@@ -1083,28 +1083,6 @@
   <!-- Toast Container -->
   <div id="toast-container"></div>
 
-  <!-- Scripts -->
-  <!-- Backend URL Configuration
-       Local development setup — FastAPI backend must be running at http://localhost:8000.
-       Start the backend with: cd backend && uvicorn app.main:app --reload --port 8000
-       To override, set window.ALGOQUEST_BACKEND_URL before this script runs.
-  -->
-  <script>
-    // Configurable backend URL: uses explicit override, or production API URL if not running on localhost
-    if (!window.ALGOQUEST_BACKEND_URL) {
-      const isLocal = ['localhost', '127.0.0.1', ''].includes(window.location.hostname);
-      window.ALGOQUEST_BACKEND_URL = isLocal ? 'http://localhost:8000' : 'https://algoquest-fhuy.onrender.com';
-    }
-  </script>
-
-  <script src="js/firebase-config.js"></script>
-  <script src="js/api.js"></script>
-  <script src="js/firebase.js"></script>
-  <script src="js/question-metadata.js"></script>
-  <script src="js/compiler.js"></script>
-  <script src="js/app.js"></script>
-  <script src="js/history.js"></script>
-
 
   <!-- ======================================================
      FULL-SCREEN AUTHENTICATION LOADING OVERLAY
@@ -1363,6 +1341,27 @@
       </div>
     </div>
   </div>
+  <!-- Scripts (deferred to end of body for complete DOM parsing) -->
+  <!-- Backend URL Configuration
+       Local development setup — FastAPI backend must be running at http://localhost:8000.
+       Start the backend with: cd backend && uvicorn app.main:app --reload --port 8000
+       To override, set window.ALGOQUEST_BACKEND_URL before this script runs.
+  -->
+  <script>
+    // Configurable backend URL: uses explicit override, or production API URL if not running on localhost
+    if (!window.ALGOQUEST_BACKEND_URL) {
+      const isLocal = ['localhost', '127.0.0.1', ''].includes(window.location.hostname);
+      window.ALGOQUEST_BACKEND_URL = isLocal ? 'http://localhost:8000' : 'https://algoquest-fhuy.onrender.com';
+    }
+  </script>
+
+  <script src="js/firebase-config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/firebase.js"></script>
+  <script src="js/question-metadata.js"></script>
+  <script src="js/compiler.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/history.js"></script>
 </body>
 
 </html>

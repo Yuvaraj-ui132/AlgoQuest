@@ -15,7 +15,8 @@ The local Docker development stack consists of two isolated services running on 
    - Includes container health check using `pg_isready`.
 
 2. **`api` (FastAPI Python 3.11 Backend)**:
-   - Builds from `Dockerfile`.
+   - Builds from `Dockerfile` or `backend/Dockerfile`.
+   - Runs securely as an unprivileged, non-root user (`appuser`, UID/GID 1001).
    - Depends on `db` being healthy before starting.
    - Connects to PostgreSQL using internal DNS `db:5432`.
    - Mounts `./backend/app` and `./backend/data` for live code updates during development.

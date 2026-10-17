@@ -6,6 +6,8 @@
 serviceAccount.json
 *.json.key
 algoquest-*.json
+.secrets/
+backend/.secrets/
 
 # Version Control & Local Caches
 .git

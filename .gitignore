@@ -12,6 +12,9 @@ backend/*.json.key
 *firebase-adminsdk*.json
 *service-account*.json
 serviceAccount.json
+algoquest-*.json
+.secrets/
+backend/.secrets/
 
 # Python & Test artifacts
 __pycache__/

@@ -63,8 +63,10 @@ def add_exception_handlers(app: FastAPI) -> None:
         for e in exc.errors():
             field = " → ".join(str(x) for x in e["loc"])
             errors.append(f"{field}: {e['msg']}")
+        # Use HTTP_422_UNPROCESSABLE_CONTENT (Starlette >= 0.38) or fallback to avoid deprecation warning
+        status_code = getattr(status, "HTTP_422_UNPROCESSABLE_CONTENT", status.HTTP_422_UNPROCESSABLE_ENTITY)
         return JSONResponse(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status_code,
             content={"detail": "; ".join(errors)},
             headers=_response_headers(request),
         )

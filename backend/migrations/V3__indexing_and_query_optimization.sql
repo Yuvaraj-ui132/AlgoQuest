@@ -2,11 +2,10 @@
 -- ALGOQUEST DATABASE MIGRATION V3
 -- Target Database: Supabase PostgreSQL 15+
 -- Description: Evidence-based indexing and query performance optimization.
---              1. Adds covering partial index for active queue backpressure count.
+--              1. Adds partial index for active queue backpressure count.
 --              2. Adds partial index for periodic queue cleanup pruning.
---              3. Adds covering index for user submission analytics.
---              4. Adds foreign key compound index for question-level submissions.
---              5. Drops 5 redundant single-column indexes covered by composite unique constraints.
+--              3. Drops 5 redundant single-column indexes covered by composite unique constraints.
+--              (Submissions indexes are deferred based on table size and active query patterns).
 -- =============================================================================
 
 -- ─────────────────────────────────────────────────────────────────────────────
@@ -31,23 +30,20 @@ CREATE INDEX IF NOT EXISTS idx_queue_jobs_cleanup
 
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- 2. SUBMISSIONS QUERY OPTIMIZATIONS
+-- 2. SUBMISSIONS QUERY OPTIMIZATIONS (DEFERRED)
 -- ─────────────────────────────────────────────────────────────────────────────
+-- 2.1 idx_submissions_user_verdict ON submissions(user_id) INCLUDE (verdict)
+-- DEFERRED: Production `submissions` table currently has ~50 rows (96 KB).
+-- The existing V1 index `idx_submissions_user_submitted` (user_id, submitted_at DESC, id DESC)
+-- already provides an indexed path for user_id filters. Adding a second index on user_id
+-- adds unnecessary write amplification on every submission insert without measurable benefit.
+-- Revisit when submissions table grows significantly (> 100k rows).
 
--- 2.1 User Submissions Analytics (Total submissions + Accepted count aggregation)
--- Query: SELECT count(id), sum(case when verdict = 'Accepted' ...) FROM submissions WHERE user_id = :uid
--- Baseline: Bitmap Heap Scan requiring 250+ heap block reads to retrieve verdict.
--- Optimized: Covering Index with INCLUDE (verdict) enabling Index-Only Scan.
-CREATE INDEX IF NOT EXISTS idx_submissions_user_verdict 
-    ON submissions (user_id) 
-    INCLUDE (verdict);
+-- 2.2 idx_submissions_question_id ON submissions(question_id, submitted_at DESC)
+-- DEFERRED: No active query pattern in the application routes or services filters
+-- submissions solely by question_id. Indexing is deferred until question-level
+-- statistics or problem submission history routes are implemented.
 
--- 2.2 Question-Level Submissions & Problem Stats
--- Query: SELECT count(id), sum(case when verdict = 'Accepted' ...) FROM submissions WHERE question_id = :qid
--- Baseline: Full table Seq Scan scanning all submissions (417+ blocks, 25k+ rows).
--- Optimized: Targeted Index Scan in 0.15ms (26x speedup).
-CREATE INDEX IF NOT EXISTS idx_submissions_question_id 
-    ON submissions (question_id, submitted_at DESC);
 
 
 -- ─────────────────────────────────────────────────────────────────────────────
@@ -72,3 +68,18 @@ DROP INDEX IF EXISTS idx_user_editor_drafts_user;
 
 -- Covered by: uq_user_compiler_drafts_user_lang UNIQUE (user_id, language)
 DROP INDEX IF EXISTS idx_user_compiler_drafts_user;
+
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- 4. ROLLBACK INSTRUCTIONS
+-- ─────────────────────────────────────────────────────────────────────────────
+-- To revert migration V3, execute the following SQL statements:
+--
+-- DROP INDEX IF EXISTS idx_queue_jobs_active_count;
+-- DROP INDEX IF EXISTS idx_queue_jobs_cleanup;
+--
+-- CREATE INDEX IF NOT EXISTS idx_user_progress_user ON user_progress (user_id);
+-- CREATE INDEX IF NOT EXISTS idx_user_bookmarks_user ON user_bookmarks (user_id);
+-- CREATE INDEX IF NOT EXISTS idx_user_notes_user ON user_notes (user_id);
+-- CREATE INDEX IF NOT EXISTS idx_user_editor_drafts_user ON user_editor_drafts (user_id);
+-- CREATE INDEX IF NOT EXISTS idx_user_compiler_drafts_user ON user_compiler_drafts (user_id);

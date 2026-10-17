@@ -21,6 +21,22 @@
 
 'use strict';
 
+const _root = typeof window !== 'undefined' ? window : (typeof globalThis !== 'undefined' ? globalThis : {});
+
+// ─── HTML Sanitization Helper ────────────────────────────────────────────────
+function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+if (!_root.escapeHtml) {
+  _root.escapeHtml = escapeHtml;
+}
+
 // ─── Module-level cache ───────────────────────────────────────────────────────
 const _historyCache = {
   uid:          null,     // Firebase UID associated with cached items
@@ -35,7 +51,7 @@ const _historyCache = {
 };
 
 // Expose for external invalidation (e.g., from compiler.js after Submit, or logout/user-switch)
-window.invalidateHistoryCache = function () {
+const _invalidateHistoryCache = function () {
   _historyCache.items      = [];
   _historyCache.hasMore    = false;
   _historyCache.nextCursor = null;
@@ -44,22 +60,24 @@ window.invalidateHistoryCache = function () {
   _historyCache.uid        = null;
 
   // Clear any rendered history table
-  const container = document.getElementById('history-table-container');
-  if (container) {
-    container.innerHTML = `
-      <div class="history-empty">
-        <div class="history-empty-icon"><i class="fas fa-circle-notch fa-spin"></i></div>
-        <div class="history-empty-text">Loading submissions...</div>
-      </div>`;
-  }
-  const countBadge = document.querySelector('.history-count-badge');
-  if (countBadge) countBadge.innerHTML = '';
+  if (typeof document !== 'undefined') {
+    const container = document.getElementById('history-table-container');
+    if (container) {
+      container.innerHTML = `
+        <div class="history-empty">
+          <div class="history-empty-icon"><i class="fas fa-circle-notch fa-spin"></i></div>
+          <div class="history-empty-text">Loading submissions...</div>
+        </div>`;
+    }
+    const countBadge = document.querySelector('.history-count-badge');
+    if (countBadge) countBadge.innerHTML = '';
 
-  // Clear analytics containers if rendered
-  const topEl = document.getElementById('analytics-top-problems');
-  if (topEl) topEl.innerHTML = `<div class="analytics-empty-msg">No data loaded yet.</div>`;
-  const activityEl = document.getElementById('analytics-activity');
-  if (activityEl) activityEl.innerHTML = `<div class="analytics-empty-msg">No data loaded yet.</div>`;
+    // Clear analytics containers if rendered
+    const topEl = document.getElementById('analytics-top-problems');
+    if (topEl) topEl.innerHTML = `<div class="analytics-empty-msg">No data loaded yet.</div>`;
+    const activityEl = document.getElementById('analytics-activity');
+    if (activityEl) activityEl.innerHTML = `<div class="analytics-empty-msg">No data loaded yet.</div>`;
+  }
 
   console.log('[History] Cache invalidated.');
 };
@@ -68,7 +86,7 @@ window.invalidateHistoryCache = function () {
 // Reuses the already-loaded App.questions array — no separate fetch needed.
 function resolveQuestionTitle(questionId) {
   if (!questionId) return null;
-  if (window.App && window.App.questions) {
+  if (typeof window !== 'undefined' && window.App && window.App.questions) {
     const q = window.App.questions.find(x => x.id === questionId || x.id === Number(questionId));
     if (q) return q.name;
   }
@@ -290,6 +308,33 @@ function buildHistoryHTML() {
   `;
 }
 
+function buildSubmissionRowHtml(item) {
+  const vclass  = verdictClass(item.verdict);
+  const title   = questionDisplayName(item.questionId);
+  const lang    = langDisplay(item.language);
+  const allPass = item.passedCount != null && item.totalCount != null
+                  && item.passedCount === item.totalCount && item.totalCount > 0;
+  const tests   = (item.passedCount != null && item.totalCount != null)
+    ? `${item.passedCount}/${item.totalCount}` : '—';
+  const rt      = item.runtime || '—';
+  const mem     = item.memory  || '—';
+  const ts      = relativeTime(item.submittedAt);
+  const qid     = item.questionId;
+  const safeQid = parseInt(qid, 10) || 0;
+  const testsClass = `history-cell-tests${allPass ? ' all-pass' : ''}`;
+
+  return `
+    <tr class="history-row" data-qid="${safeQid}">
+      <td><span class="verdict-badge ${vclass}">${escapeHtml(item.verdict || '—')}</span></td>
+      <td><span class="history-problem-link" onclick="window.openHistoryProblem(${safeQid})" title="Open ${escapeHtml(title)}">${escapeHtml(title)}</span></td>
+      <td><span class="history-lang-chip">${escapeHtml(lang)}</span></td>
+      <td class="${testsClass}">${escapeHtml(tests)}</td>
+      <td class="history-cell-number">${escapeHtml(rt)}</td>
+      <td class="history-cell-number">${escapeHtml(mem)}</td>
+      <td class="history-cell-time" title="${escapeHtml(item.submittedAt || '')}">${escapeHtml(ts)}</td>
+    </tr>`;
+}
+
 function renderHistoryTable(resetScroll) {
   const container = document.getElementById('history-table-container');
   if (!container) return;
@@ -329,29 +374,7 @@ function renderHistoryTable(resetScroll) {
 
   let rows = '';
   items.forEach(item => {
-    const vclass  = verdictClass(item.verdict);
-    const title   = questionDisplayName(item.questionId);
-    const lang    = langDisplay(item.language);
-    const allPass = item.passedCount != null && item.totalCount != null
-                    && item.passedCount === item.totalCount && item.totalCount > 0;
-    const tests   = (item.passedCount != null && item.totalCount != null)
-      ? `${item.passedCount}/${item.totalCount}` : '—';
-    const rt      = item.runtime || '—';
-    const mem     = item.memory  || '—';
-    const ts      = relativeTime(item.submittedAt);
-    const qid     = item.questionId;
-    const testsClass = `history-cell-tests${allPass ? ' all-pass' : ''}`;
-
-    rows += `
-      <tr class="history-row" data-qid="${qid}">
-        <td><span class="verdict-badge ${vclass}">${item.verdict || '—'}</span></td>
-        <td><span class="history-problem-link" onclick="window.openHistoryProblem(${qid})" title="Open ${title}">${title}</span></td>
-        <td><span class="history-lang-chip">${lang}</span></td>
-        <td class="${testsClass}">${tests}</td>
-        <td class="history-cell-number">${rt}</td>
-        <td class="history-cell-number">${mem}</td>
-        <td class="history-cell-time" title="${item.submittedAt || ''}">${ts}</td>
-      </tr>`;
+    rows += buildSubmissionRowHtml(item);
   });
 
   container.innerHTML = `
@@ -405,7 +428,7 @@ function showHistoryError(msg) {
     <div class="history-empty history-error-state">
       <div class="history-empty-icon"><i class="fas fa-exclamation-triangle"></i></div>
       <div class="history-empty-title">Unable to load history</div>
-      <div class="history-empty-text">${msg}</div>
+      <div class="history-empty-text">${escapeHtml(msg)}</div>
       <button class="action-btn" style="margin-top:14px" onclick="window.loadHistoryPage()">
         <i class="fas fa-sync-alt"></i> Retry
       </button>
@@ -446,7 +469,7 @@ async function loadHistoryPage(forceRefresh) {
   }
 }
 
-window.loadHistoryPage = loadHistoryPage;
+_root.loadHistoryPage = loadHistoryPage;
 
 function syncHistoryFilterUI() {
   // Status chips
@@ -528,16 +551,34 @@ function attachHistoryEvents() {
 }
 
 // Open a problem from history — reuses the existing problem workspace
-window.openHistoryProblem = function (questionId) {
+_root.openHistoryProblem = function (questionId) {
   if (!questionId) return;
-  if (window.openProblemWorkspace) {
-    window.openProblemWorkspace(questionId, true);
+  if (_root.openProblemWorkspace) {
+    _root.openProblemWorkspace(questionId, true);
   }
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
 // PROBLEM-LEVEL SUBMISSION PANEL (inside problem workspace)
 // ─────────────────────────────────────────────────────────────────────────────
+
+function buildProblemSubmissionRowHtml(item) {
+  const vclass = verdictClass(item.verdict);
+  const lang   = langDisplay(item.language);
+  const tests  = (item.passedCount != null && item.totalCount != null)
+    ? `${item.passedCount}/${item.totalCount}` : '—';
+  const rt     = item.runtime || '—';
+  const ts     = relativeTime(item.submittedAt);
+
+  return `
+    <tr class="prob-sub-row">
+      <td><span class="verdict-badge ${vclass} verdict-badge-sm">${escapeHtml(item.verdict || '—')}</span></td>
+      <td><span class="history-lang-chip history-lang-chip-sm">${escapeHtml(lang)}</span></td>
+      <td class="prob-sub-cell">${escapeHtml(tests)}</td>
+      <td class="prob-sub-cell">${escapeHtml(rt)}</td>
+      <td class="prob-sub-cell history-cell-time">${escapeHtml(ts)}</td>
+    </tr>`;
+}
 
 /**
  * Render a compact submission panel inside the problem description tab area.
@@ -579,21 +620,7 @@ async function renderProblemSubmissionsPanel(containerId, questionId) {
 
   let rows = '';
   qItems.slice(0, 10).forEach(item => {
-    const vclass = verdictClass(item.verdict);
-    const lang   = langDisplay(item.language);
-    const tests  = (item.passedCount != null && item.totalCount != null)
-      ? `${item.passedCount}/${item.totalCount}` : '—';
-    const rt     = item.runtime || '—';
-    const ts     = relativeTime(item.submittedAt);
-
-    rows += `
-      <tr class="prob-sub-row">
-        <td><span class="verdict-badge ${vclass} verdict-badge-sm">${item.verdict || '—'}</span></td>
-        <td><span class="history-lang-chip history-lang-chip-sm">${lang}</span></td>
-        <td class="prob-sub-cell">${tests}</td>
-        <td class="prob-sub-cell">${rt}</td>
-        <td class="prob-sub-cell history-cell-time">${ts}</td>
-      </tr>`;
+    rows += buildProblemSubmissionRowHtml(item);
   });
 
   const moreNote = qItems.length > 10
@@ -616,7 +643,7 @@ async function renderProblemSubmissionsPanel(containerId, questionId) {
       </button>
     </div>`;
 }
-window.renderProblemSubmissionsPanel = renderProblemSubmissionsPanel;
+_root.renderProblemSubmissionsPanel = renderProblemSubmissionsPanel;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ANALYTICS PAGE
@@ -798,11 +825,11 @@ async function populateAnalytics() {
           const vCls = verdictClass(v);
           return `
             <div class="analytics-bar-row">
-              <span class="verdict-badge ${vCls}" style="min-width:120px;text-align:center">${v}</span>
+              <span class="verdict-badge ${vCls}" style="min-width:120px;text-align:center">${escapeHtml(v)}</span>
               <div class="analytics-bar-track">
                 <div class="analytics-bar-fill ${vCls}-bar" style="width:${pct}%"></div>
               </div>
-              <span class="analytics-bar-count">${n} <span class="analytics-bar-pct">(${pct}%)</span></span>
+              <span class="analytics-bar-count">${Number(n)} <span class="analytics-bar-pct">(${pct}%)</span></span>
             </div>`;
         }).join('');
       }
@@ -828,11 +855,11 @@ async function populateAnalytics() {
           const pct = total > 0 ? Math.round((n / total) * 100) : 0;
           return `
             <div class="analytics-bar-row">
-              <span class="analytics-lang-label">${langDisplay(l)}</span>
+              <span class="analytics-lang-label">${escapeHtml(langDisplay(l))}</span>
               <div class="analytics-bar-track">
                 <div class="analytics-bar-fill analytics-bar-fill-blue" style="width:${pct}%"></div>
               </div>
-              <span class="analytics-bar-count">${n} <span class="analytics-bar-pct">(${pct}%)</span></span>
+              <span class="analytics-bar-count">${Number(n)} <span class="analytics-bar-pct">(${pct}%)</span></span>
             </div>`;
         }).join('');
       }
@@ -862,11 +889,11 @@ async function populateAnalytics() {
         topEl.innerHTML = `
           <div class="analytics-top-list">
             ${topProblems.map(([qid, data], i) => `
-              <div class="analytics-top-item" onclick="window.openHistoryProblem(${qid})">
+              <div class="analytics-top-item" onclick="window.openHistoryProblem(${Number(qid) || 0})">
                 <span class="analytics-rank">${i + 1}</span>
-                <span class="analytics-top-name">${questionDisplayName(qid)}</span>
+                <span class="analytics-top-name">${escapeHtml(questionDisplayName(qid))}</span>
                 <span class="analytics-top-meta">
-                  ${data.attempts} attempt${data.attempts !== 1 ? 's' : ''}
+                  ${Number(data.attempts)} attempt${data.attempts !== 1 ? 's' : ''}
                   ${data.accepted ? '<span class="analytics-solved-badge">Solved</span>' : ''}
                 </span>
               </div>
@@ -937,18 +964,18 @@ function attachAnalyticsEvents() {
 }
 
 // ─── Export: called by app.js navigateTo ─────────────────────────────────────
-window.HistoryModule = {
+_root.HistoryModule = {
   renderHistoryPage,
   loadHistoryPage,
   renderAnalyticsPage,
   populateAnalytics,
-  clearUserCache: window.invalidateHistoryCache,
+  clearUserCache: _invalidateHistoryCache,
 };
 
 // ─── Toggle collapsible My Submissions in problem workspace ───────────────────
-window.toggleProblemSubmissions = function () {
-  const panel = document.getElementById('dsa-problem-submissions-panel');
-  const icon  = document.getElementById('dsa-submissions-toggle-icon');
+_root.toggleProblemSubmissions = function () {
+  const panel = typeof document !== 'undefined' ? document.getElementById('dsa-problem-submissions-panel') : null;
+  const icon  = typeof document !== 'undefined' ? document.getElementById('dsa-submissions-toggle-icon') : null;
   if (!panel) return;
 
   const isOpen = panel.style.display !== 'none';
@@ -962,9 +989,9 @@ window.toggleProblemSubmissions = function () {
   panel.style.display = 'block';
   if (icon) icon.style.transform = 'rotate(180deg)';
 
-  const qid = window.App?.currentQuestion?.id;
+  const qid = _root.App?.currentQuestion?.id;
   if (qid) {
-    window.renderProblemSubmissionsPanel('dsa-problem-submissions-panel', qid);
+    _root.renderProblemSubmissionsPanel('dsa-problem-submissions-panel', qid);
   } else {
     panel.innerHTML = `<div class="prob-sub-empty"><i class="fas fa-info-circle"></i><span>No problem selected.</span></div>`;
   }
@@ -972,15 +999,31 @@ window.toggleProblemSubmissions = function () {
 
 // ─── When a new problem opens, collapse the panel so it loads fresh ───────────
 // Hook into populateDsaProblemPanel if it exists (defined in compiler.js or app.js)
-const _origPopulateDsaProblemPanel = window.populateDsaProblemPanel;
+const _origPopulateDsaProblemPanel = _root.populateDsaProblemPanel;
 if (typeof _origPopulateDsaProblemPanel === 'function') {
-  window.populateDsaProblemPanel = function (question) {
+  _root.populateDsaProblemPanel = function (question) {
     // Collapse My Submissions when switching problems
-    const panel = document.getElementById('dsa-problem-submissions-panel');
-    const icon  = document.getElementById('dsa-submissions-toggle-icon');
+    const panel = typeof document !== 'undefined' ? document.getElementById('dsa-problem-submissions-panel') : null;
+    const icon  = typeof document !== 'undefined' ? document.getElementById('dsa-submissions-toggle-icon') : null;
     if (panel) { panel.style.display = 'none'; panel.innerHTML = ''; }
     if (icon) icon.style.transform = 'rotate(0deg)';
     return _origPopulateDsaProblemPanel(question);
+  };
+}
+
+// Export functions for browser globals and CommonJS test runners
+_root.invalidateHistoryCache = _invalidateHistoryCache;
+_root.buildSubmissionRowHtml = buildSubmissionRowHtml;
+_root.buildProblemSubmissionRowHtml = buildProblemSubmissionRowHtml;
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    escapeHtml,
+    buildSubmissionRowHtml,
+    buildProblemSubmissionRowHtml,
+    verdictClass,
+    questionDisplayName,
+    langDisplay,
   };
 }
 

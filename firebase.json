@@ -16,8 +16,7 @@
       "*.json.key",
       "*firebase-adminsdk*.json",
       "*service-account*.json",
-      ".env",
-      "algoforge_resume_interview.md"
+      ".env"
     ],
     "rewrites": [
       {

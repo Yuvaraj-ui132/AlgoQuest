@@ -63,6 +63,8 @@
    * @returns {Promise<any>}     - parsed JSON response
    * @throws {ApiError}          - on HTTP errors
    */
+  let _coldStartToastActive = false;
+
   async function request(path, options = {}, withAuth = true) {
     const url = `${BACKEND_URL}${path}`;
     const headers = { 'Content-Type': 'application/json', ...options.headers };
@@ -80,6 +82,16 @@
       headers,
     };
 
+    let coldStartTimer = null;
+    let didShowColdStartToast = false;
+    if (typeof showToast === 'function' && !_coldStartToastActive) {
+      coldStartTimer = setTimeout(() => {
+        _coldStartToastActive = true;
+        didShowColdStartToast = true;
+        showToast('Waking up server from standby (cold start)... please wait.', 'info');
+      }, 3500);
+    }
+
     let response;
     try {
       response = await fetch(url, fetchOptions);
@@ -88,6 +100,14 @@
         throw new ApiError(0, 'Request cancelled.');
       }
       throw new ApiError(0, `Network error: ${networkErr.message}. Is the backend running at ${BACKEND_URL}?`);
+    } finally {
+      if (coldStartTimer) clearTimeout(coldStartTimer);
+      if (didShowColdStartToast) {
+        _coldStartToastActive = false;
+        if (typeof showToast === 'function') {
+          showToast('Server connected!', 'success');
+        }
+      }
     }
 
     if (!response.ok) {

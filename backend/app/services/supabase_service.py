@@ -75,7 +75,6 @@ class UserProgress(Base):
 
     __table_args__ = (
         UniqueConstraint("user_id", "question_id", name="uq_user_progress_user_question"),
-        Index("idx_user_progress_user", "user_id"),
     )
 
 
@@ -89,7 +88,6 @@ class UserBookmark(Base):
 
     __table_args__ = (
         UniqueConstraint("user_id", "question_id", name="uq_user_bookmarks_user_question"),
-        Index("idx_user_bookmarks_user", "user_id"),
     )
 
 
@@ -104,7 +102,6 @@ class UserNote(Base):
 
     __table_args__ = (
         UniqueConstraint("user_id", "question_id", name="uq_user_notes_user_question"),
-        Index("idx_user_notes_user", "user_id"),
     )
 
 
@@ -120,7 +117,6 @@ class UserEditorDraft(Base):
 
     __table_args__ = (
         UniqueConstraint("user_id", "question_id", name="uq_user_editor_drafts_user_question"),
-        Index("idx_user_editor_drafts_user", "user_id"),
     )
 
 
@@ -135,7 +131,6 @@ class UserCompilerDraft(Base):
 
     __table_args__ = (
         UniqueConstraint("user_id", "language", name="uq_user_compiler_drafts_user_lang"),
-        Index("idx_user_compiler_drafts_user", "user_id"),
     )
 
 

@@ -88,9 +88,31 @@ def postgresql16_service():
 
             # Start PostgreSQL 16
             proc = subprocess.Popen([POSTGRES_EXE, "-D", DATA_DIR, "-p", str(PG_PORT)])
-            time.sleep(2)
         else:
             pytest.skip("PostgreSQL 16 instance is not accessible and local binary not found. Skipping PG integration tests.")
+
+    # Wait for PostgreSQL to become fully ready to accept connections (bounded polling)
+    ready = False
+    start_wait = time.time()
+    last_err = None
+    timeout_seconds = 20
+    while time.time() - start_wait < timeout_seconds:
+        try:
+            test_conn = psycopg2.connect(PG_ADMIN_URL, connect_timeout=1)
+            test_conn.close()
+            ready = True
+            break
+        except Exception as e:
+            last_err = e
+            time.sleep(0.5)
+
+    if not ready:
+        if proc:
+            proc.terminate()
+        raise TimeoutError(
+            f"PostgreSQL 16 instance on {PG_ADMIN_URL} did not become ready within {timeout_seconds}s. "
+            f"Last connection error: {last_err}"
+        )
 
     # Create clean test database
     admin_conn = psycopg2.connect(PG_ADMIN_URL)
@@ -176,18 +198,26 @@ def test_postgresql16_schema_and_indexes_applied():
     assert "idx_queue_jobs_active_count" in q_indexes
     assert "idx_queue_jobs_cleanup" in q_indexes
 
-    # Verify submissions indexes (V1 + V3)
+    # Verify submissions indexes (V1 preserved, V3 additions deferred)
     cur.execute("SELECT indexname FROM pg_indexes WHERE tablename='submissions'")
     s_indexes = {r[0] for r in cur.fetchall()}
     assert "idx_submissions_user_submitted" in s_indexes
-    assert "idx_submissions_user_verdict" in s_indexes
-    assert "idx_submissions_question_id" in s_indexes
+    assert "idx_submissions_user_verdict" not in s_indexes
+    assert "idx_submissions_question_id" not in s_indexes
 
     # Verify redundant single-column prefix indexes were dropped in V3
-    cur.execute("SELECT indexname FROM pg_indexes WHERE tablename='user_progress'")
-    p_indexes = {r[0] for r in cur.fetchall()}
-    assert "idx_user_progress_user" not in p_indexes
-    assert "uq_user_progress_user_question" in p_indexes
+    cur.execute("SELECT tablename, indexname FROM pg_indexes WHERE schemaname='public'")
+    all_indexes = {(r[0], r[1]) for r in cur.fetchall()}
+    assert ("user_progress", "idx_user_progress_user") not in all_indexes
+    assert ("user_progress", "uq_user_progress_user_question") in all_indexes
+    assert ("user_bookmarks", "idx_user_bookmarks_user") not in all_indexes
+    assert ("user_bookmarks", "uq_user_bookmarks_user_question") in all_indexes
+    assert ("user_notes", "idx_user_notes_user") not in all_indexes
+    assert ("user_notes", "uq_user_notes_user_question") in all_indexes
+    assert ("user_editor_drafts", "idx_user_editor_drafts_user") not in all_indexes
+    assert ("user_editor_drafts", "uq_user_editor_drafts_user_question") in all_indexes
+    assert ("user_compiler_drafts", "idx_user_compiler_drafts_user") not in all_indexes
+    assert ("user_compiler_drafts", "uq_user_compiler_drafts_user_lang") in all_indexes
 
     cur.close()
     conn.close()
