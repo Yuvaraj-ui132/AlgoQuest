@@ -440,9 +440,13 @@ def test_q48_token_stream_synchronization(dataset):
     outputs = _run_solver(qmeta, hidden_tcs, solver)
     assert len(outputs) == 25
     # Verify specific test cases that previously desynchronized
-    assert outputs[0] == "0", "notapalindrome is not a palindrome"
+    assert outputs[0] == "0", "not a palindrome is not a palindrome"
     assert outputs[1] == "1", "a. is a palindrome"
     assert outputs[2] == "1", "No lemon, no melon is a palindrome"
+    assert outputs[18] == "1", "Was it a car or a cat I saw? is a palindrome"
+    assert outputs[20] == "1", "Step on no pets is a palindrome"
+    assert outputs[21] == "0", "Live one time, emit no evil is not a palindrome"
+    assert outputs[22] == "1", "Red rum, sir, is murder is a palindrome"
 
 
 def test_q50_string_line_underscore_parsing(dataset):

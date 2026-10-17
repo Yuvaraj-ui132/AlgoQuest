@@ -1407,13 +1407,13 @@
       {
         "input": "s = \"A man a plan a canal Panama\"",
         "expected": "true",
-        "stdin": "AmanaplanacanalPanama\n",
+        "stdin": "A_man_a_plan_a_canal_Panama\n",
         "expectedRaw": "1"
       },
       {
         "input": "s = \"race a car\"",
         "expected": "false",
-        "stdin": "raceacar\n",
+        "stdin": "race_a_car\n",
         "expectedRaw": "0"
       }
     ],
@@ -1422,7 +1422,7 @@
     "parameters": [
       {
         "name": "s",
-        "type": "string"
+        "type": "string:line"
       }
     ],
     "returnType": "bool"

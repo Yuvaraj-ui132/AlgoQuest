@@ -232,14 +232,31 @@ def _sanitize_hidden_dataset(data: Dict[str, Any]) -> None:
         if data["37"][2].get("stdin") == "5\n10 22 12 3 0 6\n":
             data["37"][2]["stdin"] = "5\n10 22 12 3 0\n"
 
-    # Q48: Valid Palindrome
-    if "48" in data and len(data["48"]) > 2:
-        if data["48"][0].get("stdin") == "race a car\n":
-            data["48"][0]["stdin"] = "notapalindrome\n"
-            data["48"][0]["expectedRaw"] = "0"
-        if data["48"][2].get("stdin") == "No lemon, no melon\n":
-            data["48"][2]["stdin"] = "Nolemonnomelon\n"
-            data["48"][2]["expectedRaw"] = "1"
+    # Q48: Valid Palindrome (string:line protocol ensures spaces are encoded as underscores)
+    if "48" in data and isinstance(data["48"], list):
+        for tc in data["48"]:
+            if " " in tc.get("stdin", ""):
+                tc["stdin"] = tc["stdin"].replace(" ", "_")
+        if len(data["48"]) > 2:
+            if data["48"][0].get("stdin") in ("notapalindrome\n", "race a car\n", "race_a_car\n", "not_a_palindrome\n"):
+                data["48"][0]["stdin"] = "not_a_palindrome\n"
+                data["48"][0]["expectedRaw"] = "0"
+            if data["48"][2].get("stdin") in ("Nolemonnomelon\n", "No lemon, no melon\n", "No_lemon,_no_melon\n"):
+                data["48"][2]["stdin"] = "No_lemon,_no_melon\n"
+                data["48"][2]["expectedRaw"] = "1"
+        if len(data["48"]) > 22:
+            if "Was" in data["48"][18].get("stdin", ""):
+                data["48"][18]["stdin"] = "Was_it_a_car_or_a_cat_I_saw?\n"
+                data["48"][18]["expectedRaw"] = "1"
+            if "Step" in data["48"][20].get("stdin", ""):
+                data["48"][20]["stdin"] = "Step_on_no_pets\n"
+                data["48"][20]["expectedRaw"] = "1"
+            if "Live" in data["48"][21].get("stdin", ""):
+                data["48"][21]["stdin"] = "Live_one_time,_emit_no_evil\n"
+                data["48"][21]["expectedRaw"] = "0"
+            if "Red" in data["48"][22].get("stdin", ""):
+                data["48"][22]["stdin"] = "Red_rum,_sir,_is_murder\n"
+                data["48"][22]["expectedRaw"] = "1"
 
     # Q50: Reverse Words in a String
     if "50" in data and len(data["50"]) > 2:

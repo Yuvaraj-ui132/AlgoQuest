@@ -1428,7 +1428,7 @@ window.QUESTION_METADATA_REGISTRY = {
     "parameters": [
       {
         "name": "s",
-        "type": "string"
+        "type": "string:line"
       }
     ],
     "returnType": "bool",
