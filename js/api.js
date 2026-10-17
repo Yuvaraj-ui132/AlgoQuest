@@ -52,6 +52,35 @@
     }
   }
 
+  // ── Notification Helpers ───────────────────────────────────────────────────
+  const MSG_STARTING = 'Starting the server. This may take a moment on the first visit.';
+  const MSG_CONNECTED = 'Connected';
+  const MSG_TIMEOUT = 'Server did not respond. Check your connection or click Retry.';
+
+  function _notify(msg, type, opts) {
+    const fn = (typeof showToast === 'function') ? showToast : (typeof window !== 'undefined' && window.showToast ? window.showToast : null);
+    if (fn) {
+      return fn(msg, type, opts);
+    }
+    return { dismiss: () => {} };
+  }
+
+  function _dismissNotify(idOrEl) {
+    const fn = (typeof dismissToast === 'function') ? dismissToast : (typeof window !== 'undefined' && window.dismissToast ? window.dismissToast : null);
+    if (fn) {
+      fn(idOrEl);
+    }
+  }
+
+  // ── Readiness & Deduplication State ─────────────────────────────────────────
+  let _coldStartToastActive = false;
+  let _isBackendReady = false;
+  let _lastReadyTimestamp = 0;
+  let _backendReadyPromise = null;
+  let _hasInitialized = false;
+  let _initPromise = null;
+  const READY_CACHE_TTL_MS = 120000; // 2 minutes cache for confirmed awake state
+
   // ── Core fetch wrapper ──────────────────────────────────────────────────────
 
   /**
@@ -63,8 +92,6 @@
    * @returns {Promise<any>}     - parsed JSON response
    * @throws {ApiError}          - on HTTP errors
    */
-  let _coldStartToastActive = false;
-
   async function request(path, options = {}, withAuth = true) {
     const url = `${BACKEND_URL}${path}`;
     const headers = { 'Content-Type': 'application/json', ...options.headers };
@@ -92,12 +119,18 @@
 
     let coldStartTimer = null;
     let didShowColdStartToast = false;
-    if (typeof showToast === 'function' && !_coldStartToastActive) {
+    if (!_isBackendReady && !_coldStartToastActive) {
       coldStartTimer = setTimeout(() => {
-        _coldStartToastActive = true;
-        didShowColdStartToast = true;
-        showToast('Waking up server from standby (cold start)... please wait.', 'info');
-      }, 3500);
+        if (!_isBackendReady) {
+          _coldStartToastActive = true;
+          didShowColdStartToast = true;
+          _notify(MSG_STARTING, 'info', {
+            id: 'cold-start-indicator',
+            duration: 0,
+            icon: 'fa-spinner fa-spin',
+          });
+        }
+      }, 3000);
     }
 
     let response = null;
@@ -142,12 +175,25 @@
     }
 
     if (!response || !response.ok) {
-      // Clear cold-start active state on error without falsely claiming "Server connected!"
+      // Clear cold-start active state on error without leaving persistent spinner
       if (didShowColdStartToast || _coldStartToastActive) {
         _coldStartToastActive = false;
+        _dismissNotify('cold-start-indicator');
       }
 
       if (!response) {
+        if (canRetry && !fetchOptions.signal?.aborted) {
+          _notify(MSG_TIMEOUT, 'error', {
+            id: 'cold-start-retry-prompt',
+            duration: 6000,
+            action: {
+              text: 'Retry',
+              onClick: () => {
+                request(path, options, withAuth).catch(() => {});
+              },
+            },
+          });
+        }
         throw new ApiError(0, `Network error: ${lastNetworkError ? lastNetworkError.message : 'Unknown error'}`);
       }
 
@@ -162,15 +208,30 @@
         _onUnauthorized();
       }
 
+      if (canRetry && (response.status === 502 || response.status === 503 || response.status === 504)) {
+        _notify(MSG_TIMEOUT, 'error', {
+          id: 'cold-start-retry-prompt',
+          duration: 6000,
+          action: {
+            text: 'Retry',
+            onClick: () => {
+              request(path, options, withAuth).catch(() => {});
+            },
+          },
+        });
+      }
+
       throw new ApiError(response.status, detail);
     }
 
     // A real successful API response confirms the backend is awake!
+    _isBackendReady = true;
+    _lastReadyTimestamp = Date.now();
+
     if (didShowColdStartToast || _coldStartToastActive) {
       _coldStartToastActive = false;
-      if (typeof showToast === 'function') {
-        showToast('Server connected!', 'success');
-      }
+      _dismissNotify('cold-start-indicator');
+      _notify(MSG_CONNECTED, 'success', { id: 'cold-start-connected', duration: 2500 });
     }
 
     // 204 No Content
@@ -237,10 +298,177 @@
 
   const ApiClient = {
 
-    // ── Health ──────────────────────────────────────────────────────────────
+    // ── Health & Backend Readiness ──────────────────────────────────────────
 
-    async healthCheck() {
-      return request('/health', {}, false);
+    /**
+     * Check the health of the backend once (non-blocking).
+     * @param {AbortSignal} [signal] - optional abort signal
+     * @returns {Promise<any>}
+     */
+    async healthCheck(signal) {
+      return request('/health', { signal }, false);
+    },
+
+    /**
+     * Synchronously check whether the backend is already known to be awake.
+     * @returns {boolean}
+     */
+    isReady() {
+      return Boolean(_isBackendReady && (Date.now() - _lastReadyTimestamp < READY_CACHE_TTL_MS));
+    },
+
+    /**
+     * Reset cached readiness state (useful for test isolation or forced re-probe).
+     */
+    resetState() {
+      _isBackendReady = false;
+      _lastReadyTimestamp = 0;
+      _coldStartToastActive = false;
+      _backendReadyPromise = null;
+      _hasInitialized = false;
+      _initPromise = null;
+    },
+
+    /**
+     * Poll the existing /health endpoint at a reasonable interval until the backend
+     * is awake, with a maximum wait time and proper error handling.
+     * Stops polling immediately once the backend responds.
+     * Deduplicated: concurrent calls share the exact same in-flight Promise.
+     *
+     * @param {object} [opts]
+     * @param {number} [opts.timeoutMs=60000] - maximum wait time (ms)
+     * @param {number} [opts.intervalMs=2500] - polling interval (ms)
+     * @param {AbortSignal} [opts.signal]     - optional abort signal
+     * @param {boolean} [opts.silent=false]   - if true, do not display toasts
+     * @returns {Promise<{ready: boolean, alreadyAwake: boolean}>}
+     */
+    async waitForBackend(opts = {}) {
+      const timeoutMs = opts.timeoutMs || 60000;
+      const intervalMs = opts.intervalMs || 2500;
+      const signal = opts.signal || null;
+      const silent = Boolean(opts.silent);
+
+      // If backend was confirmed awake within TTL, resolve immediately without duplicate network call
+      if (_isBackendReady && (Date.now() - _lastReadyTimestamp < READY_CACHE_TTL_MS)) {
+        return { ready: true, alreadyAwake: true };
+      }
+
+      // Deduplication: if a check/wait is already running, return the shared in-flight promise
+      if (_backendReadyPromise) {
+        return _backendReadyPromise;
+      }
+
+      _backendReadyPromise = (async () => {
+        const startTime = Date.now();
+        let coldStartTimer = null;
+        let didShowToast = false;
+
+        if (!silent && !_coldStartToastActive) {
+          coldStartTimer = setTimeout(() => {
+            if (!_isBackendReady) {
+              _coldStartToastActive = true;
+              didShowToast = true;
+              _notify(MSG_STARTING, 'info', {
+                id: 'cold-start-indicator',
+                duration: 0,
+                icon: 'fa-spinner fa-spin',
+              });
+            }
+          }, 2500);
+        }
+
+        try {
+          while (true) {
+            if (signal?.aborted) {
+              throw new ApiError(0, 'Health check aborted.');
+            }
+
+            if (Date.now() - startTime > timeoutMs) {
+              throw new ApiError(0, 'Server startup timed out.');
+            }
+
+            try {
+              const res = await fetch(`${BACKEND_URL}/health`, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' },
+                signal,
+                cache: 'no-cache',
+              });
+
+              if (res.ok) {
+                _isBackendReady = true;
+                _lastReadyTimestamp = Date.now();
+
+                if (coldStartTimer) clearTimeout(coldStartTimer);
+                if (didShowToast || _coldStartToastActive) {
+                  _coldStartToastActive = false;
+                  _dismissNotify('cold-start-indicator');
+                  if (!silent) {
+                    _notify(MSG_CONNECTED, 'success', { duration: 2500, id: 'cold-start-connected' });
+                  }
+                }
+                return { ready: true, alreadyAwake: false };
+              }
+            } catch (probeErr) {
+              if (probeErr.name === 'AbortError') {
+                throw new ApiError(0, 'Health check aborted.');
+              }
+              // Server is waking up (502, 503, connection refused) - continue polling
+            }
+
+            await new Promise((resolve) => setTimeout(resolve, intervalMs));
+          }
+        } catch (err) {
+          if (coldStartTimer) clearTimeout(coldStartTimer);
+          if (didShowToast || _coldStartToastActive) {
+            _coldStartToastActive = false;
+            _dismissNotify('cold-start-indicator');
+          }
+
+          if (!silent && !signal?.aborted) {
+            _notify(MSG_TIMEOUT, 'error', {
+              id: 'cold-start-timeout',
+              duration: 6000,
+              action: {
+                text: 'Retry',
+                onClick: () => {
+                  ApiClient.waitForBackend({ ...opts, silent: false }).catch(() => {});
+                },
+              },
+            });
+          }
+          throw err;
+        } finally {
+          if (coldStartTimer) clearTimeout(coldStartTimer);
+          _backendReadyPromise = null;
+        }
+      })();
+
+      return _backendReadyPromise;
+    },
+
+    /**
+     * Idempotent initialization helper safe for React re-renders or multiple component mounts.
+     * @param {object} [opts]
+     * @returns {Promise<{initialized: boolean, ready: boolean, alreadyAwake: boolean}>}
+     */
+    async init(opts = {}) {
+      if (_hasInitialized) {
+        return { initialized: true, ready: ApiClient.isReady(), alreadyAwake: true };
+      }
+      if (_initPromise) {
+        return _initPromise;
+      }
+      _initPromise = (async () => {
+        try {
+          const res = await ApiClient.waitForBackend(opts);
+          _hasInitialized = true;
+          return { initialized: true, ...res };
+        } finally {
+          _initPromise = null;
+        }
+      })();
+      return _initPromise;
     },
 
     // ── Code Execution ──────────────────────────────────────────────────────
@@ -438,8 +666,20 @@
     },
   };
 
-  // ── Expose globally ─────────────────────────────────────────────────────────
-  window.ApiClient = ApiClient;
-  window.ApiError  = ApiError;
+  // ── Expose globally / CommonJS ─────────────────────────────────────────────
+  if (typeof window !== 'undefined') {
+    window.ApiClient = ApiClient;
+    window.ApiError  = ApiError;
+  }
+
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+      ApiClient,
+      ApiError,
+      MSG_STARTING,
+      MSG_CONNECTED,
+      MSG_TIMEOUT,
+    };
+  }
 
 })();

@@ -2355,7 +2355,7 @@ table.questions-table td.name-col {
   opacity: 0;
   transition: all 0.25s ease;
   pointer-events: auto;
-  max-width: 300px;
+  max-width: 360px;
   min-width: 220px;
 }
 
@@ -2398,6 +2398,25 @@ table.questions-table td.name-col {
 
 .toast.warning i {
   color: var(--accent-yellow);
+}
+
+.toast-action-btn {
+  background: var(--accent-blue-light, #3b82f6);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm, 4px);
+  padding: 4px 10px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-left: auto;
+  transition: opacity 0.15s ease, filter 0.15s ease;
+  white-space: nowrap;
+}
+
+.toast-action-btn:hover {
+  opacity: 0.9;
+  filter: brightness(1.1);
 }
 
 /* =============================

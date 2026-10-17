@@ -2090,8 +2090,10 @@ function updateStreak() {
 // ============================================================
 // TOAST NOTIFICATIONS
 // ============================================================
-function showToast(msg, type = 'info') {
+function showToast(msg, type = 'info', options = {}) {
   const container = document.getElementById('toast-container');
+  if (!container) return { dismiss: () => {} };
+
   const icons = {
     success: 'fa-check-circle',
     error: 'fa-times-circle',
@@ -2099,20 +2101,84 @@ function showToast(msg, type = 'info') {
     warning: 'fa-exclamation-triangle',
   };
 
-  const toast = document.createElement('div');
+  const id = options.id || null;
+  const duration = (options.duration !== undefined) ? options.duration : 3000;
+  const iconClass = options.icon || icons[type] || 'fa-info-circle';
+
+  let toast = id ? container.querySelector(`.toast[data-toast-id="${id}"]`) : null;
+  const isNew = !toast;
+
+  if (isNew) {
+    toast = document.createElement('div');
+    if (id) toast.setAttribute('data-toast-id', id);
+    container.appendChild(toast);
+  }
+
   toast.className = `toast ${type}`;
-  toast.innerHTML = `<i class="fas ${icons[type] || 'fa-info-circle'}"></i><span>${msg}</span>`;
-  container.appendChild(toast);
+  toast.innerHTML = `<i class="fas ${iconClass}"></i><span>${msg}</span>`;
 
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => toast.classList.add('show'));
-  });
+  if (options.action && options.action.text && typeof options.action.onClick === 'function') {
+    const actionBtn = document.createElement('button');
+    actionBtn.className = 'toast-action-btn';
+    actionBtn.type = 'button';
+    actionBtn.textContent = options.action.text;
+    actionBtn.onclick = (e) => {
+      e.stopPropagation();
+      options.action.onClick();
+      dismissToast(toast);
+    };
+    toast.appendChild(actionBtn);
+  }
 
-  setTimeout(() => {
-    toast.classList.remove('show');
-    setTimeout(() => toast.remove(), 300);
-  }, 3000);
+  if (isNew) {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => toast.classList.add('show'));
+    });
+  } else {
+    toast.classList.add('show');
+  }
+
+  if (toast._dismissTimer) {
+    clearTimeout(toast._dismissTimer);
+    toast._dismissTimer = null;
+  }
+
+  if (duration > 0 && duration < Infinity) {
+    toast._dismissTimer = setTimeout(() => {
+      dismissToast(toast);
+    }, duration);
+  }
+
+  return {
+    dismiss: () => dismissToast(toast),
+    update: (newMsg, newType, newOpts = {}) => showToast(newMsg, newType || type, { ...options, ...newOpts, id }),
+    el: toast,
+  };
 }
+
+function dismissToast(toastOrId) {
+  if (!toastOrId) return;
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+
+  const toast = (typeof toastOrId === 'string')
+    ? container.querySelector(`.toast[data-toast-id="${toastOrId}"]`)
+    : toastOrId;
+
+  if (toast && toast.classList.contains('show')) {
+    if (toast._dismissTimer) {
+      clearTimeout(toast._dismissTimer);
+      toast._dismissTimer = null;
+    }
+    toast.classList.remove('show');
+    setTimeout(() => {
+      if (toast.parentNode) toast.remove();
+    }, 300);
+  }
+}
+
+window.showToast = showToast;
+window.dismissToast = dismissToast;
 
 // ============================================================
 // KEYBOARD SHORTCUTS
@@ -3386,3 +3452,10 @@ window.addEventListener('resize', () => {
     App.editor.layout();
   }
 });
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    showToast,
+    dismissToast,
+  };
+}
