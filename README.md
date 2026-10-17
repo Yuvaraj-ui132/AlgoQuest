@@ -3,6 +3,7 @@
 > A full-stack, placement-focused DSA practice platform with in-browser code execution, asynchronous submission processing, real-time progress synchronization, and detailed performance analytics.
 
 [![CI](https://github.com/Yuvaraj-ui132/AlgoQuest/actions/workflows/ci.yml/badge.svg)](https://github.com/Yuvaraj-ui132/AlgoQuest/actions/workflows/ci.yml)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-algoquest--9aab0.web.app-e06847?style=flat-square)](https://algoquest-9aab0.web.app)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.109+-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
 [![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?style=flat-square&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
@@ -18,6 +19,8 @@
 **AlgoQuest** is a comprehensive DSA (Data Structures & Algorithms) preparation platform engineered to streamline technical interview practice into a single unified workspace. Instead of context-switching between problem sheets, code editors, and tracking spreadsheets, AlgoQuest combines a curated curriculum of **174 coding problems**, a **Monaco-powered IDE**, **Judge0 multi-language execution**, and **real-time progress sync**.
 
 The platform is architected as a decoupled full-stack application: a lightweight Vanilla JS Single Page Application (SPA) on the frontend backed by a high-performance **FastAPI** backend that manages asynchronous submission queues, Judge0 remote execution, server-side hidden test verification, and per-user data isolation via Firebase ID tokens.
+
+> **Hosting Note**: The backend uses a free-tier deployment on Render and may take longer to respond after a period of inactivity while waking from standby.
 
 ---
 
@@ -72,9 +75,11 @@ flowchart TD
     Worker -->|Fetch Hidden Tests & Execute| Judge0
     Worker -->|Write Submission Record & Update Solved| DB
     
-    UI -->|4. Poll Job Status /api/submissions/{job_id}| API
+    UI -->|4. Poll Job Status: GET /api/submissions/:job_id| API
     API -->|Read User Progress & History| DB
 ```
+
+*Note: Asynchronous status polling is performed via `GET /api/submissions/{job_id}`.*
 
 ---
 
@@ -92,7 +97,15 @@ flowchart TD
 - **Submission History & Analytics**: Tracks execution runtime, memory consumption, language breakdowns, success rates, and verdict histories.
 - **Authentication & Security**: Email/password and Google OAuth via Firebase Authentication, with cryptographically verified RS256 JWT tokens and strict UID-isolated database models.
 - **Per-User Rate Limiting**: Token-bucket rate limiting (10 submissions / 60 seconds) prevents API abuse.
-- **Warm Graphite UI**: Modern developer workspace design with dark/light themes and responsive layout.
+
+---
+
+## 💡 Design Decisions
+
+- **Asynchronous Execution (HTTP 202)**: Multi-case test evaluation through Judge0 can exceed 30-second gateway limits. Returning `HTTP 202 Accepted` with client polling decouples execution lifecycles and eliminates dropped connections.
+- **Server-Side Hidden Tests**: Test inputs and expected outputs are stored strictly server-side in isolated registries and compiled inside containerized drivers, preventing client DOM inspection from exposing grading test cases.
+- **PostgreSQL `FOR UPDATE SKIP LOCKED`**: Queue workers claim pending submission jobs atomically using `SKIP LOCKED`, enabling multi-worker parallelism without lock contention, deadlocks, or duplicate job execution.
+- **Dual-Mode Queue Architecture**: Supports zero-dependency in-memory `asyncio.Queue` for local development alongside a durable PostgreSQL queue (`QUEUE_ENABLE_PG_BACKEND=true`) for process restart resilience.
 
 ---
 
@@ -225,4 +238,5 @@ This project is licensed under the [MIT License](LICENSE).
 ## 👤 Author
 
 **Yuvaraj Murkunde**  
-- GitHub: [@Yuvaraj-ui132](https://github.com/Yuvaraj-ui132)
+- GitHub: [@Yuvaraj-ui132](https://github.com/Yuvaraj-ui132)  
+- Live demo: [algoquest-9aab0.web.app](https://algoquest-9aab0.web.app)
