@@ -2,6 +2,7 @@
 
 > A full-stack, placement-focused DSA practice platform with in-browser code execution, asynchronous submission processing, real-time progress synchronization, and detailed performance analytics.
 
+[![CI](https://github.com/Yuvaraj-ui132/AlgoQuest/actions/workflows/ci.yml/badge.svg)](https://github.com/Yuvaraj-ui132/AlgoQuest/actions/workflows/ci.yml)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.109+-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
 [![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?style=flat-square&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
@@ -24,13 +25,13 @@ The platform is architected as a decoupled full-stack application: a lightweight
 
 | Code Workspace & Monaco Editor | Filterable Problem Catalogue |
 | :---: | :---: |
-| ![Code Workspace](assets/screenshots/workspace.png) | ![Problem Catalogue](assets/screenshots/problem_catalogue.png) |
-| *Embedded Monaco IDE with language selector & console* | *174 curated problems across 14 DSA topics* |
+| ![AlgoQuest workspace](docs/screenshots/workspace.png) | ![AlgoQuest problem catalogue](docs/screenshots/problem_catalogue.png) |
+| *Embedded Monaco IDE with C++17 solution, problem description, and console* | *Curated 174-problem bank across 14 DSA topics with tags and progress* |
 
-| Asynchronous Submission & Test Runner | Telemetry & Performance Analytics |
+| Submission History & Verdicts | Telemetry & Performance Analytics |
 | :---: | :---: |
-| ![Execution Verdict](assets/screenshots/execution_verdict.png) | ![Submission Analytics](assets/screenshots/submission_analytics.png) |
-| *Server-side test runner evaluating hidden test suites* | *Runtime, memory consumption, and verdict breakdowns* |
+| ![AlgoQuest execution verdict](docs/screenshots/execution_verdict.png) | ![AlgoQuest submission analytics](docs/screenshots/submission_analytics.png) |
+| *Submission history ledger displaying execution verdicts, test counts, and runtime* | *Aggregated performance analytics with success rate, verdict, and language breakdown* |
 
 ---
 
