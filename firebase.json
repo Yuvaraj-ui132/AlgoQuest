@@ -13,6 +13,8 @@
       "firestore.rules*",
       "node_modules/**",
       "backend/**",
+      "tests/**",
+      "scratch/**",
       "*.json.key",
       "*firebase-adminsdk*.json",
       "*service-account*.json",
