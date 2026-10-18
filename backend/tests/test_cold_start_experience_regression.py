@@ -16,7 +16,7 @@ import subprocess
 
 def test_cold_start_experience_passes():
     """Execute test_cold_start_experience.js and assert returncode 0 with success output."""
-    test_file = os.path.join(os.path.dirname(__file__), "test_cold_start_experience.js")
+    test_file = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "tests", "frontend", "test_cold_start_experience.js"))
     assert os.path.exists(test_file), f"Test file not found: {test_file}"
 
     res = subprocess.run(
@@ -31,7 +31,7 @@ def test_cold_start_experience_passes():
 
 def test_toast_lifecycle_passes():
     """Execute test_toast_lifecycle.js and assert returncode 0 with success output."""
-    test_file = os.path.join(os.path.dirname(__file__), "test_toast_lifecycle.js")
+    test_file = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "tests", "frontend", "test_toast_lifecycle.js"))
     assert os.path.exists(test_file), f"Test file not found: {test_file}"
 
     res = subprocess.run(

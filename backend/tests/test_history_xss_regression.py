@@ -10,7 +10,7 @@ import subprocess
 
 def test_history_js_xss_regression_passes():
     """Execute test_history_xss.js and assert returncode 0 with success output."""
-    test_file = os.path.join(os.path.dirname(__file__), "test_history_xss.js")
+    test_file = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "tests", "frontend", "test_history_xss.js"))
     assert os.path.exists(test_file), f"Test file not found: {test_file}"
 
     # Run node test_history_xss.js

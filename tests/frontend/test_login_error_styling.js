@@ -187,7 +187,7 @@ console.log('  ✅ hideAuthModal clears login error upon successful authenticati
 
 // ── Test 9: Verify CSS stylesheet cache-buster bump in index.html ───────────
 console.log('\nTest 9: Verify index.html stylesheet version parameter');
-assert(indexHtml.includes('css/style.css?v=2.2.1'), 'index.html must reference css/style.css?v=2.2.1');
-console.log('  ✅ Cache buster css/style.css?v=2.2.1 verified');
+assert(indexHtml.includes('css/style.css?v=2.2.2'), 'index.html must reference css/style.css?v=2.2.2');
+console.log('  ✅ Cache buster css/style.css?v=2.2.2 verified');
 
 console.log('\n🎉 ALL 9 LOGIN ERROR STYLING & ACCESSIBILITY TESTS PASSED!\n');

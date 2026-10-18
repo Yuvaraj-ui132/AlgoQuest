@@ -127,7 +127,7 @@ jobs:
         run: pytest backend/tests/ -v
 
   frontend-syntax:
-    name: Frontend JavaScript Syntax
+    name: Frontend JavaScript Syntax & Regression Tests
     runs-on: ubuntu-latest
 
     steps:
@@ -141,9 +141,9 @@ jobs:
 
       - name: Validate frontend JavaScript syntax
         run: |
-          echo "Validating JavaScript syntax for all frontend files in js/..."
+          echo "Validating JavaScript syntax for all frontend files in js/ and tests/frontend/..."
           failed=0
-          for file in js/*.js; do
+          for file in js/*.js tests/frontend/*.js; do
             if [ -f "$file" ]; then
               echo "Checking syntax: $file"
               if ! node --check "$file"; then
@@ -157,6 +157,26 @@ jobs:
             exit 1
           fi
           echo "All frontend JavaScript files passed syntax validation."
+
+      - name: Run frontend JavaScript regression tests
+        run: |
+          echo "Running all frontend regression test suites in tests/frontend/..."
+          failed=0
+          for test_file in tests/frontend/*.js; do
+            if [ -f "$test_file" ]; then
+              echo "----------------------------------------------------"
+              echo "Executing: $test_file"
+              if ! node "$test_file"; then
+                echo "TEST FAILED: $test_file"
+                failed=1
+              fi
+            fi
+          done
+          if [ $failed -ne 0 ]; then
+            echo "One or more frontend test suites failed."
+            exit 1
+          fi
+          echo "All frontend regression test suites passed successfully."
 
   docker-build-verification:
     name: Docker Build & Container Verification
