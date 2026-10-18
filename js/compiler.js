@@ -342,7 +342,8 @@ const Compiler = (() => {
       if (el) el.style.display = 'none';
     });
 
-    _dismissColdStart();
+    const opId = executionId ? `exec_${executionId}` : null;
+    _dismissColdStart(opId);
     updateStatus('stopped', 'Stopped');
 
     const msg = reason || 'Execution stopped by user.';
@@ -477,7 +478,7 @@ const Compiler = (() => {
       const initialResponse = await window.ApiClient.submitCode(payload, signal, {
         operationId: opId,
         coldStartNotice: true,
-        toastId: 'cold-start-indicator',
+        toastId: `cold-start-${opId}`,
       });
 
       // ── Async Submit path: received HTTP 202 + job_id ────────────────────
@@ -493,7 +494,6 @@ const Compiler = (() => {
         const SUBMIT_POLL_INTERVAL_MS = 1000;   // poll every 1 second
         const SUBMIT_POLL_MAX_WAIT_MS = 60000;  // give up after 60 seconds
         const pollStart = Date.now();
-        let didShowSubmitColdStartToast = false;
 
         let finalResult = null;
 
@@ -525,22 +525,6 @@ const Compiler = (() => {
             activeConsoleTab = 'result';
             renderSampleTestConsole();
             return;
-          }
-
-          // If async submission wait exceeds cold-start threshold (3s), display cold-start notice
-          if (Date.now() - pollStart >= 3000 && !didShowSubmitColdStartToast) {
-            didShowSubmitColdStartToast = true;
-            if (typeof showToast === 'function') {
-              showToast(
-                (window.ApiClient && window.ApiClient.MSG_STARTING) || 'Starting the server. This may take a moment on the first visit.',
-                'info',
-                {
-                  id: 'cold-start-indicator',
-                  duration: 0,
-                  icon: 'fa-spinner fa-spin',
-                }
-              );
-            }
           }
 
           // Wait before polling
@@ -659,11 +643,20 @@ const Compiler = (() => {
   }
 
   function _dismissColdStart(opId) {
-    if (window.ApiClient && typeof window.ApiClient.dismissColdStart === 'function') {
-      window.ApiClient.dismissColdStart(opId);
-    } else if (typeof window.dismissToast === 'function') {
-      window.dismissToast('cold-start-indicator');
-      if (opId) window.dismissToast(`cold-start-${opId}`);
+    if (opId) {
+      if (window.ApiClient && typeof window.ApiClient.dismissColdStart === 'function') {
+        window.ApiClient.dismissColdStart(opId);
+      }
+      if (typeof window.dismissToast === 'function') {
+        window.dismissToast(`cold-start-${opId}`);
+      }
+    } else {
+      if (window.ApiClient && typeof window.ApiClient.dismissColdStart === 'function') {
+        window.ApiClient.dismissColdStart();
+      }
+      if (typeof window.dismissToast === 'function') {
+        window.dismissToast('cold-start-indicator');
+      }
     }
   }
 
@@ -673,7 +666,8 @@ const Compiler = (() => {
    */
   function _handleSyncResult(result, myExecutionId) {
     if (myExecutionId !== executionId) return;
-    _dismissColdStart();
+    const opId = myExecutionId ? `exec_${myExecutionId}` : null;
+    _dismissColdStart(opId);
 
     const statusId = result.status_id;
     const time = result.runtime || '--';
@@ -2454,3 +2448,7 @@ public:
 })();
 
 window.Compiler = Compiler;
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { Compiler };
+}

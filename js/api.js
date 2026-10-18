@@ -132,6 +132,8 @@
 
     if (enableColdStartNotice) {
       coldStartTimer = setTimeout(() => {
+        if (fetchOptions.signal?.aborted) return;
+        if (operationId && !_activeColdStartOperations.has(operationId)) return;
         didShowColdStartToast = true;
         _coldStartToastActive = true;
         _activeColdStartOperations.set(operationId, {
@@ -388,11 +390,15 @@
      * @param {string} [operationId] - optional operation ID to dismiss only that operation's notification
      */
     dismissColdStart(operationId) {
-      if (operationId && _activeColdStartOperations.has(operationId)) {
-        const opState = _activeColdStartOperations.get(operationId);
-        if (opState.timer) clearTimeout(opState.timer);
-        if (opState.toastId) _dismissNotify(opState.toastId);
-        _activeColdStartOperations.delete(operationId);
+      if (operationId) {
+        if (_activeColdStartOperations.has(operationId)) {
+          const opState = _activeColdStartOperations.get(operationId);
+          if (opState.timer) clearTimeout(opState.timer);
+          if (opState.toastId) _dismissNotify(opState.toastId);
+          _activeColdStartOperations.delete(operationId);
+        } else {
+          _dismissNotify(`cold-start-${operationId}`);
+        }
         if (_activeColdStartOperations.size === 0) {
           _coldStartToastActive = false;
         }
