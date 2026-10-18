@@ -81,6 +81,9 @@
   let _initPromise = null;
   const READY_CACHE_TTL_MS = 120000; // 2 minutes cache for confirmed awake state
 
+  // Scoped tracking of active cold-start operations to prevent cross-request collisions
+  const _activeColdStartOperations = new Map();
+
   // ── Core fetch wrapper ──────────────────────────────────────────────────────
 
   /**
@@ -117,20 +120,37 @@
     const canRetry = isIdempotent && options.retry !== false;
     const maxRetries = canRetry ? 3 : 0;
 
+    // Operation-scoped cold-start tracking: ONLY operations that explicitly request coldStartNotice
+    // (such as submitCode / execution) arm a timer. Background requests (auth, profile, sync) are silent.
+    const enableColdStartNotice = Boolean(options.coldStartNotice);
+    const operationId = options.operationId || (enableColdStartNotice ? 'op_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6) : null);
+    const toastId = options.toastId || (operationId ? `cold-start-${operationId}` : 'cold-start-indicator');
+    const delayMs = typeof options.coldStartDelayMs === 'number' ? options.coldStartDelayMs : 3000;
+
     let coldStartTimer = null;
     let didShowColdStartToast = false;
-    if (!_isBackendReady && !_coldStartToastActive) {
+
+    if (enableColdStartNotice) {
       coldStartTimer = setTimeout(() => {
-        if (!_isBackendReady) {
-          _coldStartToastActive = true;
-          didShowColdStartToast = true;
-          _notify(MSG_STARTING, 'info', {
-            id: 'cold-start-indicator',
-            duration: 0,
-            icon: 'fa-spinner fa-spin',
-          });
-        }
-      }, 3000);
+        didShowColdStartToast = true;
+        _coldStartToastActive = true;
+        _activeColdStartOperations.set(operationId, {
+          timer: null,
+          toastId,
+          didShowToast: true,
+        });
+        _notify(MSG_STARTING, 'info', {
+          id: toastId,
+          duration: 0,
+          icon: 'fa-spinner fa-spin',
+        });
+      }, delayMs);
+
+      _activeColdStartOperations.set(operationId, {
+        timer: coldStartTimer,
+        toastId,
+        didShowToast: false,
+      });
     }
 
     let response = null;
@@ -175,10 +195,21 @@
     }
 
     if (!response || !response.ok) {
-      // Clear cold-start active state on error without leaving persistent spinner
-      if (didShowColdStartToast || _coldStartToastActive) {
-        _coldStartToastActive = false;
-        _dismissNotify('cold-start-indicator');
+      // Clear cold-start active state for THIS specific operation on error
+      if (enableColdStartNotice) {
+        if (operationId && _activeColdStartOperations.has(operationId)) {
+          const opState = _activeColdStartOperations.get(operationId);
+          if (opState.timer) clearTimeout(opState.timer);
+          if (opState.didShowToast || didShowColdStartToast) {
+            _dismissNotify(opState.toastId);
+          }
+          _activeColdStartOperations.delete(operationId);
+        } else if (didShowColdStartToast) {
+          _dismissNotify(toastId);
+        }
+        if (_activeColdStartOperations.size === 0) {
+          _coldStartToastActive = false;
+        }
       }
 
       if (!response) {
@@ -230,13 +261,27 @@
 
     if (coldStartTimer) clearTimeout(coldStartTimer);
 
-    if (didShowColdStartToast || _coldStartToastActive) {
-      _coldStartToastActive = false;
-      _dismissNotify('cold-start-indicator');
-      _notify(MSG_CONNECTED, 'success', { id: 'cold-start-connected', duration: 2500 });
-    } else {
-      // Defensive guarantee: backend is confirmed awake, make sure no stale indicator lingers
-      _dismissNotify('cold-start-indicator');
+    // Only dismiss cold-start notice if THIS specific operation was tracking or showing one
+    if (enableColdStartNotice) {
+      if (operationId && _activeColdStartOperations.has(operationId)) {
+        const opState = _activeColdStartOperations.get(operationId);
+        if (opState.timer) clearTimeout(opState.timer);
+        if (opState.didShowToast || didShowColdStartToast) {
+          _dismissNotify(opState.toastId);
+        }
+        _activeColdStartOperations.delete(operationId);
+      } else if (didShowColdStartToast) {
+        _dismissNotify(toastId);
+      }
+
+      // Defensive guarantee for explicit toastId
+      if (options.toastId) {
+        _dismissNotify(options.toastId);
+      }
+
+      if (_activeColdStartOperations.size === 0) {
+        _coldStartToastActive = false;
+      }
     }
 
     // 204 No Content
@@ -329,6 +374,10 @@
       _isBackendReady = false;
       _lastReadyTimestamp = 0;
       _coldStartToastActive = false;
+      _activeColdStartOperations.forEach((opState) => {
+        if (opState.timer) clearTimeout(opState.timer);
+      });
+      _activeColdStartOperations.clear();
       _backendReadyPromise = null;
       _hasInitialized = false;
       _initPromise = null;
@@ -336,10 +385,26 @@
 
     /**
      * Explicitly dismiss any active cold-start indicator and reset active flag.
+     * @param {string} [operationId] - optional operation ID to dismiss only that operation's notification
      */
-    dismissColdStart() {
-      _coldStartToastActive = false;
-      _dismissNotify('cold-start-indicator');
+    dismissColdStart(operationId) {
+      if (operationId && _activeColdStartOperations.has(operationId)) {
+        const opState = _activeColdStartOperations.get(operationId);
+        if (opState.timer) clearTimeout(opState.timer);
+        if (opState.toastId) _dismissNotify(opState.toastId);
+        _activeColdStartOperations.delete(operationId);
+        if (_activeColdStartOperations.size === 0) {
+          _coldStartToastActive = false;
+        }
+      } else {
+        _activeColdStartOperations.forEach((opState) => {
+          if (opState.timer) clearTimeout(opState.timer);
+          if (opState.toastId) _dismissNotify(opState.toastId);
+        });
+        _activeColdStartOperations.clear();
+        _coldStartToastActive = false;
+        _dismissNotify('cold-start-indicator');
+      }
     },
 
     /**
@@ -496,18 +561,23 @@
      *   question_id:      number?  — required for run/submit
      *   stdin:            string?  — base64-encoded; only for general mode
      *   compiler_options: string?  — e.g. '-std=c++17'
-     * @param {AbortSignal} signal  — optional, to cancel in-flight request
+     * @param {AbortSignal} [signal]  — optional, to cancel in-flight request
+     * @param {object} [options]      — optional fetch and cold-start options
      *
      * @returns {SubmissionResponse}
      *   verdict, status_id, runtime, memory,
      *   passed_count?, total_count?, test_cases?,
      *   stdout?, compile_output?, stderr?
      */
-    async submitCode(payload, signal) {
+    async submitCode(payload, signal, options = {}) {
       return request('/api/submissions', {
         method: 'POST',
         body: JSON.stringify(payload),
         signal,
+        coldStartNotice: options.coldStartNotice !== undefined ? options.coldStartNotice : true,
+        operationId: options.operationId || 'submit_code',
+        toastId: options.toastId || (options.operationId ? `cold-start-${options.operationId}` : 'cold-start-indicator'),
+        ...options,
       });
     },
 
@@ -517,8 +587,9 @@
      * Called after POST /api/submissions returns HTTP 202 with a job_id.
      * The caller is responsible for the polling loop and timeout.
      *
-     * @param {string} jobId    — job ID returned from submitCode (HTTP 202)
-     * @param {AbortSignal} signal — optional cancel signal
+     * @param {string} jobId       — job ID returned from submitCode (HTTP 202)
+     * @param {AbortSignal} [signal] — optional cancel signal
+     * @param {object} [options]   — optional fetch options
      *
      * @returns {JobStatusResponse}
      *   {
@@ -528,8 +599,12 @@
      *     error?: string,               // present when status='failed'
      *   }
      */
-    async pollJobStatus(jobId, signal) {
-      return request(`/api/submissions/${encodeURIComponent(jobId)}`, { signal });
+    async pollJobStatus(jobId, signal, options = {}) {
+      return request(`/api/submissions/${encodeURIComponent(jobId)}`, {
+        signal,
+        coldStartNotice: false,
+        ...options,
+      });
     },
 
     async getQuestionSampleTests(questionId) {
@@ -679,10 +754,17 @@
     },
   };
 
+  ApiClient.MSG_STARTING = MSG_STARTING;
+  ApiClient.MSG_CONNECTED = MSG_CONNECTED;
+  ApiClient.MSG_TIMEOUT = MSG_TIMEOUT;
+
   // ── Expose globally / CommonJS ─────────────────────────────────────────────
   if (typeof window !== 'undefined') {
     window.ApiClient = ApiClient;
     window.ApiError  = ApiError;
+    window.ALGOQUEST_MSG_STARTING = MSG_STARTING;
+    window.ALGOQUEST_MSG_CONNECTED = MSG_CONNECTED;
+    window.ALGOQUEST_MSG_TIMEOUT = MSG_TIMEOUT;
   }
 
   if (typeof module !== 'undefined' && module.exports) {

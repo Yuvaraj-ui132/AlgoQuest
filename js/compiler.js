@@ -342,6 +342,7 @@ const Compiler = (() => {
       if (el) el.style.display = 'none';
     });
 
+    _dismissColdStart();
     updateStatus('stopped', 'Stopped');
 
     const msg = reason || 'Execution stopped by user.';
@@ -467,11 +468,17 @@ const Compiler = (() => {
       payload.stdin = btoa(unescape(encodeURIComponent(cleanStdin)));
     }
 
+    const opId = `exec_${myExecutionId}`;
+
     try {
       if (!window.ApiClient) throw new Error('ApiClient not loaded. Ensure js/api.js is included.');
 
       updateStatus('waiting', 'Waiting\u2026');
-      const initialResponse = await window.ApiClient.submitCode(payload, signal);
+      const initialResponse = await window.ApiClient.submitCode(payload, signal, {
+        operationId: opId,
+        coldStartNotice: true,
+        toastId: 'cold-start-indicator',
+      });
 
       // ── Async Submit path: received HTTP 202 + job_id ────────────────────
       // The backend returned {job_id, status:'queued'} before running Judge0.
@@ -486,6 +493,7 @@ const Compiler = (() => {
         const SUBMIT_POLL_INTERVAL_MS = 1000;   // poll every 1 second
         const SUBMIT_POLL_MAX_WAIT_MS = 60000;  // give up after 60 seconds
         const pollStart = Date.now();
+        let didShowSubmitColdStartToast = false;
 
         let finalResult = null;
 
@@ -505,7 +513,7 @@ const Compiler = (() => {
               if (el) el.style.display = 'none';
             });
             updateStatus('error', 'Timed out');
-            _dismissColdStart();
+            _dismissColdStart(opId);
             isSubmitting = false;
             lastSubmissionResult = {
               verdict: 'Timed Out',
@@ -517,6 +525,22 @@ const Compiler = (() => {
             activeConsoleTab = 'result';
             renderSampleTestConsole();
             return;
+          }
+
+          // If async submission wait exceeds cold-start threshold (3s), display cold-start notice
+          if (Date.now() - pollStart >= 3000 && !didShowSubmitColdStartToast) {
+            didShowSubmitColdStartToast = true;
+            if (typeof showToast === 'function') {
+              showToast(
+                (window.ApiClient && window.ApiClient.MSG_STARTING) || 'Starting the server. This may take a moment on the first visit.',
+                'info',
+                {
+                  id: 'cold-start-indicator',
+                  duration: 0,
+                  icon: 'fa-spinner fa-spin',
+                }
+              );
+            }
           }
 
           // Wait before polling
@@ -551,7 +575,7 @@ const Compiler = (() => {
               if (el) el.style.display = 'none';
             });
             updateStatus('error', 'Failed');
-            _dismissColdStart();
+            _dismissColdStart(opId);
             isSubmitting = false;
             lastSubmissionResult = {
               verdict: 'Submission Failed',
@@ -579,6 +603,8 @@ const Compiler = (() => {
           const el = document.getElementById(id);
           if (el) el.style.display = 'none';
         });
+
+        _dismissColdStart(opId);
 
         if (!finalResult) {
           updateStatus('error', 'No result');
@@ -609,6 +635,7 @@ const Compiler = (() => {
         if (el) el.style.display = 'none';
       });
 
+      _dismissColdStart(opId);
       _handleSyncResult(initialResponse, myExecutionId);
 
       // After any submit completes (any verdict), invalidate the history cache
@@ -626,16 +653,17 @@ const Compiler = (() => {
         const el = document.getElementById(id);
         if (el) el.style.display = 'none';
       });
-      _dismissColdStart();
+      _dismissColdStart(opId);
       _handleError(err);
     }
   }
 
-  function _dismissColdStart() {
+  function _dismissColdStart(opId) {
     if (window.ApiClient && typeof window.ApiClient.dismissColdStart === 'function') {
-      window.ApiClient.dismissColdStart();
+      window.ApiClient.dismissColdStart(opId);
     } else if (typeof window.dismissToast === 'function') {
       window.dismissToast('cold-start-indicator');
+      if (opId) window.dismissToast(`cold-start-${opId}`);
     }
   }
 

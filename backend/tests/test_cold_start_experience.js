@@ -281,6 +281,241 @@ async function runTests() {
   const leftoverToast = toasts.find(t => t.id === 'cold-start-indicator' && t.active);
   assert.strictEqual(leftoverToast, undefined, 'No cold-start indicator may linger after successful request');
 
+  // Test 11: Login with a warm backend does NOT show cold-start toast
+  console.log('Test 11: Login with a warm backend does NOT show cold-start toast');
+  ApiClient.resetState();
+  toasts.length = 0;
+
+  global.fetch = async (url) => {
+    assert(url.includes('/api/user/all'), 'Should request user profile data');
+    return {
+      ok: true,
+      status: 200,
+      json: async () => ({ user: { name: 'Test User' }, progress: {} }),
+    };
+  };
+
+  await ApiClient.getAllUserData();
+  const loginToasts = toasts.filter(t => t.active && t.msg === MSG_STARTING);
+  assert.strictEqual(loginToasts.length, 0, 'No cold-start notification should appear on warm login');
+
+  // Test 12: Login while backend is cold does NOT spam cold-start notification
+  console.log('Test 12: Login while backend is cold does NOT show cold-start notification');
+  ApiClient.resetState();
+  toasts.length = 0;
+
+  let coldLoginProbes = 0;
+  global.fetch = async (url) => {
+    coldLoginProbes++;
+    await new Promise(r => setTimeout(r, 80));
+    return {
+      ok: true,
+      status: 200,
+      json: async () => ({ user: { name: 'Test User' } }),
+    };
+  };
+
+  await ApiClient.getAllUserData();
+  const coldLoginToasts = toasts.filter(t => t.active && t.msg === MSG_STARTING);
+  assert.strictEqual(coldLoginToasts.length, 0, 'Login request must never arm or show cold-start toast');
+
+  // Test 13: Run with a warm backend completes without cold-start warning
+  console.log('Test 13: Run with a warm backend completes without cold-start warning');
+  ApiClient.resetState();
+  toasts.length = 0;
+
+  global.fetch = async (url) => {
+    assert(url.includes('/api/submissions'), 'Should submit code');
+    await new Promise(r => setTimeout(r, 20));
+    return {
+      ok: true,
+      status: 200,
+      json: async () => ({ verdict: 'Accepted', status_id: 3, runtime: '0.003s', memory: '1.2 MB' }),
+    };
+  };
+
+  const warmRunResult = await ApiClient.submitCode(
+    { source_code: '...', language_id: 54, execution_type: 'run', question_id: 1 },
+    null,
+    { coldStartNotice: true, coldStartDelayMs: 150 }
+  );
+  assert.strictEqual(warmRunResult.verdict, 'Accepted');
+  assert.strictEqual(toasts.filter(t => t.active && t.msg === MSG_STARTING).length, 0, 'Warm run must not show cold-start notice');
+
+  // Test 14: Run delayed by cold start shows warning after threshold and dismisses on ready
+  console.log('Test 14: Run delayed by cold start shows warning and dismisses on ready');
+  ApiClient.resetState();
+  toasts.length = 0;
+
+  global.fetch = async () => {
+    // Takes 140ms; threshold is 50ms
+    await new Promise(r => setTimeout(r, 140));
+    return {
+      ok: true,
+      status: 200,
+      json: async () => ({ verdict: 'Accepted', status_id: 3, runtime: '0.005s', memory: '1.4 MB' }),
+    };
+  };
+
+  const delayedRunPromise = ApiClient.submitCode(
+    { source_code: '...', language_id: 54, execution_type: 'run', question_id: 1 },
+    null,
+    { coldStartNotice: true, coldStartDelayMs: 50, operationId: 'delayed_run_op' }
+  );
+
+  // Check midway (at 80ms) that cold-start toast is visible
+  await new Promise(r => setTimeout(r, 80));
+  const activeColdStart = toasts.find(t => t.active && t.msg === MSG_STARTING);
+  assert(activeColdStart !== undefined, 'Cold-start toast must be visible when run wait exceeds threshold');
+
+  // Wait for completion
+  const delayedRunResult = await delayedRunPromise;
+  assert.strictEqual(delayedRunResult.verdict, 'Accepted');
+
+  // After completion, cold-start indicator must be dismissed
+  const leftoverDelayedToast = toasts.find(t => t.active && t.msg === MSG_STARTING);
+  assert.strictEqual(leftoverDelayedToast, undefined, 'Cold-start toast must be dismissed once run finishes');
+
+  // Test 15: Submit with a warm backend completes without cold-start warning
+  console.log('Test 15: Submit with a warm backend completes without cold-start warning');
+  ApiClient.resetState();
+  toasts.length = 0;
+
+  let submitFetchCount = 0;
+  global.fetch = async (url) => {
+    submitFetchCount++;
+    await new Promise(r => setTimeout(r, 20));
+    if (submitFetchCount === 1) {
+      return {
+        ok: true,
+        status: 202,
+        json: async () => ({ status: 'queued', job_id: 'warm_job_1' }),
+      };
+    }
+    return {
+      ok: true,
+      status: 200,
+      json: async () => ({ status: 'completed', result: { verdict: 'Accepted', status_id: 3 } }),
+    };
+  };
+
+  const initialSubmit = await ApiClient.submitCode(
+    { source_code: '...', language_id: 54, execution_type: 'submit', question_id: 1 },
+    null,
+    { coldStartNotice: true, coldStartDelayMs: 200 }
+  );
+  assert.strictEqual(initialSubmit.status, 'queued');
+
+  const pollStatus = await ApiClient.pollJobStatus(initialSubmit.job_id);
+  assert.strictEqual(pollStatus.status, 'completed');
+  assert.strictEqual(toasts.filter(t => t.active && t.msg === MSG_STARTING).length, 0, 'Warm submit must never show cold-start notice');
+
+  // Test 16: Submit delayed by cold start shows warning and dismisses cleanly
+  console.log('Test 16: Submit delayed by cold start shows warning and dismisses cleanly');
+  ApiClient.resetState();
+  toasts.length = 0;
+
+  global.fetch = async () => {
+    await new Promise(r => setTimeout(r, 120));
+    return {
+      ok: true,
+      status: 202,
+      json: async () => ({ status: 'queued', job_id: 'cold_job_1' }),
+    };
+  };
+
+  const coldSubmitPromise = ApiClient.submitCode(
+    { source_code: '...', language_id: 54, execution_type: 'submit', question_id: 1 },
+    null,
+    { coldStartNotice: true, coldStartDelayMs: 40, operationId: 'cold_submit_op' }
+  );
+
+  // Check midway (at 70ms) that cold-start warning is visible
+  await new Promise(r => setTimeout(r, 70));
+  assert(toasts.some(t => t.active && t.msg === MSG_STARTING), 'Cold-start warning must show during delayed submit');
+
+  const coldSubmitResult = await coldSubmitPromise;
+  assert.strictEqual(coldSubmitResult.status, 'queued');
+
+  // Dismiss on completion
+  ApiClient.dismissColdStart('cold_submit_op');
+  assert.strictEqual(toasts.filter(t => t.active && t.msg === MSG_STARTING).length, 0, 'Must be dismissed upon completion');
+
+  // Test 17: Notification cleanup after every terminal verdict
+  console.log('Test 17: Notification cleanup after every terminal verdict');
+  const testVerdicts = [
+    { label: 'Accepted', status_id: 3 },
+    { label: 'Wrong Answer', status_id: 4 },
+    { label: 'Time Limit Exceeded', status_id: 5 },
+    { label: 'Compilation Error', status_id: 6 },
+    { label: 'Runtime Error', status_id: 11 },
+    { label: 'Failed', status_id: 13 },
+    { label: 'Stopped', status_id: 14 },
+  ];
+
+  for (const v of testVerdicts) {
+    ApiClient.resetState();
+    toasts.length = 0;
+    global.window.showToast(MSG_STARTING, 'info', { id: 'cold-start-indicator', duration: 0 });
+    assert(toasts.some(t => t.id === 'cold-start-indicator' && t.active), `Indicator should be active for verdict test: ${v.label}`);
+
+    // Simulate verdict arrival and cleanup
+    ApiClient.dismissColdStart();
+    const lingering = toasts.find(t => t.id === 'cold-start-indicator' && t.active);
+    assert.strictEqual(lingering, undefined, `No stale loading notification may remain for verdict: ${v.label}`);
+  }
+
+  // Test 18: Concurrent or overlapping requests without incorrect notification dismissal
+  console.log('Test 18: Overlapping background request does NOT cancel another active operation notification');
+  ApiClient.resetState();
+  toasts.length = 0;
+
+  // Launch a long-running execution operation that triggers a cold-start warning
+  let resolveActiveOp;
+  global.fetch = async (url) => {
+    if (url.includes('/api/submissions')) {
+      await new Promise(r => { resolveActiveOp = r; });
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({ verdict: 'Accepted', status_id: 3 }),
+      };
+    }
+    // Background request (e.g. editor save or progress) resolves fast
+    return {
+      ok: true,
+      status: 200,
+      json: async () => ({ ok: true }),
+    };
+  };
+
+  const activeOpPromise = ApiClient.submitCode(
+    { source_code: '...', language_id: 54, execution_type: 'run', question_id: 1 },
+    null,
+    { coldStartNotice: true, coldStartDelayMs: 40, operationId: 'exec_in_flight' }
+  );
+
+  // Wait for the cold-start notice to trigger
+  await new Promise(r => setTimeout(r, 70));
+  const activeNotice = toasts.find(t => t.id === 'cold-start-exec_in_flight' && t.active);
+  assert(activeNotice !== undefined, 'Cold-start toast must be visible for active operation');
+
+  // Now, fire an unrelated background request (like editor autosave or user profile fetch)
+  const bgSaveResult = await ApiClient.saveEditorCode(1, 'cpp', 'int main(){}');
+  assert.strictEqual(bgSaveResult.ok, true);
+
+  // The active operation's cold-start notice MUST STILL BE ACTIVE!
+  const noticeStillActive = toasts.find(t => t.id === 'cold-start-exec_in_flight' && t.active);
+  assert(noticeStillActive !== undefined, 'Unrelated background request MUST NOT dismiss active operation notification');
+
+  // Release the active execution operation
+  resolveActiveOp();
+  await activeOpPromise;
+
+  // Now that the active operation finished, its notification should be dismissed
+  const noticeAfterCompletion = toasts.find(t => t.id === 'cold-start-exec_in_flight' && t.active);
+  assert.strictEqual(noticeAfterCompletion, undefined, 'Notification should be dismissed once the active operation completes');
+
   console.log('All Cold-Start Waiting Experience Tests Passed successfully!');
 }
 
