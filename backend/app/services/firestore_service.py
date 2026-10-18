@@ -549,3 +549,112 @@ async def batch_sync(
     batch.commit()
     return await get_all_user_data(uid)
 
+
+# ── Submission Analytics ──────────────────────────────────────────────────────
+
+async def get_user_analytics(uid: str) -> Dict[str, Any]:
+    """
+    Computes summary analytics for a user across all stored submissions and progress:
+    - solved_count, rev1_count, rev2_count from users/{uid}/progress
+    - total_submissions, accepted_submissions, acceptance_rate
+    - attempted_count, verdicts, languages, top_problems, recent_activity
+    from users/{uid}/submissions
+    """
+    # 1. Progress stats
+    progress_docs = list(_user_ref(uid).collection("progress").stream())
+    solved_count = sum(1 for d in progress_docs if (d.to_dict() or {}).get("solved") is True)
+    rev1_count = sum(1 for d in progress_docs if (d.to_dict() or {}).get("rev1") is True)
+    rev2_count = sum(1 for d in progress_docs if (d.to_dict() or {}).get("rev2") is True)
+
+    # 2. Submissions stats
+    ref = _user_ref(uid).collection("submissions")
+    try:
+        sub_docs = list(ref.select(["questionId", "verdict", "language", "languageId", "submittedAt"]).stream())
+    except Exception:
+        sub_docs = list(ref.stream())
+
+    total_subs = len(sub_docs)
+    accepted_subs = 0
+    attempted_qids = set()
+    verdict_counts: Dict[str, int] = {}
+    language_counts: Dict[str, int] = {}
+    problem_stats: Dict[int, Dict[str, Any]] = {}
+    date_stats: Dict[str, Dict[str, int]] = {}
+
+    for doc in sub_docs:
+        data = doc.to_dict() or {}
+        verdict = data.get("verdict")
+        is_ac = verdict == "Accepted"
+        if is_ac:
+            accepted_subs += 1
+
+        if verdict:
+            verdict_counts[verdict] = verdict_counts.get(verdict, 0) + 1
+
+        lang = data.get("language")
+        lang_id = data.get("languageId")
+        if (not lang or lang == "unknown") and lang_id in _LANGUAGE_NAMES:
+            lang = _LANGUAGE_NAMES[lang_id]
+        if lang:
+            language_counts[lang] = language_counts.get(lang, 0) + 1
+
+        qid = data.get("questionId")
+        if qid is not None:
+            try:
+                qid_int = int(qid)
+                attempted_qids.add(qid_int)
+                if qid_int not in problem_stats:
+                    problem_stats[qid_int] = {"attempts": 0, "accepted": False}
+                problem_stats[qid_int]["attempts"] += 1
+                if is_ac:
+                    problem_stats[qid_int]["accepted"] = True
+            except (ValueError, TypeError):
+                pass
+
+        sub_at = data.get("submittedAt")
+        if sub_at:
+            try:
+                if hasattr(sub_at, "strftime"):
+                    d_str = sub_at.strftime("%Y-%m-%d")
+                elif isinstance(sub_at, str):
+                    d_str = sub_at[:10]
+                else:
+                    d_str = None
+                if d_str:
+                    if d_str not in date_stats:
+                        date_stats[d_str] = {"total": 0, "accepted": 0}
+                    date_stats[d_str]["total"] += 1
+                    if is_ac:
+                        date_stats[d_str]["accepted"] += 1
+            except Exception:
+                pass
+
+    acc_rate = round((accepted_subs / total_subs * 100), 2) if total_subs > 0 else 0.0
+
+    sorted_problems = sorted(problem_stats.items(), key=lambda x: x[1]["attempts"], reverse=True)[:10]
+    top_problems = [
+        {"questionId": qid, "attempts": stats["attempts"], "accepted": stats["accepted"]}
+        for qid, stats in sorted_problems
+    ]
+
+    sorted_dates = sorted(date_stats.items(), key=lambda x: x[0], reverse=True)[:14]
+    recent_activity = [
+        {"date": d, "total": stats["total"], "accepted": stats["accepted"]}
+        for d, stats in sorted_dates
+    ]
+
+    return {
+        "solved_count": solved_count,
+        "rev1_count": rev1_count,
+        "rev2_count": rev2_count,
+        "total_submissions": total_subs,
+        "accepted_submissions": accepted_subs,
+        "acceptance_rate": acc_rate,
+        "attempted_count": len(attempted_qids),
+        "verdicts": verdict_counts,
+        "languages": language_counts,
+        "top_problems": top_problems,
+        "recent_activity": recent_activity,
+    }
+
+

@@ -178,7 +178,19 @@ async def get_user_analytics(uid: str) -> Dict[str, Any]:
     backend = get_backend()
     if hasattr(backend, "get_user_analytics"):
         return await backend.get_user_analytics(uid)
-    return {"solved_count": 0, "total_submissions": 0, "acceptance_rate": 0.0}
+    return {
+        "solved_count": 0,
+        "rev1_count": 0,
+        "rev2_count": 0,
+        "total_submissions": 0,
+        "accepted_submissions": 0,
+        "acceptance_rate": 0.0,
+        "attempted_count": 0,
+        "verdicts": {},
+        "languages": {},
+        "top_problems": [],
+        "recent_activity": [],
+    }
 
 
 # ── Batch Sync ────────────────────────────────────────────────────────────────

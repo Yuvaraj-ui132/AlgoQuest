@@ -70,6 +70,7 @@ def test_authentication_enforcement_smoke():
     protected_endpoints = [
         ("GET", "/api/user/all"),
         ("GET", "/api/submissions/history"),
+        ("GET", "/api/submissions/analytics"),
         ("POST", "/api/submissions"),
         ("POST", "/api/sync/batch"),
         ("PUT", "/api/bookmarks/1"),

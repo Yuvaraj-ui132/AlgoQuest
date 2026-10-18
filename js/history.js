@@ -50,6 +50,13 @@ const _historyCache = {
   search:       '',
 };
 
+const _analyticsCache = {
+  uid:     null,
+  data:    null,
+  loaded:  false,
+  loading: false,
+};
+
 // Expose for external invalidation (e.g., from compiler.js after Submit, or logout/user-switch)
 const _invalidateHistoryCache = function () {
   _historyCache.items      = [];
@@ -58,6 +65,11 @@ const _invalidateHistoryCache = function () {
   _historyCache.loaded     = false;
   _historyCache.loading    = false;
   _historyCache.uid        = null;
+
+  _analyticsCache.data    = null;
+  _analyticsCache.loaded  = false;
+  _analyticsCache.loading = false;
+  _analyticsCache.uid     = null;
 
   // Clear any rendered history table
   if (typeof document !== 'undefined') {
@@ -664,7 +676,7 @@ function buildAnalyticsHTML() {
         <div>
           <div class="section-title"><i class="fas fa-chart-bar"></i> Analytics</div>
           <div class="page-breadcrumb" style="margin-top:2px" id="analytics-scope-note">
-            Calculated from recently loaded submissions
+            Lifetime statistics across all stored submissions
           </div>
         </div>
         <button class="action-btn" id="analytics-refresh-btn" title="Refresh">
@@ -716,63 +728,178 @@ function buildAnalyticsHTML() {
 
       <div class="analytics-disclaimer">
         <i class="fas fa-info-circle"></i>
-        Analytics are calculated from your <strong>currently loaded submissions</strong> (up to 50 most recent).
-        They may not reflect your complete lifetime history.
-        Use "Load More" on the History page to include older submissions.
+        Analytics represent your <strong>complete lifetime submission history</strong> across all stored submissions.
+        History page pagination does not affect these statistics.
       </div>
     </div>`;
 }
 
-async function populateAnalytics() {
-  // ── PHASE 1: Progress-based stats ─────────────────────────────────────────
-  // Read from localStorage via the existing lsGet() abstraction.
-  // This NEVER touches the API and NEVER fails due to a network error.
-  // UID-namespacing is handled internally by lsGet() / getStorageKey().
+function formatActivityDate(dateStr) {
+  if (!dateStr) return '—';
+  try {
+    const s = String(dateStr).trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+      const [y, m, d] = s.split('-').map(Number);
+      const dt = new Date(Date.UTC(y, m - 1, d));
+      return dt.toLocaleDateString('en-IN', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+    }
+    const dt = new Date(s);
+    if (!isNaN(dt.getTime())) {
+      return dt.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
+    }
+    return s;
+  } catch {
+    return String(dateStr);
+  }
+}
 
+async function populateAnalytics(forceRefresh) {
+  // ── PHASE 1: Progress-based stats (localStorage) ─────────────────────────
   const solvedList = (() => {
     try { return window.lsGet ? window.lsGet('dsa_solved') : []; }
     catch { return []; }
   })();
-  const problemsSolved = solvedList.length;
+  const localProblemsSolved = solvedList.length;
 
-  // ── PHASE 2: Submission-history stats ─────────────────────────────────────
-  // Attempt to load submission history. On failure, still render Phase 1 cards.
+  const currentUid = (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser)
+    ? firebase.auth().currentUser.uid : null;
+
+  if (_analyticsCache.uid && _analyticsCache.uid !== currentUid) {
+    _analyticsCache.data    = null;
+    _analyticsCache.loaded  = false;
+    _analyticsCache.loading = false;
+  }
+  _analyticsCache.uid = currentUid;
+
+  if (forceRefresh) {
+    _analyticsCache.data   = null;
+    _analyticsCache.loaded = false;
+  }
+
+  let analyticsData = _analyticsCache.data;
   let historyAvailable = true;
 
-  if (!_historyCache.loaded) {
-    // Show a loading skeleton in the stats grid while the API call is in-flight.
-    const grid = document.getElementById('analytics-stats-grid');
-    if (grid) grid.innerHTML = `<div style="color:var(--text-muted);padding:20px"><i class="fas fa-circle-notch fa-spin"></i> Loading...</div>`;
+  if (!analyticsData) {
+    if (typeof document !== 'undefined') {
+      const grid = document.getElementById('analytics-stats-grid');
+      if (grid && !_analyticsCache.loaded) {
+        grid.innerHTML = `<div style="color:var(--text-muted);padding:20px"><i class="fas fa-circle-notch fa-spin"></i> Loading analytics...</div>`;
+      }
+    }
 
     try {
-      await fetchNextPage();
+      if (window.ApiClient && typeof window.ApiClient.getSubmissionAnalytics === 'function') {
+        _analyticsCache.loading = true;
+        analyticsData = await window.ApiClient.getSubmissionAnalytics();
+        _analyticsCache.data   = analyticsData;
+        _analyticsCache.loaded = true;
+      } else {
+        throw new Error('ApiClient.getSubmissionAnalytics not available');
+      }
     } catch (err) {
-      console.error('[Analytics] Submission history fetch failed:', err);
+      console.warn('[Analytics] Backend analytics endpoint unavailable, falling back:', err);
       historyAvailable = false;
+    } finally {
+      _analyticsCache.loading = false;
     }
   }
 
-  const items    = _historyCache.items;  // [] when historyAvailable=false
-  const total    = items.length;
-  const accepted = items.filter(x => isAccepted(x.verdict)).length;
-  const rate     = total > 0 ? Math.round((accepted / total) * 100) : 0;
+  // Session guard: make sure user didn't switch during fetch
+  const postFetchUid = (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser)
+    ? firebase.auth().currentUser.uid : null;
+  if (postFetchUid !== currentUid && currentUid) {
+    console.warn('[Analytics] Stale analytics discarded (user switched)');
+    return;
+  }
 
-  // Unique problem IDs from loaded submission history
-  const attempted = new Set(items.map(x => x.questionId)).size;
+  let total, accepted, rate, attempted, problemsSolved, verdictsMap, languagesMap, topProblems, recentActivity;
+
+  if (historyAvailable && analyticsData) {
+    total = Number(analyticsData.total_submissions) || 0;
+    accepted = Number(analyticsData.accepted_submissions) || 0;
+    rate = analyticsData.acceptance_rate != null
+      ? Math.round(Number(analyticsData.acceptance_rate))
+      : (total > 0 ? Math.round((accepted / total) * 100) : 0);
+    attempted = Number(analyticsData.attempted_count) || 0;
+    problemsSolved = (analyticsData.solved_count != null && Number(analyticsData.solved_count) > 0)
+      ? Number(analyticsData.solved_count)
+      : localProblemsSolved;
+    verdictsMap = analyticsData.verdicts || {};
+    languagesMap = analyticsData.languages || {};
+    topProblems = analyticsData.top_problems || [];
+    recentActivity = analyticsData.recent_activity || [];
+  } else {
+    // Graceful fallback to currently loaded history items if available
+    const items = _historyCache.items || [];
+    if (items.length > 0) {
+      historyAvailable = true;
+      total = items.length;
+      accepted = items.filter(x => isAccepted(x.verdict)).length;
+      rate = total > 0 ? Math.round((accepted / total) * 100) : 0;
+      attempted = new Set(items.map(x => x.questionId)).size;
+      problemsSolved = localProblemsSolved;
+
+      verdictsMap = {};
+      items.forEach(x => {
+        const v = x.verdict || 'Unknown';
+        verdictsMap[v] = (verdictsMap[v] || 0) + 1;
+      });
+
+      languagesMap = {};
+      items.forEach(x => {
+        const l = x.language || 'unknown';
+        languagesMap[l] = (languagesMap[l] || 0) + 1;
+      });
+
+      const pMap = {};
+      items.forEach(x => {
+        const k = x.questionId;
+        if (!pMap[k]) pMap[k] = { attempts: 0, accepted: false };
+        pMap[k].attempts++;
+        if (isAccepted(x.verdict)) pMap[k].accepted = true;
+      });
+      topProblems = Object.entries(pMap)
+        .sort((a, b) => b[1].attempts - a[1].attempts)
+        .slice(0, 10)
+        .map(([qid, d]) => ({ questionId: Number(qid), attempts: d.attempts, accepted: d.accepted }));
+
+      const dMap = {};
+      items.forEach(x => {
+        if (!x.submittedAt) return;
+        try {
+          const d = new Date(x.submittedAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
+          if (!dMap[d]) dMap[d] = { total: 0, accepted: 0 };
+          dMap[d].total++;
+          if (isAccepted(x.verdict)) dMap[d].accepted++;
+        } catch {}
+      });
+      recentActivity = Object.entries(dMap).slice(0, 14).map(([date, d]) => ({ date, total: d.total, accepted: d.accepted }));
+    } else {
+      total = 0;
+      accepted = 0;
+      rate = 0;
+      attempted = 0;
+      problemsSolved = localProblemsSolved;
+      verdictsMap = {};
+      languagesMap = {};
+      topProblems = [];
+      recentActivity = [];
+    }
+  }
 
   // Scope note — always update
   const scopeNote = document.getElementById('analytics-scope-note');
   if (scopeNote) {
     if (!historyAvailable) {
       scopeNote.textContent = 'Submission history unavailable — showing local progress only';
+    } else if (analyticsData) {
+      scopeNote.textContent = `Lifetime statistics across all stored submissions (${total} total)`;
     } else {
       scopeNote.textContent = `Calculated from ${total} loaded submission${total !== 1 ? 's' : ''}`;
     }
   }
 
   // ── Stat cards ──────────────────────────────────────────────────────────────
-  // Problems Solved always comes from lsGet() (Phase 1 — never fails).
-  // Submission-derived cards show "—" when history is unavailable.
   const grid = document.getElementById('analytics-stats-grid');
   if (grid) {
     if (historyAvailable) {
@@ -784,7 +911,6 @@ async function populateAnalytics() {
         ${analyticsCard(problemsSolved, 'Problems Solved',   'fa-trophy',       'accent-yellow')}
       `;
     } else {
-      // History API failed — show progress cards with full data, history cards grayed
       grid.innerHTML = `
         ${analyticsCard('—',            'Total Submissions', 'fa-database',     'accent-blue')}
         ${analyticsCard('—',            'Accepted',          'fa-check-circle', 'accent-green')}
@@ -794,10 +920,6 @@ async function populateAnalytics() {
       `;
     }
   }
-
-  // ── Submission-history-dependent sections ─────────────────────────────────
-  // When history is unavailable, show a compact inline notice per section
-  // rather than leaving them blank or crashing the page.
 
   const _historyUnavailableMsg = `
     <div class="analytics-empty-msg" style="color:var(--text-muted);font-style:italic;">
@@ -811,15 +933,10 @@ async function populateAnalytics() {
     if (!historyAvailable) {
       verdictEl.innerHTML = _historyUnavailableMsg;
     } else {
-      const verdictMap = {};
-      items.forEach(x => {
-        const v = x.verdict || 'Unknown';
-        verdictMap[v] = (verdictMap[v] || 0) + 1;
-      });
-      if (Object.keys(verdictMap).length === 0) {
+      const sorted = Object.entries(verdictsMap).sort((a, b) => b[1] - a[1]);
+      if (sorted.length === 0) {
         verdictEl.innerHTML = `<div class="analytics-empty-msg">No data yet.</div>`;
       } else {
-        const sorted = Object.entries(verdictMap).sort((a, b) => b[1] - a[1]);
         verdictEl.innerHTML = sorted.map(([v, n]) => {
           const pct  = total > 0 ? Math.round((n / total) * 100) : 0;
           const vCls = verdictClass(v);
@@ -842,15 +959,10 @@ async function populateAnalytics() {
     if (!historyAvailable) {
       langEl.innerHTML = _historyUnavailableMsg;
     } else {
-      const langMap = {};
-      items.forEach(x => {
-        const l = x.language || 'unknown';
-        langMap[l] = (langMap[l] || 0) + 1;
-      });
-      if (Object.keys(langMap).length === 0) {
+      const sorted = Object.entries(languagesMap).sort((a, b) => b[1] - a[1]);
+      if (sorted.length === 0) {
         langEl.innerHTML = `<div class="analytics-empty-msg">No data yet.</div>`;
       } else {
-        const sorted = Object.entries(langMap).sort((a, b) => b[1] - a[1]);
         langEl.innerHTML = sorted.map(([l, n]) => {
           const pct = total > 0 ? Math.round((n / total) * 100) : 0;
           return `
@@ -871,35 +983,22 @@ async function populateAnalytics() {
   if (topEl) {
     if (!historyAvailable) {
       topEl.innerHTML = _historyUnavailableMsg;
+    } else if (!topProblems || topProblems.length === 0) {
+      topEl.innerHTML = `<div class="analytics-empty-msg">No data yet.</div>`;
     } else {
-      const problemMap = {};
-      items.forEach(x => {
-        const k = x.questionId;
-        if (!problemMap[k]) problemMap[k] = { attempts: 0, accepted: false };
-        problemMap[k].attempts++;
-        if (isAccepted(x.verdict)) problemMap[k].accepted = true;
-      });
-      const topProblems = Object.entries(problemMap)
-        .sort((a, b) => b[1].attempts - a[1].attempts)
-        .slice(0, 8);
-
-      if (topProblems.length === 0) {
-        topEl.innerHTML = `<div class="analytics-empty-msg">No data yet.</div>`;
-      } else {
-        topEl.innerHTML = `
-          <div class="analytics-top-list">
-            ${topProblems.map(([qid, data], i) => `
-              <div class="analytics-top-item" onclick="window.openHistoryProblem(${Number(qid) || 0})">
-                <span class="analytics-rank">${i + 1}</span>
-                <span class="analytics-top-name">${escapeHtml(questionDisplayName(qid))}</span>
-                <span class="analytics-top-meta">
-                  ${Number(data.attempts)} attempt${data.attempts !== 1 ? 's' : ''}
-                  ${data.accepted ? '<span class="analytics-solved-badge">Solved</span>' : ''}
-                </span>
-              </div>
-            `).join('')}
-          </div>`;
-      }
+      topEl.innerHTML = `
+        <div class="analytics-top-list">
+          ${topProblems.slice(0, 8).map((item, i) => `
+            <div class="analytics-top-item" onclick="window.openHistoryProblem(${Number(item.questionId) || 0})">
+              <span class="analytics-rank">${i + 1}</span>
+              <span class="analytics-top-name">${escapeHtml(questionDisplayName(item.questionId))}</span>
+              <span class="analytics-top-meta">
+                ${Number(item.attempts)} attempt${item.attempts !== 1 ? 's' : ''}
+                ${item.accepted ? '<span class="analytics-solved-badge">Solved</span>' : ''}
+              </span>
+            </div>
+          `).join('')}
+        </div>`;
     }
   }
 
@@ -908,41 +1007,30 @@ async function populateAnalytics() {
   if (activityEl) {
     if (!historyAvailable) {
       activityEl.innerHTML = _historyUnavailableMsg;
+    } else if (!recentActivity || recentActivity.length === 0) {
+      activityEl.innerHTML = `<div class="analytics-empty-msg">No recent activity.</div>`;
     } else {
-      const dateMap = {};
-      items.forEach(x => {
-        if (!x.submittedAt) return;
-        try {
-          const d = new Date(x.submittedAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
-          if (!dateMap[d]) dateMap[d] = { total: 0, accepted: 0 };
-          dateMap[d].total++;
-          if (isAccepted(x.verdict)) dateMap[d].accepted++;
-        } catch {}
-      });
-      const entries = Object.entries(dateMap).slice(0, 14);
-      if (entries.length === 0) {
-        activityEl.innerHTML = `<div class="analytics-empty-msg">No recent activity.</div>`;
-      } else {
-        const maxTotal = Math.max(...entries.map(([, v]) => v.total), 1);
-        activityEl.innerHTML = `
-          <div class="analytics-activity-grid">
-            ${entries.map(([date, data]) => {
-              const pct = Math.round((data.total / maxTotal) * 100);
-              return `
-                <div class="analytics-activity-day">
-                  <div class="analytics-activity-bar-wrap">
-                    <div class="analytics-activity-bar" style="height:${Math.max(pct, 8)}%" title="${data.total} submissions on ${date}">
-                      <span class="analytics-activity-count">${data.total}</span>
-                    </div>
+      const entries = recentActivity.slice(0, 14);
+      const maxTotal = Math.max(...entries.map(v => v.total), 1);
+      activityEl.innerHTML = `
+        <div class="analytics-activity-grid">
+          ${entries.map(data => {
+            const pct = Math.round((data.total / maxTotal) * 100);
+            const displayDate = formatActivityDate(data.date);
+            return `
+              <div class="analytics-activity-day">
+                <div class="analytics-activity-bar-wrap">
+                  <div class="analytics-activity-bar" style="height:${Math.max(pct, 8)}%" title="${data.total} submissions on ${displayDate}">
+                    <span class="analytics-activity-count">${data.total}</span>
                   </div>
-                  <div class="analytics-activity-label">${date}</div>
-                </div>`;
-          }).join('')}
-        </div>`;
-      }    // end else (entries.length > 0)
-    }    // end else (!historyAvailable)
-  }    // end if (activityEl)
-}    // end populateAnalytics()
+                </div>
+                <div class="analytics-activity-label">${escapeHtml(displayDate)}</div>
+              </div>`;
+        }).join('')}
+      </div>`;
+    }
+  }
+}
 
 function analyticsCard(value, label, icon, colorClass) {
   return `
@@ -957,8 +1045,7 @@ function attachAnalyticsEvents() {
   const refreshBtn = document.getElementById('analytics-refresh-btn');
   if (refreshBtn) {
     refreshBtn.addEventListener('click', () => {
-      window.invalidateHistoryCache();
-      populateAnalytics();
+      populateAnalytics(true);
     });
   }
 }
@@ -1015,6 +1102,7 @@ if (typeof _origPopulateDsaProblemPanel === 'function') {
 _root.invalidateHistoryCache = _invalidateHistoryCache;
 _root.buildSubmissionRowHtml = buildSubmissionRowHtml;
 _root.buildProblemSubmissionRowHtml = buildProblemSubmissionRowHtml;
+_root.formatActivityDate = formatActivityDate;
 
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
@@ -1024,6 +1112,7 @@ if (typeof module !== 'undefined' && module.exports) {
     verdictClass,
     questionDisplayName,
     langDisplay,
+    formatActivityDate,
   };
 }
 

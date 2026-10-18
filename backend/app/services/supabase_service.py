@@ -1050,6 +1050,58 @@ def _get_user_analytics_sync(uid: str) -> Dict[str, Any]:
         total_subs, accepted_subs = s_res if s_res else (0, 0)
         acc_rate = round((accepted_subs / total_subs * 100), 2) if total_subs > 0 else 0.0
 
+        attempted_count = session.query(
+            func.count(func.distinct(Submission.question_id))
+        ).filter(Submission.user_id == uid).scalar() or 0
+
+        v_rows = session.query(
+            Submission.verdict,
+            func.count(Submission.id)
+        ).filter(Submission.user_id == uid).group_by(Submission.verdict).all()
+        verdict_counts = {str(v): int(c) for v, c in v_rows if v}
+
+        l_rows = session.query(
+            Submission.language,
+            func.count(Submission.id)
+        ).filter(Submission.user_id == uid).group_by(Submission.language).all()
+        language_counts = {str(lang): int(cnt) for lang, cnt in l_rows if lang}
+
+        top_rows = session.query(
+            Submission.question_id,
+            func.count(Submission.id).label("attempts"),
+            func.coalesce(func.sum(case((Submission.verdict == "Accepted", 1), else_=0)), 0).label("accepted_count")
+        ).filter(Submission.user_id == uid)\
+         .group_by(Submission.question_id)\
+         .order_by(desc("attempts"))\
+         .limit(10).all()
+
+        top_problems = [
+            {
+                "questionId": int(r[0]),
+                "attempts": int(r[1]),
+                "accepted": bool(r[2] > 0),
+            }
+            for r in top_rows
+        ]
+
+        act_rows = session.query(
+            func.date(Submission.submitted_at).label("day"),
+            func.count(Submission.id).label("total"),
+            func.coalesce(func.sum(case((Submission.verdict == "Accepted", 1), else_=0)), 0).label("accepted_count")
+        ).filter(Submission.user_id == uid, Submission.submitted_at.isnot(None))\
+         .group_by(func.date(Submission.submitted_at))\
+         .order_by(desc(func.date(Submission.submitted_at)))\
+         .limit(14).all()
+
+        recent_activity = [
+            {
+                "date": str(r[0]),
+                "total": int(r[1]),
+                "accepted": int(r[2]),
+            }
+            for r in act_rows
+        ]
+
         return {
             "solved_count": int(solved_count),
             "rev1_count": int(rev1_count),
@@ -1057,6 +1109,11 @@ def _get_user_analytics_sync(uid: str) -> Dict[str, Any]:
             "total_submissions": int(total_subs),
             "accepted_submissions": int(accepted_subs),
             "acceptance_rate": acc_rate,
+            "attempted_count": int(attempted_count),
+            "verdicts": verdict_counts,
+            "languages": language_counts,
+            "top_problems": top_problems,
+            "recent_activity": recent_activity,
         }
     finally:
         session.close()

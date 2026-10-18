@@ -752,6 +752,16 @@
       if (after) path += `&after=${encodeURIComponent(after)}`;
       return request(path);
     },
+
+    /**
+     * Fetch complete aggregated submission analytics for the authenticated user.
+     * Calculated on the backend across all persisted submissions.
+     *
+     * @returns {Promise<Object>}
+     */
+    async getSubmissionAnalytics() {
+      return request('/api/submissions/analytics', { coldStartNotice: false });
+    },
   };
 
   ApiClient.MSG_STARTING = MSG_STARTING;

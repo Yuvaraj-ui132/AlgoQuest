@@ -52,6 +52,7 @@ from app.models.responses import (
     SubmissionResponse,
     SubmissionHistoryItem,
     SubmissionHistoryResponse,
+    SubmissionAnalyticsResponse,
     JobStatusResponse,
     TestCaseResult,
     UserAllDataResponse,
@@ -1084,12 +1085,34 @@ async def get_submission_history(
     )
 
 
+@router.get(
+    "/submissions/analytics",
+    response_model=SubmissionAnalyticsResponse,
+    summary="Get submission analytics",
+    description=(
+        "Returns the authenticated user's lifetime submission analytics and breakdowns.\n\n"
+        "Calculated across all stored submissions and progress for the verified user.\n\n"
+        "**Security:** UID is always derived from the verified Firebase ID token."
+    ),
+)
+async def get_submission_analytics(
+    uid: str = Depends(get_current_user),
+) -> SubmissionAnalyticsResponse:
+    """
+    Return lifetime aggregated submission analytics for the verified user.
+
+    UID is always derived from the verified Firebase token —
+    the caller cannot request another user's analytics.
+    """
+    data = await db_service.get_user_analytics(uid)
+    return SubmissionAnalyticsResponse(**data)
+
+
 # ── Async job status endpoint ─────────────────────────────────────────────────────────
-# ROUTE ORDER: This MUST be registered AFTER /submissions/history.
+# ROUTE ORDER: This MUST be registered AFTER /submissions/history and /submissions/analytics.
 # FastAPI matches routes in registration order. If this were registered first,
-# a request to /api/submissions/history would match {job_id}='history' instead.
-# By registering AFTER history, the literal path /submissions/history is matched
-# first, and only truly UUID-shaped paths fall through to this route.
+# a request to /api/submissions/history or /api/submissions/analytics would match {job_id} instead.
+# By registering AFTER history and analytics, literal paths are matched first.
 
 @router.get(
     "/submissions/{job_id}",

@@ -225,3 +225,34 @@ class SubmissionHistoryResponse(BaseModel):
         None,
         description="Document ID to pass as 'after' for the next page. Null when no more pages.",
     )
+
+
+class TopProblemItem(BaseModel):
+    questionId: int = Field(..., description="Problem/Question identifier.")
+    attempts: int = Field(..., description="Total attempts for this problem.")
+    accepted: bool = Field(..., description="Whether at least one submission was accepted.")
+
+
+class RecentActivityItem(BaseModel):
+    date: str = Field(..., description="Date identifier (YYYY-MM-DD or formatted date).")
+    total: int = Field(..., description="Total submissions on this date.")
+    accepted: int = Field(..., description="Accepted submissions on this date.")
+
+
+class SubmissionAnalyticsResponse(BaseModel):
+    """
+    Lifetime submission analytics response for GET /api/submissions/analytics.
+    Calculated on the backend across all stored submissions for the verified user.
+    """
+    total_submissions: int = Field(0, description="Lifetime total submissions across all problems.")
+    accepted_submissions: int = Field(0, description="Lifetime accepted submissions.")
+    acceptance_rate: float = Field(0.0, description="Overall acceptance rate percentage (0.0 to 100.0).")
+    solved_count: int = Field(0, description="Number of distinct solved questions from progress.")
+    attempted_count: int = Field(0, description="Number of distinct questions attempted.")
+    verdicts: Dict[str, int] = Field(default_factory=dict, description="Submission counts grouped by verdict.")
+    languages: Dict[str, int] = Field(default_factory=dict, description="Submission counts grouped by programming language.")
+    top_problems: List[TopProblemItem] = Field(default_factory=list, description="Top attempted problems.")
+    recent_activity: List[RecentActivityItem] = Field(default_factory=list, description="Recent daily activity entries.")
+    rev1_count: Optional[int] = Field(0, description="Revision 1 count.")
+    rev2_count: Optional[int] = Field(0, description="Revision 2 count.")
+
