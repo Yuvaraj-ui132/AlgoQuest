@@ -158,10 +158,12 @@ function toggleModalInputsDisabled(disabled) {
 // ─────────────────────────────────────────────────────────────
 // DOM READY: Wire all listeners
 // ─────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  setupAuthEventListeners();
-  checkInitialAuthState();
-});
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', () => {
+    setupAuthEventListeners();
+    checkInitialAuthState();
+  });
+}
 
 // ─────────────────────────────────────────────────────────────
 // SETUP: All auth event listeners
@@ -171,11 +173,16 @@ function setupAuthEventListeners() {
   // ── Login Form ───────────────────────────────────────────
   const loginForm = document.getElementById('login-form');
   if (loginForm) {
+    const errorDiv  = document.getElementById('login-error');
+    const emailInput = document.getElementById('login-email');
+    const passInput  = document.getElementById('login-password');
+    if (emailInput) emailInput.addEventListener('input', () => hideAuthError(errorDiv));
+    if (passInput)  passInput.addEventListener('input', () => hideAuthError(errorDiv));
+
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const email     = document.getElementById('login-email').value.trim();
       const password  = document.getElementById('login-password').value;
-      const errorDiv  = document.getElementById('login-error');
       const rememberMe = document.getElementById('remember-me')?.checked ?? false;
 
       if (!isFirebaseConfigured) {
@@ -220,13 +227,18 @@ function setupAuthEventListeners() {
   // ── Register Form ────────────────────────────────────────
   const registerForm = document.getElementById('register-form');
   if (registerForm) {
+    const errorDiv  = document.getElementById('register-error');
+    ['register-name', 'register-email', 'register-password', 'register-confirm'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', () => hideAuthError(errorDiv));
+    });
+
     registerForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const name      = document.getElementById('register-name').value.trim();
       const email     = document.getElementById('register-email').value.trim();
       const password  = document.getElementById('register-password').value;
       const confirm   = document.getElementById('register-confirm').value;
-      const errorDiv  = document.getElementById('register-error');
 
       if (!isFirebaseConfigured) {
         showAuthError(errorDiv, 'Firebase is not configured. Check js/firebase-config.js');
@@ -358,11 +370,22 @@ function setupAuthEventListeners() {
   // ── Forgot Password Form ──────────────────────────────────
   const forgotForm = document.getElementById('forgot-form');
   if (forgotForm) {
+    const errorDiv   = document.getElementById('forgot-error');
+    const successDiv = document.getElementById('forgot-success');
+    const forgotEmailInput = document.getElementById('forgot-email');
+    if (forgotEmailInput) {
+      forgotEmailInput.addEventListener('input', () => {
+        hideAuthError(errorDiv);
+        if (successDiv) {
+          successDiv.style.display = 'none';
+          successDiv.textContent = '';
+        }
+      });
+    }
+
     forgotForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const email      = document.getElementById('forgot-email').value.trim();
-      const errorDiv   = document.getElementById('forgot-error');
-      const successDiv = document.getElementById('forgot-success');
 
       if (!isFirebaseConfigured) {
         showAuthError(errorDiv, 'Firebase is not configured. Check js/firebase-config.js');
@@ -1059,7 +1082,7 @@ const SyncQueueManager = {
 };
 window.SyncQueueManager = SyncQueueManager;
 
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
   window.addEventListener('online', () => {
     if (typeof auth !== 'undefined' && auth && auth.currentUser) {
       SyncQueueManager.flush(auth.currentUser.uid);
@@ -1236,16 +1259,29 @@ function showAuthModal() {
 function hideAuthModal() {
   const modal = document.getElementById('auth-modal');
   if (modal) modal.classList.remove('active');
+  hideAuthError(document.getElementById('login-error'));
+  hideAuthError(document.getElementById('register-error'));
+  hideAuthError(document.getElementById('forgot-error'));
+  const successDiv = document.getElementById('forgot-success');
+  if (successDiv) {
+    successDiv.style.display = 'none';
+    successDiv.textContent = '';
+  }
 }
 
 function showAuthError(div, message) {
   if (!div) return;
-  div.textContent    = message;
-  div.style.display  = 'block';
+  div.textContent   = message;
+  div.style.display = 'block';
+  div.setAttribute('role', 'alert');
+  div.setAttribute('aria-live', 'polite');
 }
 
 function hideAuthError(div) {
-  if (div) div.style.display = 'none';
+  if (div) {
+    div.style.display = 'none';
+    div.textContent   = '';
+  }
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -1286,6 +1322,15 @@ window.switchAuthView = function (view, event) {
     const el = document.getElementById(id);
     if (el) el.style.display = 'none';
   });
+
+  hideAuthError(document.getElementById('login-error'));
+  hideAuthError(document.getElementById('register-error'));
+  hideAuthError(document.getElementById('forgot-error'));
+  const successDiv = document.getElementById('forgot-success');
+  if (successDiv) {
+    successDiv.style.display = 'none';
+    successDiv.textContent = '';
+  }
 
   const target = document.getElementById(`${view}-form`);
   if (target) target.style.display = 'flex';
@@ -1369,3 +1414,22 @@ window.syncGeneralCompilerCodeToCloud = async function (language, code) {
     console.error('[BACKEND] Failed to sync general compiler code:', error);
   }
 };
+
+if (typeof window !== 'undefined') {
+  window.showAuthError = showAuthError;
+  window.hideAuthError = hideAuthError;
+  window.translateAuthError = translateAuthError;
+  window.showAuthModal = showAuthModal;
+  window.hideAuthModal = hideAuthModal;
+}
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    showAuthError,
+    hideAuthError,
+    translateAuthError,
+    setupAuthEventListeners,
+    switchAuthView,
+    showAuthModal,
+    hideAuthModal,
+  };
+}
