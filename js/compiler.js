@@ -505,6 +505,7 @@ const Compiler = (() => {
               if (el) el.style.display = 'none';
             });
             updateStatus('error', 'Timed out');
+            _dismissColdStart();
             isSubmitting = false;
             lastSubmissionResult = {
               verdict: 'Timed Out',
@@ -550,6 +551,7 @@ const Compiler = (() => {
               if (el) el.style.display = 'none';
             });
             updateStatus('error', 'Failed');
+            _dismissColdStart();
             isSubmitting = false;
             lastSubmissionResult = {
               verdict: 'Submission Failed',
@@ -624,7 +626,16 @@ const Compiler = (() => {
         const el = document.getElementById(id);
         if (el) el.style.display = 'none';
       });
+      _dismissColdStart();
       _handleError(err);
+    }
+  }
+
+  function _dismissColdStart() {
+    if (window.ApiClient && typeof window.ApiClient.dismissColdStart === 'function') {
+      window.ApiClient.dismissColdStart();
+    } else if (typeof window.dismissToast === 'function') {
+      window.dismissToast('cold-start-indicator');
     }
   }
 
@@ -634,6 +645,7 @@ const Compiler = (() => {
    */
   function _handleSyncResult(result, myExecutionId) {
     if (myExecutionId !== executionId) return;
+    _dismissColdStart();
 
     const statusId = result.status_id;
     const time = result.runtime || '--';

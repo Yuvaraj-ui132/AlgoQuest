@@ -2114,6 +2114,7 @@ function showToast(msg, type = 'info', options = {}) {
     container.appendChild(toast);
   }
 
+  toast._dismissed = false;
   toast.className = `toast ${type}`;
   toast.innerHTML = `<i class="fas ${iconClass}"></i><span>${msg}</span>`;
 
@@ -2132,7 +2133,17 @@ function showToast(msg, type = 'info', options = {}) {
 
   if (isNew) {
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => toast.classList.add('show'));
+      if (toast._dismissed) {
+        if (toast.parentNode) toast.remove();
+        return;
+      }
+      requestAnimationFrame(() => {
+        if (toast._dismissed) {
+          if (toast.parentNode) toast.remove();
+          return;
+        }
+        toast.classList.add('show');
+      });
     });
   } else {
     toast.classList.add('show');
@@ -2161,20 +2172,26 @@ function dismissToast(toastOrId) {
   const container = document.getElementById('toast-container');
   if (!container) return;
 
-  const toast = (typeof toastOrId === 'string')
-    ? container.querySelector(`.toast[data-toast-id="${toastOrId}"]`)
-    : toastOrId;
+  const targets = (typeof toastOrId === 'string')
+    ? Array.from(container.querySelectorAll(`.toast[data-toast-id="${toastOrId}"]`))
+    : [toastOrId];
 
-  if (toast && toast.classList.contains('show')) {
+  targets.forEach((toast) => {
+    if (!toast) return;
+    toast._dismissed = true;
     if (toast._dismissTimer) {
       clearTimeout(toast._dismissTimer);
       toast._dismissTimer = null;
     }
-    toast.classList.remove('show');
-    setTimeout(() => {
+    if (toast.classList.contains('show')) {
+      toast.classList.remove('show');
+      setTimeout(() => {
+        if (toast.parentNode) toast.remove();
+      }, 300);
+    } else {
       if (toast.parentNode) toast.remove();
-    }, 300);
-  }
+    }
+  });
 }
 
 window.showToast = showToast;

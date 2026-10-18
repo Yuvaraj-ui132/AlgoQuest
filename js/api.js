@@ -228,10 +228,15 @@
     _isBackendReady = true;
     _lastReadyTimestamp = Date.now();
 
+    if (coldStartTimer) clearTimeout(coldStartTimer);
+
     if (didShowColdStartToast || _coldStartToastActive) {
       _coldStartToastActive = false;
       _dismissNotify('cold-start-indicator');
       _notify(MSG_CONNECTED, 'success', { id: 'cold-start-connected', duration: 2500 });
+    } else {
+      // Defensive guarantee: backend is confirmed awake, make sure no stale indicator lingers
+      _dismissNotify('cold-start-indicator');
     }
 
     // 204 No Content
@@ -327,6 +332,14 @@
       _backendReadyPromise = null;
       _hasInitialized = false;
       _initPromise = null;
+    },
+
+    /**
+     * Explicitly dismiss any active cold-start indicator and reset active flag.
+     */
+    dismissColdStart() {
+      _coldStartToastActive = false;
+      _dismissNotify('cold-start-indicator');
     },
 
     /**

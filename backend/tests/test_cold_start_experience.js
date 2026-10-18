@@ -251,6 +251,36 @@ async function runTests() {
   assert(postError !== null, 'POST should fail without auto-retry');
   assert.strictEqual(requestAttempts, 1, 'POST mutation must NEVER retry automatically to prevent duplicate execution');
 
+  // Test 9: ApiClient.dismissColdStart() explicitly clears active indicator
+  console.log('Test 9: ApiClient.dismissColdStart() explicitly clears indicator');
+  ApiClient.resetState();
+  toasts.length = 0;
+  global.window.showToast(MSG_STARTING, 'info', { id: 'cold-start-indicator', duration: 0 });
+  const activeIndicator = toasts.find(t => t.id === 'cold-start-indicator' && t.active);
+  assert(activeIndicator !== undefined, 'Cold-start toast should be active before dismissal');
+
+  ApiClient.dismissColdStart();
+  const dismissedIndicator = toasts.find(t => t.id === 'cold-start-indicator' && t.active);
+  assert.strictEqual(dismissedIndicator, undefined, 'Cold-start toast must be inactive after dismissColdStart()');
+
+  // Test 10: Defensive dismissal on successful request even if flag was out of sync
+  console.log('Test 10: Defensive dismissal on successful request');
+  ApiClient.resetState();
+  toasts.length = 0;
+  global.window.showToast(MSG_STARTING, 'info', { id: 'cold-start-indicator', duration: 0 });
+
+  global.fetch = async () => {
+    return {
+      ok: true,
+      status: 200,
+      json: async () => ({ status: 'queued', job_id: 'job-xyz-123' }),
+    };
+  };
+
+  await ApiClient.submitCode({ source_code: '...', language_id: 71, execution_type: 'submit', question_id: 37 });
+  const leftoverToast = toasts.find(t => t.id === 'cold-start-indicator' && t.active);
+  assert.strictEqual(leftoverToast, undefined, 'No cold-start indicator may linger after successful request');
+
   console.log('All Cold-Start Waiting Experience Tests Passed successfully!');
 }
 
