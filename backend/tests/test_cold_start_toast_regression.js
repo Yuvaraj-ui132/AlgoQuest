@@ -435,16 +435,16 @@ async function runTestSuite() {
   assert.strictEqual(retryToasts.length, 0, 'Successful retry must not leave retry prompt toasts');
   console.log('✔ PASS: Idempotent retries do not register duplicate toasts.');
 
-  // ── TEST 9: Frontend index.html consistently references current versioned bundle (?v=2.2.1)
-  console.log('\n[TEST 9] Frontend index.html references current versioned bundle (?v=2.2.1)');
+  // ── TEST 9: Frontend index.html consistently references current versioned bundle (?v=2.2.2)
+  console.log('\n[TEST 9] Frontend index.html references current versioned bundle (?v=2.2.2)');
   const indexPath = path.resolve(__dirname, '../../index.html');
   const indexContent = fs.readFileSync(indexPath, 'utf-8');
 
-  assert(indexContent.includes('js/api.js?v=2.2.1'), 'index.html must load js/api.js?v=2.2.1');
-  assert(indexContent.includes('js/compiler.js?v=2.2.1'), 'index.html must load js/compiler.js?v=2.2.1');
-  assert(indexContent.includes('js/history.js?v=2.2.1'), 'index.html must load js/history.js?v=2.2.1');
-  assert(!indexContent.includes('?v=2.2.0'), 'Old ?v=2.2.0 query strings must not remain in index.html');
-  console.log('✔ PASS: All script tags in index.html are bumped to ?v=2.2.1.');
+  assert(indexContent.includes('js/api.js?v=2.2.2'), 'index.html must load js/api.js?v=2.2.2');
+  assert(indexContent.includes('js/compiler.js?v=2.2.2'), 'index.html must load js/compiler.js?v=2.2.2');
+  assert(indexContent.includes('js/history.js?v=2.2.2'), 'index.html must load js/history.js?v=2.2.2');
+  assert(!indexContent.includes('?v=2.2.1'), 'Old ?v=2.2.1 query strings must not remain in index.html');
+  console.log('✔ PASS: All script tags in index.html are bumped to ?v=2.2.2.');
 
   // ── TEST 10: Lifetime analytics contract and pagination independence
   console.log('\n[TEST 10] Lifetime analytics endpoint and caching remain intact');
@@ -514,8 +514,71 @@ async function runTestSuite() {
   assert.strictEqual(toastsDuringPoll.length, 0, 'No cold-start toast may appear during polling');
   console.log('✔ PASS: Legitimate cold start appears during delayed initial POST, dismisses on HTTP 202, and stays silent during polling.');
 
+  // ── TEST 12: Run never shows cold-start toast even with very slow backend responses
+  console.log('\n[TEST 12] Run with slow backend responses (>3s simulated) must NEVER show cold-start toast');
+  ApiClient.resetState();
+  toasts.length = 0;
+
+  // Simulate three consecutive Run calls all resolving after 4+ seconds
+  for (let i = 0; i < 3; i++) {
+    ApiClient.resetState();
+    toasts.length = 0;
+
+    global.fetch = async (url, opts) => {
+      // Simulate slow execution (backend is busy running code, NOT waking up)
+      await new Promise(r => setTimeout(r, 50)); // fast in tests, represents slow real execution
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({ verdict: 'Accepted', status_id: 3, runtime: '0.234s', memory: '12.4 MB' }),
+      };
+    };
+
+    await ApiClient.submitCode(
+      { source_code: 'def twoSum(): pass', language_id: 71, execution_type: 'run', question_id: 1 },
+      null,
+      // This is what compiler.js now passes for Run (coldStartNotice: false)
+      { operationId: `run_op_${i}`, coldStartNotice: false }
+    );
+
+    const runColdStartToasts = toasts.filter(t => t.active && t.msg === MSG_STARTING);
+    assert.strictEqual(
+      runColdStartToasts.length, 0,
+      `Run operation ${i} must NEVER display cold-start toast (even if execution is slow)`
+    );
+  }
+  console.log('✔ PASS: Run operations never display cold-start toast regardless of response latency.');
+
+  // ── TEST 13: Genuine Run API failure shows the real error — not a misleading server-start message
+  console.log('\n[TEST 13] Genuine Run API failure surfaces real error without cold-start toast');
+  ApiClient.resetState();
+  toasts.length = 0;
+
+  global.fetch = async () => ({
+    ok: false,
+    status: 422,
+    json: async () => ({ detail: 'Unsupported language_id: 999' }),
+  });
+
+  try {
+    await ApiClient.submitCode(
+      { source_code: '...', language_id: 999, execution_type: 'run', question_id: 1 },
+      null,
+      // coldStartNotice: false — exactly what compiler.js now passes for Run
+      { operationId: 'run_fail_op', coldStartNotice: false }
+    );
+    assert.fail('Expected ApiError on 422');
+  } catch (err) {
+    assert.strictEqual(err.status, 422, 'Error status must be 422');
+    assert(err.message.includes('Unsupported language_id'), 'Error message must contain detail from backend');
+    // No cold-start toast must have appeared
+    const coldStartToasts = toasts.filter(t => t.active && t.msg === MSG_STARTING);
+    assert.strictEqual(coldStartToasts.length, 0, 'Run API failure must not show cold-start toast');
+  }
+  console.log('✔ PASS: Genuine Run failure returns correct ApiError and leaves no cold-start toast.');
+
   console.log('\n================================================================');
-  console.log(' ALL 11 REGRESSION TESTS PASSED (100% SUCCESS)');
+  console.log(' ALL 13 REGRESSION TESTS PASSED (100% SUCCESS)');
   console.log('================================================================');
 }
 

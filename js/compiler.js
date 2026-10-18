@@ -475,9 +475,12 @@ const Compiler = (() => {
       if (!window.ApiClient) throw new Error('ApiClient not loaded. Ensure js/api.js is included.');
 
       updateStatus('waiting', 'Waiting\u2026');
+      // Only arm the cold-start notice for async submit operations.
+      // Run and general executions use synchronous Judge0 polling on the backend;
+      // a slow response means the code itself is slow, NOT that the server is waking up.
       const initialResponse = await window.ApiClient.submitCode(payload, signal, {
         operationId: opId,
-        coldStartNotice: true,
+        coldStartNotice: isAsyncSubmit,
         toastId: `cold-start-${opId}`,
       });
 
